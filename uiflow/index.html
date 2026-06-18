@@ -80,6 +80,30 @@
     .faq details[open] summary::after { transform: rotate(45deg); }
     .faq .faq-body { padding: 0 24px 22px; color: var(--muted); font-size: 15px; line-height: 1.7; }
 
+    /* UI Flow vs AEUX comparison */
+    .cmp-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 14px; }
+    .cmp-col-label {
+      text-align: center; font-size: 14.5px; font-weight: 700; letter-spacing: 0.01em;
+      color: var(--muted); padding: 8px 10px; border-radius: 999px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+    }
+    .cmp-col-label.good { color: #60a5fa; border-color: rgba(37,99,235,0.4); background: rgba(37,99,235,0.08); }
+    .cmp-col-label.bad { color: #f87171; }
+    .cmp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .cmp-grid img {
+      width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;
+      border-radius: 14px; border: 1px solid var(--border); background: #0d0f13;
+    }
+    .cmp-grid img.good {
+      border-color: rgba(37,99,235,0.55);
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.35), 0 12px 30px rgba(37,99,235,0.14);
+    }
+    @media (max-width: 680px) {
+      .cmp-cols, .cmp-grid { gap: 8px; }
+      .cmp-col-label { font-size: 11px; padding: 6px 4px; }
+      .cmp-grid img { border-radius: 9px; }
+    }
+
     /* Bug report form */
     .bug-form { max-width: 640px; margin: 0 auto; }
     .bug-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -376,6 +400,49 @@
         <div class="check-item"><span class="ck">✓</span> Masks</div>
         <div class="check-item"><span class="ck">✓</span> Shadows</div>
         <div class="check-item"><span class="ck">✓</span> Blur</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6c. UI FLOW vs AEUX -->
+  <section class="section" id="compare">
+    <div class="container">
+      <div class="section-head">
+        <h2>UI Flow vs AEUX</h2>
+        <p>The same Figma frame, exported both ways. UI Flow rebuilds it faithfully — editable text, correct masks and layout. AEUX flattens and breaks it.</p>
+      </div>
+
+      <div class="cmp-cols">
+        <div class="cmp-col-label">Designed in Figma</div>
+        <div class="cmp-col-label good">Exported with UI Flow</div>
+        <div class="cmp-col-label bad">Exported with AEUX</div>
+      </div>
+
+      <div class="cmp-grid">
+        <!-- 1 -->
+        <img src="https://i.postimg.cc/148KDz1k/Figma-1.png" alt="Figma design 1" loading="lazy" />
+        <img class="good" src="https://i.postimg.cc/v4FXYwkZ/After-Effects-UI-Flow-1.png" alt="UI Flow export 1" loading="lazy" />
+        <img class="bad" src="https://i.postimg.cc/K4WJWM5x/After-effects-Aeux-1.png" alt="AEUX export 1" loading="lazy" />
+        <!-- 2 -->
+        <img src="https://i.postimg.cc/JyTbBf6z/Figma-2.png" alt="Figma design 2" loading="lazy" />
+        <img class="good" src="https://i.postimg.cc/9zDByfHg/After-Effects-UI-Flow-2.png" alt="UI Flow export 2" loading="lazy" />
+        <img class="bad" src="https://i.postimg.cc/yWDT0NCn/After-effects-Aeux-2.png" alt="AEUX export 2" loading="lazy" />
+        <!-- 3 -->
+        <img src="https://i.postimg.cc/hhN1sqSQ/Figma-3.png" alt="Figma design 3" loading="lazy" />
+        <img class="good" src="https://i.postimg.cc/yJ7PRX7X/After-Effects-UI-Flow-3.png" alt="UI Flow export 3" loading="lazy" />
+        <img class="bad" src="https://i.postimg.cc/F7JDXHP7/After-effects-Aeux-3.png" alt="AEUX export 3" loading="lazy" />
+        <!-- 4 -->
+        <img src="https://i.postimg.cc/SnfLm2c7/Figma-4.png" alt="Figma design 4" loading="lazy" />
+        <img class="good" src="https://i.postimg.cc/0MQ0WkM7/After-Effects-UI-Flow-4.png" alt="UI Flow export 4" loading="lazy" />
+        <img class="bad" src="https://i.postimg.cc/9D51mHS1/After-effects-Aeux-4.png" alt="AEUX export 4" loading="lazy" />
+        <!-- 5 -->
+        <img src="https://i.postimg.cc/XZNfqjgD/Figma-5.png" alt="Figma design 5" loading="lazy" />
+        <img class="good" src="https://i.postimg.cc/y33XKLT1/After-Effects-UI-Flow-5.png" alt="UI Flow export 5" loading="lazy" />
+        <img class="bad" src="https://i.postimg.cc/Mn2t6J4C/After-effects-Aeux-5.png" alt="AEUX export 5" loading="lazy" />
+        <!-- 6 -->
+        <img src="https://i.postimg.cc/XZNfqjgz/Figma-6.png" alt="Figma design 6" loading="lazy" />
+        <img class="good" src="https://i.postimg.cc/pymBKdMg/After-Effects-UI-Flow-6.png" alt="UI Flow export 6" loading="lazy" />
+        <img class="bad" src="https://i.postimg.cc/v4FXYwkw/After-effects-Aeux-6.png" alt="AEUX export 6" loading="lazy" />
       </div>
     </div>
   </section>
