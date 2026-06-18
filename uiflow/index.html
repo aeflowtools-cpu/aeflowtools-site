@@ -137,12 +137,17 @@
     }
     .cmp-btn {
       position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
-      width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
-      background: rgba(13,15,19,0.85); border: 1px solid var(--border); color: #fff;
+      width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: #fff;
       display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1;
-      backdrop-filter: blur(6px); transition: background 0.15s ease;
+      backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.28);
+      transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
     }
-    .cmp-btn:hover { background: var(--accent); }
+    .cmp-btn:hover {
+      background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.3);
+      transform: translateY(-50%) scale(1.07);
+    }
     .cmp-prev { left: -14px; }
     .cmp-next { right: -14px; }
     .cmp-dots { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
@@ -466,8 +471,8 @@
 
       <div class="cmp-cols">
         <div class="cmp-col-label">Designed in Figma</div>
-        <div class="cmp-col-label good">Exported with UI Flow</div>
-        <div class="cmp-col-label bad">Exported with AEUX</div>
+        <div class="cmp-col-label good">Exported with UI Flow ✅</div>
+        <div class="cmp-col-label bad">Exported with AEUX ❌</div>
       </div>
 
       <div class="cmp-carousel">
