@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download UI Flow | AE Flow Tools</title>
+  <meta name="description" content="Download UI Flow — the After Effects plugin and the Figma plugin." />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .dl-wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+    .dl-card-wrap {
+      width: 100%; max-width: 460px; border-radius: 28px; padding: 1px;
+      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 40%, rgba(37,99,235,0.4));
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+    }
+    .dl-card {
+      background: linear-gradient(180deg, rgba(20,22,28,0.92), rgba(12,13,17,0.96));
+      backdrop-filter: blur(20px); border-radius: 27px;
+      padding: 48px 40px; text-align: center;
+    }
+    .dl-logo {
+      width: 64px; height: 64px; margin: 0 auto 22px; border-radius: 18px;
+      background: linear-gradient(160deg, var(--accent-2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 800; color: #fff;
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    .dl-card h1 {
+      font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;
+      background: linear-gradient(180deg, #fff, #c4cbd6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .dl-card .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 30px; }
+    .dl-card .btn { width: 100%; justify-content: center; margin-bottom: 14px; }
+    .dl-card .btn:last-child { margin-bottom: 0; }
+    .dl-card .btn small { font-weight: 500; opacity: 0.8; }
+    .dl-back { display: inline-block; margin-top: 26px; font-size: 13.5px; color: var(--faint); }
+    .dl-back:hover { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <div class="dl-wrap">
+    <div class="dl-card-wrap">
+      <main class="dl-card">
+        <div class="dl-logo">✦</div>
+        <h1>Download UI Flow</h1>
+        <p class="sub">Get both pieces — the After Effects plugin and the Figma plugin.</p>
+
+        <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20v2.0.0.zip">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#00005B"/><text x="12" y="16.5" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#9B9BFF" text-anchor="middle">Ae</text></svg>
+          Download UI Flow v2.0.0 <span class="arrow">→</span>
+        </a>
+        <a class="btn btn-ghost" href="https://www.figma.com/community/plugin/1605150908629430996/ui-flow" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 38 57" aria-hidden="true">
+            <path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/>
+            <path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/>
+            <path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/>
+            <path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/>
+            <path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/>
+          </svg>
+          UI Flow Figma Plugin
+        </a>
+
+        <a class="dl-back" href="../uiflow/">← Back to UI Flow</a>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

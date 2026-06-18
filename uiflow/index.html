@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI Flow — Figma to After Effects, one click, fully editable | AE Flow Tools</title>
+  <meta name="description" content="UI Flow turns your Figma designs into fully editable After Effects compositions in one click — plus a built-in AE workflow toolkit. Free." />
+  <meta name="keywords" content="Figma to After Effects, import Figma into After Effects, Figma AE plugin, animate Figma designs, UI animation After Effects, editable Figma export After Effects" />
+  <link rel="stylesheet" href="../styles.css" />
+  <!-- Wistia player (hero demo) -->
+  <script src="https://fast.wistia.com/player.js" async></script>
+  <script src="https://fast.wistia.com/embed/xmrscl72hj.js" async type="module"></script>
+  <style>wistia-player[media-id='xmrscl72hj']:not(:defined) { background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/xmrscl72hj/swatch'); display: block; filter: blur(5px); padding-top:56.25%; }</style>
+  <style>
+    /* ---- UI Flow page-specific ---- */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+    .compare-card { border: 1px solid var(--border); border-radius: 18px; padding: 30px; background: var(--card); backdrop-filter: blur(10px); }
+    .compare-card.before { background: linear-gradient(180deg, rgba(239,68,68,0.06), rgba(20,22,28,0.6)); }
+    .compare-card.after  { background: linear-gradient(180deg, rgba(34,197,94,0.07), rgba(20,22,28,0.6)); }
+    .compare-card .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+    .compare-card.before .tag { color: #f87171; }
+    .compare-card.after .tag { color: #4ade80; }
+    .compare-card h4 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+    .compare-card p { color: var(--muted); font-size: 14.5px; }
+
+    .demo-frame { position: relative; border-radius: 20px; padding: 1px; background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(37,99,235,0.4)); }
+    .demo-inner {
+      border-radius: 19px; aspect-ratio: 16 / 9; overflow: hidden;
+      background: radial-gradient(circle at 50% 40%, rgba(37,99,235,0.3), transparent 60%), linear-gradient(180deg, #11131a, #0a0b0f);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; color: var(--muted);
+    }
+    .play-btn {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 12px 40px var(--accent-glow); color: #fff; font-size: 26px;
+    }
+
+    .group-label {
+      display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent-2); margin-bottom: 22px; padding: 6px 14px; border: 1px solid var(--border);
+      border-radius: 999px; background: rgba(255,255,255,0.03);
+    }
+
+    .check-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .check-item { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; background: var(--card); font-size: 15px; font-weight: 500; }
+    .check-item .ck { width: 24px; height: 24px; flex-shrink: 0; border-radius: 7px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); display: flex; align-items: center; justify-content: center; color: #4ade80; font-size: 13px; }
+
+    .info-box { border: 1px solid var(--border); border-radius: 18px; padding: 30px; background: var(--card); backdrop-filter: blur(10px); }
+    .info-box h4 { font-size: 18px; margin-bottom: 14px; }
+    .info-box ol, .info-box ul { margin: 0 0 0 18px; color: var(--muted); font-size: 15px; }
+    .info-box li { margin-bottom: 9px; }
+    .note-line { margin-top: 18px; padding: 14px 16px; border-radius: 12px; font-size: 13.5px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #cbd5e1; }
+
+    /* Toolkit cards (numbered power tools) */
+    .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 26px; backdrop-filter: blur(10px); position: relative; }
+    .tool-card .tnum {
+      width: 38px; height: 38px; border-radius: 11px; margin-bottom: 16px;
+      background: linear-gradient(160deg, rgba(37,99,235,0.3), rgba(37,99,235,0.06));
+      border: 1px solid rgba(59,130,246,0.35);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: var(--accent-2);
+    }
+    .tool-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .tool-card p { color: var(--muted); font-size: 14px; }
+    .tool-card .mod { display: inline-block; margin-top: 10px; font-size: 12.5px; color: var(--faint); }
+
+    .price-card { max-width: 460px; margin: 0 auto; text-align: center; border-radius: 24px; padding: 1px; background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(37,99,235,0.4)); }
+    .price-inner { background: linear-gradient(180deg, rgba(18,20,26,0.94), rgba(11,12,16,0.96)); border-radius: 23px; padding: 44px 36px; }
+    .price-big { font-size: 64px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; background: linear-gradient(180deg, #fff, #aab2bf); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .price-sub { color: var(--muted); margin: 10px 0 26px; }
+
+    .faq { max-width: 760px; margin: 0 auto; }
+    .faq details { border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; background: var(--card); overflow: hidden; }
+    .faq summary { list-style: none; cursor: pointer; padding: 20px 24px; font-weight: 600; font-size: 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: "+"; font-size: 22px; color: var(--accent-2); transition: transform 0.2s ease; }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+    .faq .faq-body { padding: 0 24px 22px; color: var(--muted); font-size: 15px; line-height: 1.7; }
+
+    /* Bug report form */
+    .bug-form { max-width: 640px; margin: 0 auto; }
+    .bug-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .bug-form .field { margin-bottom: 16px; text-align: left; }
+    .bug-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
+    .bug-form label span { color: #f87171; }
+    .bug-form label .opt { color: var(--faint); font-weight: 500; }
+    .bug-form input, .bug-form select, .bug-form textarea {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 15px; outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .bug-form input:focus, .bug-form select:focus, .bug-form textarea:focus {
+      border-color: var(--accent-2); background: rgba(37,99,235,0.06);
+    }
+    .bug-form textarea { resize: vertical; min-height: 120px; }
+    .bug-form .btn { margin-top: 6px; }
+    .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; }
+    .form-status.ok { color: #4ade80; }
+    .form-status.err { color: #f87171; }
+    .hp-field { position: absolute; left: -9999px; }
+    @media (max-width: 560px) { .bug-form .form-row { grid-template-columns: 1fr; } }
+
+    @media (max-width: 820px) {
+      .two-col { grid-template-columns: 1fr; }
+      .check-grid { grid-template-columns: 1fr 1fr; }
+      .tool-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) { .check-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../">
+        <img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" />
+        AE Flow Tools
+      </a>
+      <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+      <div class="nav-links" id="navlinks">
+        <a href="../">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
+          <div class="dropdown-menu">
+            <a href="../uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 1. HERO -->
+  <header class="hero">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> Figma → After Effects</span>
+      <h1 class="display">Figma to After Effects.<br />One click. Fully editable.</h1>
+      <p class="lead">
+        Motion designers waste hours recreating Figma screens in After Effects before they can animate them.
+        UI Flow bridges the two: select a frame, hit <strong>Send to Ae</strong>, and it rebuilds as native,
+        layered, vector-editable comps — ready to animate immediately.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="tools">Download Free <span class="arrow">→</span></a>
+        <a class="btn btn-ghost" href="#demo">Watch the demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero demo visual -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div class="demo-frame">
+        <wistia-player media-id="xmrscl72hj" aspect="1.7777777777777777" style="display:block; border-radius:19px; overflow:hidden;"></wistia-player>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. PROBLEM → SOLUTION -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Stop rebuilding screens by hand</h2>
+        <p>Importing Figma as PNG or SVG gives you flat, uneditable junk. UI Flow gives you real layers.</p>
+      </div>
+      <div class="two-col">
+        <div class="compare-card before">
+          <div class="tag">✕ Before</div>
+          <h4>Hours of manual rebuilding</h4>
+          <p>Flat PNG/SVG imports. Strokes, gradients, corner radii, and masks break or vanish. You recreate every layout by hand before you can even start animating.</p>
+        </div>
+        <div class="compare-card after">
+          <div class="tag">✓ After</div>
+          <h4>One click, fully layered</h4>
+          <p>Select your frame, click Send to Ae, and your design appears as native AE shape, text, and image layers — pixel-accurate and ready to animate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DEMO VIDEO -->
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="section-head">
+        <h2>See it in action</h2>
+        <p>Select in Figma → Send to Ae → watch the layers panel fill with real shape &amp; text layers, then animate.</p>
+      </div>
+      <div class="demo-frame">
+        <div class="demo-inner">
+          <div class="play-btn">▶</div>
+          <span>30–60s screen recording: Figma → Ae → animate</span>
+          <!-- TODO: embed your main demo video here -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. FEATURES — IN FIGMA -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="group-label">In Figma</span>
+        <h2>Built into your design tool</h2>
+        <p>Prep and send your work without leaving Figma.</p>
+      </div>
+      <div class="feature-grid center">
+        <div class="feature">
+          <div class="ficon">🚀</div>
+          <h4>Send to Ae</h4>
+          <p>Exports the selected frame or layers straight to After Effects.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🧼</div>
+          <h4>Prep for AE</h4>
+          <p>Cleans a frame for export — removes Auto Layout, detaches components &amp; styles, deletes hidden layers.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🪞</div>
+          <h4>Send with reference</h4>
+          <p>Adds a 50%-opacity reference guide layer to trace over while animating.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🖼️</div>
+          <h4>Send only reference</h4>
+          <p>Sends just a guide image — no layer data — when that's all you need.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🧱</div>
+          <h4>Rasterize layer</h4>
+          <p>Flag any layer to export as a flat PNG when you want it baked.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4b. FEATURES — IN AFTER EFFECTS -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div class="section-head">
+        <span class="group-label">In After Effects</span>
+        <h2>Rebuilt faithfully, layer by layer</h2>
+        <p>The importer is smart, not dumb — it reconstructs your design instead of flattening it.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="ficon">🔷</div>
+          <h4>Vector shapes</h4>
+          <p>Rectangles, ellipses, and custom paths become editable shape layers.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🔤</div>
+          <h4>Editable text</h4>
+          <p>Text stays as live, editable text layers — not images.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🌈</div>
+          <h4>Gradients</h4>
+          <p>Linear &amp; radial gradients with correct opacity, intact.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">✏️</div>
+          <h4>Per-side strokes</h4>
+          <p>Top/bottom/left/right strokes auto-outlined into shapes (AE can't do partial strokes natively), plus inside/outside alignment.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">⬜</div>
+          <h4>Corner radius &amp; arcs</h4>
+          <p>Mixed, independent corners and arcs outlined to clean vector.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">✨</div>
+          <h4>Effects</h4>
+          <p>Drop shadows, inner shadows, and gaussian / motion / radial blur rebuilt as real AE effects — plus masks, blend modes &amp; opacity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4c. AE WORKFLOW TOOLKIT -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="group-label">UI Flow Tools panel</span>
+        <h2>More than import — a workflow toolkit</h2>
+        <p>UI Flow ships a separate <strong>“UI Flow Tools”</strong> utility panel — the repetitive After Effects chores, one click each.</p>
+      </div>
+      <div class="tool-grid">
+        <div class="tool-card">
+          <div class="tnum">1</div>
+          <h4>Enable / Disable 3D</h4>
+          <p>Toggles 3D on the selected layer and every nested layer inside precomps — the whole tree at once.</p>
+          <span class="mod">Shift+click to disable</span>
+        </div>
+        <div class="tool-card">
+          <div class="tnum">2</div>
+          <h4>Collapse Transformations</h4>
+          <p>Turns on continuous rasterization / collapse transforms recursively, keeping vectors crisp when scaling.</p>
+          <span class="mod">Shift+click to uncollapse</span>
+        </div>
+        <div class="tool-card">
+          <div class="tnum">3</div>
+          <h4>Smart Precomp</h4>
+          <p>Precomps your selected layers in one step — great for prepping lots of elements to animate.</p>
+          <span class="mod">Shift+click = one precomp per layer</span>
+        </div>
+        <div class="tool-card">
+          <div class="tnum">4</div>
+          <h4>Expand Precomp</h4>
+          <p>The reverse — explodes a precomp back into its individual layers. AE has no native un-precomp.</p>
+        </div>
+        <div class="tool-card">
+          <div class="tnum">5</div>
+          <h4>Crop Precomp to Content</h4>
+          <p>Resizes a precomp's canvas to tightly fit its content — exact bounds via real world-matrix math, no wasted space.</p>
+        </div>
+        <div class="tool-card">
+          <div class="tnum">6</div>
+          <h4>Null Creator</h4>
+          <p>Creates a null at the layer's anchor point for parenting &amp; rigging.</p>
+          <span class="mod">Shift = null per layer · Alt = classic AE null</span>
+        </div>
+      </div>
+      <div class="note-line" style="max-width:680px; margin:26px auto 0; text-align:center;">
+        The panel is fully undockable — pop it out as its own floating window — and has a one-click reset.
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. HOW IT WORKS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <p>From a finished Figma design to editable AE layers in three steps.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="ficon">1</div>
+          <h4>Install</h4>
+          <p>Add the Figma plugin and the After Effects extension (ZXP).</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">2</div>
+          <h4>Send to Ae</h4>
+          <p>Open both, select your frame in Figma, and click Send to Ae.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">3</div>
+          <h4>Animate</h4>
+          <p>Your design appears as editable layers in AE — start animating.</p>
+        </div>
+      </div>
+      <div class="note-line" style="max-width:680px; margin:26px auto 0; text-align:center;">
+        ⚠️ Keep both plugins open during a send, and install the matching fonts in After Effects so text renders correctly.
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. WHAT GETS PRESERVED -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>“But will it actually look right?”</h2>
+        <p>Yes. Here's what comes across intact, every time.</p>
+      </div>
+      <div class="check-grid">
+        <div class="check-item"><span class="ck">✓</span> Shapes</div>
+        <div class="check-item"><span class="ck">✓</span> Text</div>
+        <div class="check-item"><span class="ck">✓</span> Gradients</div>
+        <div class="check-item"><span class="ck">✓</span> Strokes</div>
+        <div class="check-item"><span class="ck">✓</span> Corner radius</div>
+        <div class="check-item"><span class="ck">✓</span> Masks</div>
+        <div class="check-item"><span class="ck">✓</span> Shadows</div>
+        <div class="check-item"><span class="ck">✓</span> Blur</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. COMPATIBILITY & INSTALL -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Compatibility &amp; install</h2>
+        <p>Works with After Effects CC 2019 (16.x) through AE 2026 and newer — Windows &amp; macOS.</p>
+      </div>
+      <div class="two-col">
+        <div class="info-box">
+          <h4>Install steps</h4>
+          <ol>
+            <li>Install the <strong>After Effects extension</strong> using a ZXP installer.</li>
+            <li>Install the <strong>UI Flow Figma plugin</strong> from the Figma community / plugin link.</li>
+            <li>Open After Effects and run the UI Flow panel.</li>
+            <li>In Figma, select a frame and click <strong>Send to Ae</strong>.</li>
+          </ol>
+          <div class="note-line">Tip: install the same fonts in AE that your Figma design uses, so text renders correctly.</div>
+        </div>
+        <div class="info-box">
+          <h4>Troubleshooting</h4>
+          <ul>
+            <li>The After Effects plugin must be <strong>running</strong> when you send.</li>
+            <li>Allow scripts to <strong>write files</strong> in AE preferences (Scripting &amp; Expressions).</li>
+            <li>Auto Layout frames? Run <strong>Prep for AE</strong> in Figma first.</li>
+            <li>Missing fonts in AE will show fallback text — install the fonts and re-send.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. PRICING -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Pricing</h2>
+        <p>UI Flow is completely free — no license, no limits.</p>
+      </div>
+      <div class="price-card">
+        <div class="price-inner">
+          <div class="price-big">Free</div>
+          <div class="price-sub">No license · No limits · Just download and use it.</div>
+          <a class="btn btn-primary" href="tools" style="width:100%; justify-content:center; margin-bottom:14px;">Download UI Flow <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="coffee" style="width:100%; justify-content:center;">☕ Buy me a coffee</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. FAQ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Frequently asked questions</h2>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>Which After Effects versions are supported?</summary>
+          <div class="faq-body">UI Flow works with After Effects CC 2019 (16.x) all the way through AE 2026 and newer, on both Windows and macOS.</div>
+        </details>
+        <details>
+          <summary>Does text stay editable?</summary>
+          <div class="faq-body">Yes. Text comes across as live, editable text layers in After Effects — not flattened images — so you can restyle and animate it freely.</div>
+        </details>
+        <details>
+          <summary>Why do I need to install fonts in After Effects?</summary>
+          <div class="faq-body">After Effects renders text using fonts installed on your system. If a font from your Figma design isn't installed in AE, text falls back to a default. Install the matching fonts and your text renders exactly as designed.</div>
+        </details>
+        <details>
+          <summary>Does it work on both Mac and Windows?</summary>
+          <div class="faq-body">Yes — UI Flow runs on both macOS and Windows.</div>
+        </details>
+        <details>
+          <summary>Is it really free?</summary>
+          <div class="faq-body">Completely free. No license and no limits. If it saves you time, you're welcome to <a href="coffee" style="color:var(--accent-2)">buy me a coffee</a> — but it's optional.</div>
+        </details>
+        <details>
+          <summary>Does it work with Auto Layout?</summary>
+          <div class="faq-body">Run <strong>Prep for AE</strong> on your frame first. It removes Auto Layout, detaches components and styles, and cleans hidden layers so the export comes across cleanly.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9b. REPORT A BUG -->
+  <section class="section" id="report-bug">
+    <div class="container">
+      <div class="section-head">
+        <h2>Found a bug?</h2>
+        <p>Tell me what happened and I'll fix it. The more detail, the better.</p>
+      </div>
+      <form class="bug-form" action="https://api.web3forms.com/submit" method="POST" onsubmit="return submitBugForm(this, event)">
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY" />
+        <input type="hidden" name="subject" value="New UI Flow bug report" />
+        <input type="hidden" name="from_name" value="UI Flow Website" />
+        <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" />
+
+        <div class="form-row">
+          <div class="field">
+            <label for="bf-email">Your email <span>*</span></label>
+            <input id="bf-email" type="email" name="email" required placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label for="bf-os">Operating system</label>
+            <select id="bf-os" name="os">
+              <option value="">Select…</option>
+              <option>Windows</option>
+              <option>macOS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="bf-version">After Effects version</label>
+          <input id="bf-version" type="text" name="ae_version" placeholder="e.g. AE 2024 (24.x)" />
+        </div>
+
+        <div class="field">
+          <label for="bf-desc">What went wrong? <span>*</span></label>
+          <textarea id="bf-desc" name="description" rows="5" required placeholder="Steps to reproduce, what you expected, and what actually happened…"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="bf-video">Screen recording link <span class="opt">(optional)</span></label>
+          <input id="bf-video" type="url" name="video_link" placeholder="Paste a Loom / YouTube / Drive link" />
+        </div>
+
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Submit bug report <span class="arrow">→</span></button>
+        <p class="form-status" id="bugStatus" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- 10. FINAL CTA -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <h2>Download UI Flow free</h2>
+        <p>Skip the rebuild. Bring your Figma screens into After Effects as editable layers and start animating.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="tools">Download Free <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="coffee">☕ Support the project</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="../"><img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
+        <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="tools">Download</a>
+        <a href="bugs">Report a bug</a>
+        <a href="coffee">Support</a>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/uiflow.ae" target="_blank" rel="noopener" aria-label="Instagram" title="@uiflow.ae">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="mailto:contact@aeflowtools.com" aria-label="Email" title="contact@aeflowtools.com">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // close the Plugins dropdown when clicking outside it
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('.dropdown').forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove('open');
+      });
+    });
+
+    // Submit the bug-report form to Netlify Forms without leaving the page
+    function submitBugForm(form, e) {
+      e.preventDefault();
+      var status = document.getElementById('bugStatus');
+      status.className = 'form-status';
+      status.textContent = 'Sending…';
+      fetch(form.action, { method: 'POST', body: new FormData(form) })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.success) throw new Error(data.message || 'failed');
+          form.reset();
+          status.className = 'form-status ok';
+          status.textContent = '✓ Thank you! Your report was submitted successfully. I will try to fix this issue in our next update — a new update is coming soon.';
+        }).catch(function () {
+          status.className = 'form-status err';
+          status.textContent = 'Something went wrong — please email contact@aeflowtools.com instead.';
+        });
+      return false;
+    }
+  </script>
+</body>
+</html>
