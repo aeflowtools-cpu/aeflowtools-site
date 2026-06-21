@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave a Review — UI Flow | AE Flow Tools</title>
+  <meta name="description" content="Loved UI Flow? Leave a review and tell others how it helped your motion design workflow." />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .bug-form { max-width: 640px; margin: 0 auto; }
+    .bug-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .bug-form .field { margin-bottom: 16px; text-align: left; }
+    .bug-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
+    .bug-form label span { color: #f87171; }
+    .bug-form label .opt { color: var(--faint); font-weight: 500; }
+    .bug-form input, .bug-form select, .bug-form textarea {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 15px; outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .bug-form input:focus, .bug-form select:focus, .bug-form textarea:focus {
+      border-color: var(--accent-2); background: rgba(37,99,235,0.06);
+    }
+    .bug-form textarea { resize: vertical; min-height: 120px; }
+    .bug-form .btn { margin-top: 6px; }
+    .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; line-height: 1.5; }
+    .form-status.ok { color: #4ade80; }
+    .form-status.err { color: #f87171; }
+    .hp-field { position: absolute; left: -9999px; }
+    /* Star rating */
+    .stars { display: inline-flex; flex-direction: row-reverse; justify-content: flex-start; gap: 6px; }
+    .stars input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .stars label { font-size: 30px; line-height: 1; color: #3a3f4a; cursor: pointer; transition: color 0.15s ease, transform 0.1s ease; }
+    .stars label::before { content: "\2605"; }
+    .stars input:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label { color: #fbbf24; }
+    .stars label:hover { transform: scale(1.12); }
+    @media (max-width: 560px) { .bug-form .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../">
+        <img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" />
+        AE Flow Tools
+      </a>
+      <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+      <div class="nav-links" id="navlinks">
+        <a href="../">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
+          <div class="dropdown-menu">
+            <a href="../uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <header class="hero" style="padding-bottom:40px;">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> UI Flow Reviews</span>
+      <h1 class="display">Leave a Review</h1>
+      <p class="lead">Loved using UI Flow? Share your experience — it helps other motion designers discover it. 💙</p>
+    </div>
+  </header>
+
+  <!-- FORM -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <form class="bug-form review-form" action="https://api.web3forms.com/submit" method="POST" onsubmit="return submitReviewForm(this, event)">
+        <input type="hidden" name="access_key" value="92d6ad52-3314-446b-9f97-9abd2bc49e7b" />
+        <input type="hidden" name="subject" value="New UI Flow Review" />
+        <input type="hidden" name="from_name" value="UI Flow Website" />
+        <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" />
+
+        <div class="field">
+          <label>Your rating <span>*</span></label>
+          <div class="stars">
+            <input type="radio" id="r5" name="rating" value="★★★★★ (5/5)" required /><label for="r5" title="5 stars"></label>
+            <input type="radio" id="r4" name="rating" value="★★★★ (4/5)" /><label for="r4" title="4 stars"></label>
+            <input type="radio" id="r3" name="rating" value="★★★ (3/5)" /><label for="r3" title="3 stars"></label>
+            <input type="radio" id="r2" name="rating" value="★★ (2/5)" /><label for="r2" title="2 stars"></label>
+            <input type="radio" id="r1" name="rating" value="★ (1/5)" /><label for="r1" title="1 star"></label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="rv-name">Your name <span>*</span></label>
+            <input id="rv-name" type="text" name="name" required placeholder="Your name" />
+          </div>
+          <div class="field">
+            <label for="rv-role">Role <span class="opt">(optional)</span></label>
+            <input id="rv-role" type="text" name="role" placeholder="e.g. Motion Designer" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="rv-platform">Social platform <span>*</span></label>
+            <select id="rv-platform" name="social_platform" required>
+              <option value="">Select…</option>
+              <option>Facebook</option>
+              <option>Instagram</option>
+              <option>LinkedIn</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="rv-handle">Your profile / handle <span>*</span></label>
+            <input id="rv-handle" type="text" name="social_handle" required placeholder="@username or profile link" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="rv-text">Your review <span>*</span></label>
+          <textarea id="rv-text" name="review" rows="6" required placeholder="What do you love about UI Flow? How did it help your workflow?"></textarea>
+        </div>
+
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Submit review <span class="arrow">→</span></button>
+        <p class="form-status" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="../"><img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
+        <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="../uiflow/">UI Flow</a>
+        <a href="tools">Download</a>
+        <a href="bugs">Report a bug</a>
+        <a href="coffee">Support</a>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/uiflow.ae" target="_blank" rel="noopener" aria-label="Instagram" title="@uiflow.ae">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="mailto:contact@aeflowtools.com" aria-label="Email" title="contact@aeflowtools.com">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // close the Plugins dropdown when clicking outside it
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('.dropdown').forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove('open');
+      });
+    });
+
+    // Submit the review to Web3Forms without leaving the page
+    function submitReviewForm(form, e) {
+      e.preventDefault();
+      var status = form.querySelector('.form-status');
+      status.className = 'form-status';
+      status.textContent = 'Sending…';
+      fetch(form.action, { method: 'POST', body: new FormData(form) })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.success) throw new Error(data.message || 'failed');
+          form.reset();
+          status.className = 'form-status ok';
+          status.textContent = '✓ Thank you for your review! It means a lot. 💙';
+        }).catch(function () {
+          status.className = 'form-status err';
+          status.textContent = 'Something went wrong — please email contact@aeflowtools.com instead.';
+        });
+      return false;
+    }
+  </script>
+</body>
+</html>

@@ -183,6 +183,16 @@
     .form-status.ok { color: #4ade80; }
     .form-status.err { color: #f87171; }
     .hp-field { position: absolute; left: -9999px; }
+
+    /* Star rating */
+    .stars { display: inline-flex; flex-direction: row-reverse; justify-content: flex-start; gap: 6px; }
+    .stars input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .stars label { font-size: 30px; line-height: 1; color: #3a3f4a; cursor: pointer; transition: color 0.15s ease, transform 0.1s ease; }
+    .stars label::before { content: "\2605"; }
+    .stars input:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label { color: #fbbf24; }
+    .stars label:hover { transform: scale(1.12); }
     @media (max-width: 560px) { .bug-form .form-row { grid-template-columns: 1fr; } }
 
     @media (max-width: 820px) {
@@ -614,6 +624,68 @@
     </div>
   </section>
 
+  <!-- 9a. LEAVE A REVIEW -->
+  <section class="section" id="review">
+    <div class="container">
+      <div class="section-head">
+        <h2>Loved using UI Flow?</h2>
+        <p>Leave a review and tell others how it helped your workflow. It really makes my day. 💙</p>
+      </div>
+      <form class="bug-form review-form" action="https://api.web3forms.com/submit" method="POST" onsubmit="return submitReviewForm(this, event)">
+        <input type="hidden" name="access_key" value="92d6ad52-3314-446b-9f97-9abd2bc49e7b" />
+        <input type="hidden" name="subject" value="New UI Flow Review" />
+        <input type="hidden" name="from_name" value="UI Flow Website" />
+        <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" />
+
+        <div class="field">
+          <label>Your rating <span>*</span></label>
+          <div class="stars">
+            <input type="radio" id="r5" name="rating" value="★★★★★ (5/5)" required /><label for="r5" title="5 stars"></label>
+            <input type="radio" id="r4" name="rating" value="★★★★ (4/5)" /><label for="r4" title="4 stars"></label>
+            <input type="radio" id="r3" name="rating" value="★★★ (3/5)" /><label for="r3" title="3 stars"></label>
+            <input type="radio" id="r2" name="rating" value="★★ (2/5)" /><label for="r2" title="2 stars"></label>
+            <input type="radio" id="r1" name="rating" value="★ (1/5)" /><label for="r1" title="1 star"></label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="rv-name">Your name <span>*</span></label>
+            <input id="rv-name" type="text" name="name" required placeholder="Your name" />
+          </div>
+          <div class="field">
+            <label for="rv-role">Role <span class="opt">(optional)</span></label>
+            <input id="rv-role" type="text" name="role" placeholder="e.g. Motion Designer" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="rv-platform">Social platform <span>*</span></label>
+            <select id="rv-platform" name="social_platform" required>
+              <option value="">Select…</option>
+              <option>Facebook</option>
+              <option>Instagram</option>
+              <option>LinkedIn</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="rv-handle">Your profile / handle <span>*</span></label>
+            <input id="rv-handle" type="text" name="social_handle" required placeholder="@username or profile link" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="rv-text">Your review <span>*</span></label>
+          <textarea id="rv-text" name="review" rows="5" required placeholder="What do you love about UI Flow? How did it help your workflow?"></textarea>
+        </div>
+
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Submit review <span class="arrow">→</span></button>
+        <p class="form-status" role="status"></p>
+      </form>
+    </div>
+  </section>
+
   <!-- 9b. REPORT A BUG -->
   <section class="section" id="report-bug">
     <div class="container">
@@ -686,6 +758,7 @@
       </div>
       <div class="footer-links">
         <a href="/uiflow/tools">Download</a>
+        <a href="/uiflow/review">Reviews</a>
         <a href="/uiflow/bugs">Report a bug</a>
         <a href="/uiflow/coffee">Support</a>
       </div>
@@ -718,6 +791,25 @@
     });
 
     // Submit the bug-report form to Netlify Forms without leaving the page
+    function submitReviewForm(form, e) {
+      e.preventDefault();
+      var status = form.querySelector('.form-status');
+      status.className = 'form-status';
+      status.textContent = 'Sending…';
+      fetch(form.action, { method: 'POST', body: new FormData(form) })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.success) throw new Error(data.message || 'failed');
+          form.reset();
+          status.className = 'form-status ok';
+          status.textContent = '✓ Thank you for your review! It means a lot. 💙';
+        }).catch(function () {
+          status.className = 'form-status err';
+          status.textContent = 'Something went wrong — please email contact@aeflowtools.com instead.';
+        });
+      return false;
+    }
+
     function submitBugForm(form, e) {
       e.preventDefault();
       var status = document.getElementById('bugStatus');
