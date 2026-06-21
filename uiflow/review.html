@@ -13,6 +13,7 @@
     .bug-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
     .bug-form label span { color: #f87171; }
     .bug-form label .opt { color: var(--faint); font-weight: 500; }
+    .bug-form .field-hint { margin-top: 7px; font-size: 12.5px; color: var(--faint); }
     .bug-form input, .bug-form select, .bug-form textarea {
       width: 100%; padding: 12px 14px; border-radius: 12px;
       background: rgba(255,255,255,0.03); border: 1px solid var(--border);
@@ -105,20 +106,10 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="field">
-            <label for="rv-platform">Social platform <span>*</span></label>
-            <select id="rv-platform" name="social_platform" required>
-              <option value="">Select…</option>
-              <option>Facebook</option>
-              <option>Instagram</option>
-              <option>LinkedIn</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="rv-handle">Your profile / handle <span>*</span></label>
-            <input id="rv-handle" type="text" name="social_handle" required placeholder="@username or profile link" />
-          </div>
+        <div class="field">
+          <label for="rv-social">Your social profile link <span>*</span></label>
+          <input id="rv-social" type="text" name="social_profile" required placeholder="https://instagram.com/yourusername" />
+          <p class="field-hint">Paste your Facebook, Instagram, or LinkedIn profile link.</p>
         </div>
 
         <div class="field">
@@ -168,6 +159,13 @@
     function submitReviewForm(form, e) {
       e.preventDefault();
       var status = form.querySelector('.form-status');
+      var social = (form.elements['social_profile'].value || '').trim();
+      if (!/^(https?:\/\/)?([a-z0-9-]+\.)?(facebook\.com|fb\.com|fb\.me|instagram\.com|instagr\.am|linkedin\.com)\/[^\s]{2,}$/i.test(social)) {
+        status.className = 'form-status err';
+        status.textContent = 'Please enter a valid Facebook, Instagram, or LinkedIn profile link.';
+        form.elements['social_profile'].focus();
+        return false;
+      }
       status.className = 'form-status';
       status.textContent = 'Sending…';
       fetch(form.action, { method: 'POST', body: new FormData(form) })
