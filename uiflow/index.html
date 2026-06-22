@@ -171,6 +171,34 @@
     .bug-form .field-hint { margin-top: 7px; font-size: 12.5px; color: var(--faint); }
     /* Support buttons hidden by default; revealed only for Bangladesh visitors via JS */
     .bd-only { display: none; }
+
+    /* Two-tier pricing */
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 820px; margin: 0 auto; align-items: stretch; }
+    .price-card2 { position: relative; border-radius: 22px; padding: 1px;
+      background: linear-gradient(140deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02)); }
+    .price-card2.featured { background: linear-gradient(140deg, rgba(59,130,246,0.65), rgba(37,99,235,0.28));
+      box-shadow: 0 24px 60px rgba(37,99,235,0.2); }
+    .pc-inner {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+      border-radius: 21px; padding: 34px 30px; height: 100%; display: flex; flex-direction: column; text-align: left;
+    }
+    .pc-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 2;
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #fff;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent)); padding: 5px 14px; border-radius: 999px;
+      box-shadow: 0 6px 16px var(--accent-glow); white-space: nowrap; }
+    .pc-name { font-size: 18px; font-weight: 700; color: var(--muted); margin-bottom: 12px; }
+    .pc-price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+    .pc-price .amt { font-size: 46px; font-weight: 900; letter-spacing: -0.03em; }
+    .pc-price .was { font-size: 22px; font-weight: 700; color: var(--faint); text-decoration: line-through; }
+    .pc-tag { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+    .pc-feats { list-style: none; display: grid; gap: 12px; margin: 0 0 26px; }
+    .pc-feats li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--text); }
+    .pc-feats .ck { width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; background: rgba(34,197,94,0.15);
+      border: 1px solid rgba(34,197,94,0.4); display: flex; align-items: center; justify-content: center; color: #4ade80; font-size: 12px; }
+    .pc-inner .btn { margin-top: auto; }
+    @media (max-width: 720px) { .price-grid { grid-template-columns: 1fr; } }
     .bug-form input, .bug-form select, .bug-form textarea {
       width: 100%; padding: 12px 14px; border-radius: 12px;
       background: rgba(255,255,255,0.03); border: 1px solid var(--border);
@@ -579,14 +607,39 @@
     <div class="container">
       <div class="section-head">
         <h2>Pricing</h2>
-        <p>UI Flow is completely free — no license, no limits.</p>
+        <p>Start free with 10 exports a day — or unlock unlimited with a one-time lifetime license.</p>
       </div>
-      <div class="price-card">
-        <div class="price-inner">
-          <div class="price-big">Free</div>
-          <div class="price-sub">No license · No limits · Just download and use it.</div>
-          <a class="btn btn-primary" href="/uiflow/tools" style="width:100%; justify-content:center; margin-bottom:14px;">Download UI Flow <span class="arrow">→</span></a>
-          <a class="btn btn-ghost bd-only" href="/uiflow/coffee" style="width:100%; justify-content:center;">☕ Buy me a coffee</a>
+      <div class="price-grid">
+        <!-- Free -->
+        <div class="price-card2">
+          <div class="pc-inner">
+            <div class="pc-name">Free</div>
+            <div class="pc-price"><span class="amt">$0</span></div>
+            <div class="pc-tag">Get started at no cost</div>
+            <ul class="pc-feats">
+              <li><span class="ck">✓</span> 10 exports per day</li>
+              <li><span class="ck">✓</span> All core export features</li>
+              <li><span class="ck">✓</span> Windows &amp; macOS</li>
+              <li><span class="ck">✓</span> Free forever</li>
+            </ul>
+            <a class="btn btn-ghost" href="/uiflow/tools" style="width:100%; justify-content:center;">Download Free</a>
+          </div>
+        </div>
+        <!-- Premium -->
+        <div class="price-card2 featured">
+          <span class="pc-badge">Lifetime · 50% OFF</span>
+          <div class="pc-inner">
+            <div class="pc-name">Premium</div>
+            <div class="pc-price"><span class="was">$50</span> <span class="amt">$25</span></div>
+            <div class="pc-tag">One-time payment · Lifetime license</div>
+            <ul class="pc-feats">
+              <li><span class="ck">✓</span> Unlimited exports</li>
+              <li><span class="ck">✓</span> No daily limits</li>
+              <li><span class="ck">✓</span> Lifetime updates</li>
+              <li><span class="ck">✓</span> One-time payment — no subscription</li>
+            </ul>
+            <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/uiflowkey" style="width:100%; justify-content:center;">Get License <span class="arrow">→</span></a>
+          </div>
         </div>
       </div>
     </div>
