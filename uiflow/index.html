@@ -584,7 +584,7 @@
           <div class="price-big">Free</div>
           <div class="price-sub">No license · No limits · Just download and use it.</div>
           <a class="btn btn-primary" href="/uiflow/tools" style="width:100%; justify-content:center; margin-bottom:14px;">Download UI Flow <span class="arrow">→</span></a>
-          <a class="btn btn-ghost" href="/uiflow/coffee" style="width:100%; justify-content:center;">☕ Buy me a coffee</a>
+          <a class="btn btn-ghost bd-only" href="/uiflow/coffee" style="width:100%; justify-content:center;">☕ Buy me a coffee</a>
         </div>
       </div>
     </div>
@@ -734,7 +734,7 @@
         <p>Skip the rebuild. Bring your Figma screens into After Effects as editable layers and start animating.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/uiflow/tools">Download Free <span class="arrow">→</span></a>
-          <a class="btn btn-ghost" href="/uiflow/coffee">☕ Support the project</a>
+          <a class="btn btn-ghost bd-only" href="/uiflow/coffee">☕ Support the project</a>
         </div>
       </div>
     </div>
@@ -751,7 +751,7 @@
         <a href="/uiflow/tools">Download</a>
         <a href="/uiflow/review">Reviews</a>
         <a href="/uiflow/bugs">Report a bug</a>
-        <a href="/uiflow/coffee">Support</a>
+        <a href="/uiflow/coffee" class="bd-only">Support</a>
       </div>
       <div class="socials">
         <a href="https://instagram.com/uiflow.ae" target="_blank" rel="noopener" aria-label="Instagram" title="@uiflow.ae">
@@ -780,6 +780,17 @@
         if (!d.contains(e.target)) d.classList.remove('open');
       });
     });
+
+    // Hide Support (donation) buttons for visitors outside Bangladesh.
+    // Fail-safe: if detection fails, Support stays visible.
+    fetch('https://ipwho.is/')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.country_code && d.country_code !== 'BD') {
+          document.querySelectorAll('.bd-only').forEach(function (el) { el.style.display = 'none'; });
+        }
+      })
+      .catch(function () {});
 
     // Submit the bug-report form to Netlify Forms without leaving the page
     function submitReviewForm(form, e) {
