@@ -607,9 +607,10 @@
     <div class="container">
       <div class="section-head">
         <h2>Pricing</h2>
-        <p>Start free with 10 exports a day — or unlock unlimited with a one-time lifetime license.</p>
+        <p class="intl-only">Start free with 10 exports a day — or unlock unlimited with a one-time lifetime license.</p>
+        <p class="bd-only">Free &amp; unlimited for everyone in Bangladesh. 🇧🇩</p>
       </div>
-      <div class="price-grid">
+      <div class="price-grid intl-only">
         <!-- Free -->
         <div class="price-card2">
           <div class="pc-inner">
@@ -639,6 +640,24 @@
               <li><span class="ck">✓</span> One-time payment — no subscription</li>
             </ul>
             <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/uiflowkey" style="width:100%; justify-content:center;">Get License <span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bangladesh: free & unlimited -->
+      <div class="bd-only">
+        <div class="price-card2" style="max-width:460px; margin:0 auto;">
+          <div class="pc-inner" style="text-align:center;">
+            <div class="pc-name" style="color:#4ade80;">Free for Bangladesh 🇧🇩</div>
+            <div class="pc-price" style="justify-content:center;"><span class="amt">Free</span></div>
+            <div class="pc-tag">Unlimited exports · No daily limit · No license needed</div>
+            <ul class="pc-feats" style="max-width:300px; margin-left:auto; margin-right:auto;">
+              <li><span class="ck">✓</span> Unlimited exports</li>
+              <li><span class="ck">✓</span> All features unlocked</li>
+              <li><span class="ck">✓</span> No daily limit</li>
+              <li><span class="ck">✓</span> Free forever in Bangladesh</li>
+            </ul>
+            <a class="btn btn-primary" href="/uiflow/tools" style="width:100%; justify-content:center;">Download Free</a>
           </div>
         </div>
       </div>
@@ -844,6 +863,7 @@
       .then(function (d) {
         if (d && d.country === 'BD') {
           document.querySelectorAll('.bd-only').forEach(function (el) { el.classList.remove('bd-only'); });
+          document.querySelectorAll('.intl-only').forEach(function (el) { el.style.display = 'none'; });
         }
       })
       .catch(function () {});
