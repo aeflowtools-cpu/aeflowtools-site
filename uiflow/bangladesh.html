@@ -4,14 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Free UI Flow License for Bangladesh 🇧🇩 | AE Flow Tools</title>
-  <meta name="description" content="Bangladeshi users get a free lifetime UI Flow license. Claim your key or look up an existing one." />
+  <meta name="description" content="Bangladeshi users get a free lifetime UI Flow license, sent straight to your email." />
   <link rel="stylesheet" href="../styles.css" />
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Cloudflare Turnstile (captcha) -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
-    .bd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 900px; margin: 0 auto; align-items: start; }
+    .bd-single { max-width: 480px; margin: 0 auto; }
     .bd-card { position: relative; border-radius: 22px; padding: 1px;
       background: linear-gradient(140deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02)); }
     .bd-card-inner {
@@ -23,7 +21,6 @@
     .bd-card h3 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
     .bd-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
 
-    /* form (reuses bug-form look) */
     .bd-form .field { margin-bottom: 16px; text-align: left; }
     .bd-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
     .bd-form label span { color: #f87171; }
@@ -41,45 +38,16 @@
     .form-status.ok { color: #4ade80; }
     .form-status.err { color: #f87171; }
 
-    /* result */
-    .bd-result { display: none; }
-    .result-head { font-size: 17px; font-weight: 700; margin-bottom: 16px; text-align: center; }
-    .keybox { border: 1px solid rgba(37,99,235,0.45); background: rgba(37,99,235,0.1); border-radius: 14px;
-      padding: 18px; text-align: center; margin-bottom: 20px; }
-    .keybox-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); font-weight: 700; margin-bottom: 8px; }
-    .keybox-key { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 19px; font-weight: 800;
-      letter-spacing: 0.02em; color: #fff; word-break: break-all; margin-bottom: 14px; }
-    .copy-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); color: var(--text);
-      font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background 0.15s ease; }
-    .copy-btn:hover { background: rgba(255,255,255,0.12); }
-    .steps { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14.5px; line-height: 1.8; }
-    .steps li { margin-bottom: 2px; }
+    /* result message (no key shown — it's emailed) */
+    .bd-result { display: none; text-align: center; }
+    .result-icon { font-size: 44px; line-height: 1; margin-bottom: 12px; }
+    .result-head { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .result-msg { color: var(--muted); font-size: 15px; line-height: 1.65; margin-bottom: 22px; }
+    .result-msg strong { color: var(--text); }
+    .steps { text-align: left; margin: 0 auto 20px; max-width: 340px; padding-left: 20px; color: var(--muted); font-size: 14.5px; line-height: 1.8; }
     .steps strong { color: var(--text); }
-
-    .bd-single { max-width: 480px; margin: 0 auto; }
-    .already-line { text-align: center; margin-top: 20px; color: var(--muted); font-size: 14.5px; }
-    .already-line a { color: var(--accent-2); font-weight: 600; }
-
-    /* View-key popup */
-    .vk-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
-    .vk-overlay.open { opacity: 1; pointer-events: auto; }
-    .vk-modal { position: relative; width: 100%; max-width: 440px; max-height: calc(100vh - 40px); overflow-y: auto;
-      background: linear-gradient(180deg, rgba(22,24,30,0.97), rgba(13,14,18,0.98));
-      border: 1px solid var(--border); border-radius: 20px; padding: 30px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
-      transform: translateY(16px) scale(0.98); transition: transform 0.25s ease; }
-    .vk-overlay.open .vk-modal { transform: translateY(0) scale(1); }
-    .vk-modal h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
-    .vk-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(255,255,255,0.08); border: 0; color: var(--text); font-size: 20px; line-height: 1; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; }
-    .vk-close:hover { background: rgba(255,255,255,0.16); }
-
-    @media (max-width: 760px) { .bd-grid { grid-template-columns: 1fr; } }
+    .result-foot { font-size: 13.5px; color: var(--faint); }
+    .result-foot a { color: var(--accent-2); }
   </style>
 </head>
 <body>
@@ -113,21 +81,20 @@
       <span class="eyebrow"><span class="dot"></span> Bangladesh 🇧🇩</span>
       <h1 class="display">Free UI Flow license<br />for Bangladesh</h1>
       <p class="lead">
-        বাংলাদেশের সবার জন্য UI Flow সম্পূর্ণ ফ্রি। নিচ থেকে আপনার লাইসেন্স কী নিন।<br />
-        Claim your free lifetime key below — unlimited exports, no limits.
+        বাংলাদেশের সবার জন্য UI Flow সম্পূর্ণ ফ্রি। সাইন আপ করুন — লাইসেন্স কী আপনার ইমেইলে চলে যাবে।<br />
+        Sign up and your free lifetime key is sent straight to your email.
       </p>
     </div>
   </header>
 
-  <!-- CARDS -->
+  <!-- CLAIM CARD -->
   <section class="section" style="padding-top:8px;">
     <div class="container">
       <div class="bd-single">
-        <!-- GET FREE KEY -->
         <div class="bd-card">
           <div class="bd-card-inner">
             <h3>Get your free key</h3>
-            <p class="sub">Sign up once and get your lifetime UI Flow license key instantly.</p>
+            <p class="sub">Sign up once — your lifetime UI Flow license key will be emailed to you.</p>
 
             <div class="bd-scope">
             <form class="bd-form" autocomplete="on" onsubmit="return claimKey(this, event)">
@@ -152,60 +119,24 @@
             </form>
 
             <div class="bd-result">
-              <div class="result-head">🎉 Here's your free key!</div>
-              <div class="keybox">
-                <div class="keybox-label">Your license key</div>
-                <div class="keybox-key">—</div>
-                <button type="button" class="copy-btn" onclick="copyKey(this)">📋 Copy</button>
-              </div>
+              <div class="result-icon" id="resIcon">📩</div>
+              <div class="result-head" id="resHead">Check your email!</div>
+              <p class="result-msg" id="resMsg">Your lifetime free license key has been sent to your email. Please check your <strong>inbox</strong> — and your <strong>spam</strong> folder too.</p>
               <ol class="steps">
+                <li>Open the email from <strong>AE Flow Tools</strong> and copy your key.</li>
                 <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
                 <li>Click the <strong>key icon</strong> (top-right of the panel).</li>
                 <li>Paste your key and click <strong>Activate</strong>.</li>
                 <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
               </ol>
+              <p class="result-foot">Didn't get the key? Email <a href="mailto:contact@aeflowtools.com">contact@aeflowtools.com</a></p>
             </div>
             </div><!-- /bd-scope -->
-
-            <p class="already-line">Already have a key? <a href="#" onclick="openViewModal(); return false;">View it →</a></p>
           </div>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- VIEW KEY POPUP -->
-  <div class="vk-overlay" id="viewModal">
-    <div class="vk-modal">
-      <button class="vk-close" aria-label="Close" onclick="closeViewModal()">×</button>
-      <div class="bd-scope">
-        <h3>Already have a key?</h3>
-        <p class="sub" style="color:var(--muted); font-size:14px; margin-bottom:20px;">Enter the WhatsApp number you signed up with.</p>
-        <form class="bd-form" autocomplete="on" onsubmit="return viewKey(this, event)">
-          <div class="field">
-            <label for="v-wa">WhatsApp number <span>*</span></label>
-            <input id="v-wa" type="tel" name="whatsapp" required placeholder="01XXXXXXXXX" />
-          </div>
-          <button class="btn btn-primary" type="submit">View my key</button>
-          <p class="form-status" role="status"></p>
-        </form>
-        <div class="bd-result">
-          <div class="result-head">Here's your key 🔑</div>
-          <div class="keybox">
-            <div class="keybox-label">Your license key</div>
-            <div class="keybox-key">—</div>
-            <button type="button" class="copy-btn" onclick="copyKey(this)">📋 Copy</button>
-          </div>
-          <ol class="steps">
-            <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
-            <li>Click the <strong>key icon</strong> (top-right of the panel).</li>
-            <li>Paste your key and click <strong>Activate</strong>.</li>
-            <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- FOOTER -->
   <footer class="footer">
@@ -230,15 +161,8 @@
   </footer>
 
   <script>
-    // ---- Supabase ----
-    var SB_URL = 'https://zomjnvryqmotggdkseag.supabase.co';
-    // Public anon key (safe in the frontend; can only call granted RPCs).
-    var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvbWpudnJ5cW1vdGdnZGtzZWFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MjQxMjcsImV4cCI6MjA5MTMwMDEyN30.R4z2Knbz9Bv6JU7ilXq47MJck7kMbnHWbe71UMYuwRE';
-    var sb = window.supabase.createClient(SB_URL, SB_ANON);
-
     var PHONE_RE = /^(?:\+?8801|01)[3-9]\d{8}$/;
     var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     function cleanPhone(v) { return (v || '').replace(/[\s-]/g, ''); }
 
     function setStatus(form, msg, ok) {
@@ -247,38 +171,24 @@
       s.textContent = msg || '';
     }
 
-    function showResult(scope, key) {
+    function showClaimResult(scope, status, email) {
       scope.querySelector('.bd-form').style.display = 'none';
       var res = scope.querySelector('.bd-result');
-      res.querySelector('.keybox-key').textContent = key;
-      res.style.display = 'block';
-    }
-
-    function openViewModal() {
-      var m = document.getElementById('viewModal');
-      var scope = m.querySelector('.bd-scope');
-      scope.querySelector('.bd-form').style.display = '';
-      scope.querySelector('.bd-result').style.display = 'none';
-      scope.querySelector('.form-status').textContent = '';
-      m.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeViewModal() {
-      document.getElementById('viewModal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function copyKey(btn) {
-      var key = btn.parentElement.querySelector('.keybox-key').textContent;
-      var done = function () { var t = btn.textContent; btn.textContent = '✓ Copied'; setTimeout(function () { btn.textContent = t; }, 1500); };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(key).then(done).catch(function () {});
+      if (status === 'existing') {
+        res.querySelector('#resIcon').textContent = '🔑';
+        res.querySelector('#resHead').textContent = 'You already have a license key';
+        res.querySelector('#resMsg').innerHTML = 'A key for <strong>' + email + '</strong> already exists — we’ve emailed it to you again. Please check your <strong>inbox</strong> and <strong>spam</strong> folder.';
+      } else {
+        res.querySelector('#resIcon').textContent = '📩';
+        res.querySelector('#resHead').textContent = 'Check your email!';
+        res.querySelector('#resMsg').innerHTML = 'Your lifetime free license key has been sent to <strong>' + email + '</strong>. Please check your <strong>inbox</strong> — and your <strong>spam</strong> folder too.';
       }
+      res.style.display = 'block';
     }
 
     async function claimKey(form, e) {
       e.preventDefault();
-      // honeypot — if a bot filled the hidden field, silently stop.
+      // honeypot
       if (form.elements['company'] && form.elements['company'].value) return false;
 
       var name = (form.elements['name'].value || '').trim();
@@ -289,42 +199,25 @@
       if (!EMAIL_RE.test(email)) { setStatus(form, 'Please enter a valid email address.'); return false; }
       if (!PHONE_RE.test(whatsapp)) { setStatus(form, 'Please enter a valid Bangladeshi WhatsApp number (e.g. 01XXXXXXXXX).'); return false; }
 
-      // captcha (if Turnstile is configured)
-      var tk = form.querySelector('[name="cf-turnstile-response"]');
-      if (window.turnstile && (!tk || !tk.value)) { setStatus(form, 'Please complete the verification.'); return false; }
+      var tkEl = form.querySelector('[name="cf-turnstile-response"]');
+      var token = tkEl ? tkEl.value : '';
+      if (window.turnstile && !token) { setStatus(form, 'Please complete the verification.'); return false; }
 
-      setStatus(form, 'Generating your key…', true);
+      setStatus(form, 'Sending your key…', true);
       try {
-        var r = await sb.rpc('claim_bd_free_key', { p_name: name, p_email: email, p_whatsapp: whatsapp });
-        if (r.error) {
-          setStatus(form, r.error.message || 'Something went wrong. Please try again.');
+        var r = await fetch('/api/claim-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, whatsapp: whatsapp, company: '', token: token })
+        });
+        var d = await r.json().catch(function () { return {}; });
+        if (!r.ok) {
+          setStatus(form, d.error || 'Something went wrong. Please try again.');
           if (window.turnstile) { try { turnstile.reset(); } catch (x) {} }
           return false;
         }
-        if (!r.data) { setStatus(form, 'Could not generate a key. Please try again.'); return false; }
         setStatus(form, '');
-        showResult(form.closest('.bd-scope'), r.data);
-      } catch (err) {
-        setStatus(form, 'Network error — please check your connection and try again.');
-      }
-      return false;
-    }
-
-    async function viewKey(form, e) {
-      e.preventDefault();
-      var whatsapp = cleanPhone(form.elements['whatsapp'].value);
-      if (!PHONE_RE.test(whatsapp)) { setStatus(form, 'Please enter a valid Bangladeshi WhatsApp number (e.g. 01XXXXXXXXX).'); return false; }
-
-      setStatus(form, 'Looking up your key…', true);
-      try {
-        var r = await sb.rpc('get_bd_free_key', { p_whatsapp: whatsapp });
-        if (r.error) { setStatus(form, r.error.message || 'Something went wrong. Please try again.'); return false; }
-        if (!r.data) {
-          setStatus(form, "We couldn't find a key for that number. Make sure you use the same WhatsApp number you signed up with — or sign up above.");
-          return false;
-        }
-        setStatus(form, '');
-        showResult(form.closest('.bd-scope'), r.data);
+        showClaimResult(form.closest('.bd-scope'), d.status, email);
       } catch (err) {
         setStatus(form, 'Network error — please check your connection and try again.');
       }
@@ -337,16 +230,6 @@
         if (!d.contains(e.target)) d.classList.remove('open');
       });
     });
-
-    // close the view-key popup on backdrop click or Esc
-    (function () {
-      var overlay = document.getElementById('viewModal');
-      if (!overlay) return;
-      overlay.addEventListener('click', function (e) { if (e.target === overlay) closeViewModal(); });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && overlay.classList.contains('open')) closeViewModal();
-      });
-    })();
   </script>
 </body>
 </html>
