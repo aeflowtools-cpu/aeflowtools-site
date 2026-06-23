@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free UI Flow License for Bangladesh 🇧🇩 | AE Flow Tools</title>
+  <meta name="description" content="Bangladeshi users get a free lifetime UI Flow license. Claim your key or look up an existing one." />
+  <link rel="stylesheet" href="../styles.css" />
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Cloudflare Turnstile (captcha) -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    .bd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 900px; margin: 0 auto; align-items: start; }
+    .bd-card { position: relative; border-radius: 22px; padding: 1px;
+      background: linear-gradient(140deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02)); }
+    .bd-card-inner {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+      border-radius: 21px; padding: 30px;
+    }
+    .bd-card h3 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .bd-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+
+    /* form (reuses bug-form look) */
+    .bd-form .field { margin-bottom: 16px; text-align: left; }
+    .bd-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
+    .bd-form label span { color: #f87171; }
+    .bd-form input {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 15px; outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .bd-form input:focus { border-color: var(--accent-2); background: rgba(37,99,235,0.06); }
+    .bd-form .btn { margin-top: 6px; width: 100%; justify-content: center; }
+    .hp-field { position: absolute; left: -9999px; }
+    .cf-turnstile { margin-bottom: 14px; }
+    .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; line-height: 1.5; }
+    .form-status.ok { color: #4ade80; }
+    .form-status.err { color: #f87171; }
+
+    /* result */
+    .bd-result { display: none; }
+    .result-head { font-size: 17px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+    .keybox { border: 1px solid rgba(37,99,235,0.45); background: rgba(37,99,235,0.1); border-radius: 14px;
+      padding: 18px; text-align: center; margin-bottom: 20px; }
+    .keybox-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-2); font-weight: 700; margin-bottom: 8px; }
+    .keybox-key { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 19px; font-weight: 800;
+      letter-spacing: 0.02em; color: #fff; word-break: break-all; margin-bottom: 14px; }
+    .copy-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); color: var(--text);
+      font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background 0.15s ease; }
+    .copy-btn:hover { background: rgba(255,255,255,0.12); }
+    .steps { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14.5px; line-height: 1.8; }
+    .steps li { margin-bottom: 2px; }
+    .steps strong { color: var(--text); }
+
+    @media (max-width: 760px) { .bd-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../">
+        <img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" />
+        AE Flow Tools
+      </a>
+      <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+      <div class="nav-links" id="navlinks">
+        <a href="../">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
+          <div class="dropdown-menu">
+            <a href="../uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <header class="hero" style="padding-bottom:36px;">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> Bangladesh 🇧🇩</span>
+      <h1 class="display">Free UI Flow license<br />for Bangladesh</h1>
+      <p class="lead">
+        বাংলাদেশের সবার জন্য UI Flow সম্পূর্ণ ফ্রি। নিচ থেকে আপনার লাইসেন্স কী নিন।<br />
+        Claim your free lifetime key below — unlimited exports, no limits.
+      </p>
+    </div>
+  </header>
+
+  <!-- CARDS -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div class="bd-grid">
+
+        <!-- A) GET FREE KEY -->
+        <div class="bd-card">
+          <div class="bd-card-inner">
+            <h3>Get your free key</h3>
+            <p class="sub">Sign up once and get your lifetime UI Flow license key instantly.</p>
+
+            <form class="bd-form" autocomplete="on" onsubmit="return claimKey(this, event)">
+              <input type="text" name="company" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <div class="field">
+                <label for="c-name">Full name <span>*</span></label>
+                <input id="c-name" type="text" name="name" required placeholder="Your full name" />
+              </div>
+              <div class="field">
+                <label for="c-email">Email <span>*</span></label>
+                <input id="c-email" type="email" name="email" required placeholder="you@example.com" />
+              </div>
+              <div class="field">
+                <label for="c-wa">WhatsApp number <span>*</span></label>
+                <input id="c-wa" type="tel" name="whatsapp" required placeholder="01XXXXXXXXX" />
+              </div>
+              <!-- TODO: replace data-sitekey with your real Cloudflare Turnstile site key.
+                   Current value is Cloudflare's "always passes" TEST key. -->
+              <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA"></div>
+              <button class="btn btn-primary" type="submit">Get my free key <span class="arrow">→</span></button>
+              <p class="form-status" role="status"></p>
+            </form>
+
+            <div class="bd-result">
+              <div class="result-head">🎉 Here's your free key!</div>
+              <div class="keybox">
+                <div class="keybox-label">Your license key</div>
+                <div class="keybox-key">—</div>
+                <button type="button" class="copy-btn" onclick="copyKey(this)">📋 Copy</button>
+              </div>
+              <ol class="steps">
+                <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
+                <li>Click the <strong>key icon</strong> (top-right of the panel).</li>
+                <li>Paste your key and click <strong>Activate</strong>.</li>
+                <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- B) VIEW EXISTING KEY -->
+        <div class="bd-card">
+          <div class="bd-card-inner">
+            <h3>Already have a key? View it</h3>
+            <p class="sub">Lost your key? Enter the WhatsApp number you signed up with.</p>
+
+            <form class="bd-form" autocomplete="on" onsubmit="return viewKey(this, event)">
+              <div class="field">
+                <label for="v-wa">WhatsApp number <span>*</span></label>
+                <input id="v-wa" type="tel" name="whatsapp" required placeholder="01XXXXXXXXX" />
+              </div>
+              <button class="btn btn-ghost" type="submit">View my key</button>
+              <p class="form-status" role="status"></p>
+            </form>
+
+            <div class="bd-result">
+              <div class="result-head">Here's your key 🔑</div>
+              <div class="keybox">
+                <div class="keybox-label">Your license key</div>
+                <div class="keybox-key">—</div>
+                <button type="button" class="copy-btn" onclick="copyKey(this)">📋 Copy</button>
+              </div>
+              <ol class="steps">
+                <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
+                <li>Click the <strong>key icon</strong> (top-right of the panel).</li>
+                <li>Paste your key and click <strong>Activate</strong>.</li>
+                <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="../"><img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
+        <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="../uiflow/">UI Flow</a>
+        <a href="tools">Download</a>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/uiflow.ae" target="_blank" rel="noopener" aria-label="Instagram" title="@uiflow.ae">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="mailto:contact@aeflowtools.com" aria-label="Email" title="contact@aeflowtools.com">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ---- Supabase ----
+    var SB_URL = 'https://zomjnvryqmotggdkseag.supabase.co';
+    // Public anon key (safe in the frontend; can only call granted RPCs).
+    var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvbWpudnJ5cW1vdGdnZGtzZWFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MjQxMjcsImV4cCI6MjA5MTMwMDEyN30.R4z2Knbz9Bv6JU7ilXq47MJck7kMbnHWbe71UMYuwRE';
+    var sb = window.supabase.createClient(SB_URL, SB_ANON);
+
+    var PHONE_RE = /^(?:\+?8801|01)[3-9]\d{8}$/;
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function cleanPhone(v) { return (v || '').replace(/[\s-]/g, ''); }
+
+    function setStatus(form, msg, ok) {
+      var s = form.querySelector('.form-status');
+      s.className = 'form-status' + (ok ? ' ok' : (msg ? ' err' : ''));
+      s.textContent = msg || '';
+    }
+
+    function showResult(card, key) {
+      card.querySelector('.bd-form').style.display = 'none';
+      var res = card.querySelector('.bd-result');
+      res.querySelector('.keybox-key').textContent = key;
+      res.style.display = 'block';
+    }
+
+    function copyKey(btn) {
+      var key = btn.parentElement.querySelector('.keybox-key').textContent;
+      var done = function () { var t = btn.textContent; btn.textContent = '✓ Copied'; setTimeout(function () { btn.textContent = t; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(key).then(done).catch(function () {});
+      }
+    }
+
+    async function claimKey(form, e) {
+      e.preventDefault();
+      // honeypot — if a bot filled the hidden field, silently stop.
+      if (form.elements['company'] && form.elements['company'].value) return false;
+
+      var name = (form.elements['name'].value || '').trim();
+      var email = (form.elements['email'].value || '').trim();
+      var whatsapp = cleanPhone(form.elements['whatsapp'].value);
+
+      if (!name) { setStatus(form, 'Please enter your full name.'); return false; }
+      if (!EMAIL_RE.test(email)) { setStatus(form, 'Please enter a valid email address.'); return false; }
+      if (!PHONE_RE.test(whatsapp)) { setStatus(form, 'Please enter a valid Bangladeshi WhatsApp number (e.g. 01XXXXXXXXX).'); return false; }
+
+      // captcha (if Turnstile is configured)
+      var tk = form.querySelector('[name="cf-turnstile-response"]');
+      if (window.turnstile && (!tk || !tk.value)) { setStatus(form, 'Please complete the verification.'); return false; }
+
+      setStatus(form, 'Generating your key…', true);
+      try {
+        var r = await sb.rpc('claim_bd_free_key', { p_name: name, p_email: email, p_whatsapp: whatsapp });
+        if (r.error) {
+          setStatus(form, r.error.message || 'Something went wrong. Please try again.');
+          if (window.turnstile) { try { turnstile.reset(); } catch (x) {} }
+          return false;
+        }
+        if (!r.data) { setStatus(form, 'Could not generate a key. Please try again.'); return false; }
+        setStatus(form, '');
+        showResult(form.closest('.bd-card'), r.data);
+      } catch (err) {
+        setStatus(form, 'Network error — please check your connection and try again.');
+      }
+      return false;
+    }
+
+    async function viewKey(form, e) {
+      e.preventDefault();
+      var whatsapp = cleanPhone(form.elements['whatsapp'].value);
+      if (!PHONE_RE.test(whatsapp)) { setStatus(form, 'Please enter a valid Bangladeshi WhatsApp number (e.g. 01XXXXXXXXX).'); return false; }
+
+      setStatus(form, 'Looking up your key…', true);
+      try {
+        var r = await sb.rpc('get_bd_free_key', { p_whatsapp: whatsapp });
+        if (r.error) { setStatus(form, r.error.message || 'Something went wrong. Please try again.'); return false; }
+        if (!r.data) {
+          setStatus(form, "We couldn't find a key for that number. Make sure you use the same WhatsApp number you signed up with — or sign up above.");
+          return false;
+        }
+        setStatus(form, '');
+        showResult(form.closest('.bd-card'), r.data);
+      } catch (err) {
+        setStatus(form, 'Network error — please check your connection and try again.');
+      }
+      return false;
+    }
+
+    // close the Plugins dropdown when clicking outside it
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('.dropdown').forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>
