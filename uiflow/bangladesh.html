@@ -57,6 +57,28 @@
     .steps li { margin-bottom: 2px; }
     .steps strong { color: var(--text); }
 
+    .bd-single { max-width: 480px; margin: 0 auto; }
+    .already-line { text-align: center; margin-top: 20px; color: var(--muted); font-size: 14.5px; }
+    .already-line a { color: var(--accent-2); font-weight: 600; }
+
+    /* View-key popup */
+    .vk-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+    .vk-overlay.open { opacity: 1; pointer-events: auto; }
+    .vk-modal { position: relative; width: 100%; max-width: 440px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: linear-gradient(180deg, rgba(22,24,30,0.97), rgba(13,14,18,0.98));
+      border: 1px solid var(--border); border-radius: 20px; padding: 30px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      transform: translateY(16px) scale(0.98); transition: transform 0.25s ease; }
+    .vk-overlay.open .vk-modal { transform: translateY(0) scale(1); }
+    .vk-modal h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .vk-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 0; color: var(--text); font-size: 20px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; }
+    .vk-close:hover { background: rgba(255,255,255,0.16); }
+
     @media (max-width: 760px) { .bd-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -100,14 +122,14 @@
   <!-- CARDS -->
   <section class="section" style="padding-top:8px;">
     <div class="container">
-      <div class="bd-grid">
-
-        <!-- A) GET FREE KEY -->
+      <div class="bd-single">
+        <!-- GET FREE KEY -->
         <div class="bd-card">
           <div class="bd-card-inner">
             <h3>Get your free key</h3>
             <p class="sub">Sign up once and get your lifetime UI Flow license key instantly.</p>
 
+            <div class="bd-scope">
             <form class="bd-form" autocomplete="on" onsubmit="return claimKey(this, event)">
               <input type="text" name="company" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
               <div class="field">
@@ -143,44 +165,47 @@
                 <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
               </ol>
             </div>
+            </div><!-- /bd-scope -->
+
+            <p class="already-line">Already have a key? <a href="#" onclick="openViewModal(); return false;">View it →</a></p>
           </div>
         </div>
-
-        <!-- B) VIEW EXISTING KEY -->
-        <div class="bd-card">
-          <div class="bd-card-inner">
-            <h3>Already have a key? View it</h3>
-            <p class="sub">Lost your key? Enter the WhatsApp number you signed up with.</p>
-
-            <form class="bd-form" autocomplete="on" onsubmit="return viewKey(this, event)">
-              <div class="field">
-                <label for="v-wa">WhatsApp number <span>*</span></label>
-                <input id="v-wa" type="tel" name="whatsapp" required placeholder="01XXXXXXXXX" />
-              </div>
-              <button class="btn btn-ghost" type="submit">View my key</button>
-              <p class="form-status" role="status"></p>
-            </form>
-
-            <div class="bd-result">
-              <div class="result-head">Here's your key 🔑</div>
-              <div class="keybox">
-                <div class="keybox-label">Your license key</div>
-                <div class="keybox-key">—</div>
-                <button type="button" class="copy-btn" onclick="copyKey(this)">📋 Copy</button>
-              </div>
-              <ol class="steps">
-                <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
-                <li>Click the <strong>key icon</strong> (top-right of the panel).</li>
-                <li>Paste your key and click <strong>Activate</strong>.</li>
-                <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
+
+  <!-- VIEW KEY POPUP -->
+  <div class="vk-overlay" id="viewModal">
+    <div class="vk-modal">
+      <button class="vk-close" aria-label="Close" onclick="closeViewModal()">×</button>
+      <div class="bd-scope">
+        <h3>Already have a key?</h3>
+        <p class="sub" style="color:var(--muted); font-size:14px; margin-bottom:20px;">Enter the WhatsApp number you signed up with.</p>
+        <form class="bd-form" autocomplete="on" onsubmit="return viewKey(this, event)">
+          <div class="field">
+            <label for="v-wa">WhatsApp number <span>*</span></label>
+            <input id="v-wa" type="tel" name="whatsapp" required placeholder="01XXXXXXXXX" />
+          </div>
+          <button class="btn btn-primary" type="submit">View my key</button>
+          <p class="form-status" role="status"></p>
+        </form>
+        <div class="bd-result">
+          <div class="result-head">Here's your key 🔑</div>
+          <div class="keybox">
+            <div class="keybox-label">Your license key</div>
+            <div class="keybox-key">—</div>
+            <button type="button" class="copy-btn" onclick="copyKey(this)">📋 Copy</button>
+          </div>
+          <ol class="steps">
+            <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
+            <li>Click the <strong>key icon</strong> (top-right of the panel).</li>
+            <li>Paste your key and click <strong>Activate</strong>.</li>
+            <li>Done — <strong>unlimited free exports</strong>. 🎉</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer class="footer">
@@ -222,11 +247,25 @@
       s.textContent = msg || '';
     }
 
-    function showResult(card, key) {
-      card.querySelector('.bd-form').style.display = 'none';
-      var res = card.querySelector('.bd-result');
+    function showResult(scope, key) {
+      scope.querySelector('.bd-form').style.display = 'none';
+      var res = scope.querySelector('.bd-result');
       res.querySelector('.keybox-key').textContent = key;
       res.style.display = 'block';
+    }
+
+    function openViewModal() {
+      var m = document.getElementById('viewModal');
+      var scope = m.querySelector('.bd-scope');
+      scope.querySelector('.bd-form').style.display = '';
+      scope.querySelector('.bd-result').style.display = 'none';
+      scope.querySelector('.form-status').textContent = '';
+      m.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.remove('open');
+      document.body.style.overflow = '';
     }
 
     function copyKey(btn) {
@@ -264,7 +303,7 @@
         }
         if (!r.data) { setStatus(form, 'Could not generate a key. Please try again.'); return false; }
         setStatus(form, '');
-        showResult(form.closest('.bd-card'), r.data);
+        showResult(form.closest('.bd-scope'), r.data);
       } catch (err) {
         setStatus(form, 'Network error — please check your connection and try again.');
       }
@@ -285,7 +324,7 @@
           return false;
         }
         setStatus(form, '');
-        showResult(form.closest('.bd-card'), r.data);
+        showResult(form.closest('.bd-scope'), r.data);
       } catch (err) {
         setStatus(form, 'Network error — please check your connection and try again.');
       }
@@ -298,6 +337,16 @@
         if (!d.contains(e.target)) d.classList.remove('open');
       });
     });
+
+    // close the view-key popup on backdrop click or Esc
+    (function () {
+      var overlay = document.getElementById('viewModal');
+      if (!overlay) return;
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) closeViewModal(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) closeViewModal();
+      });
+    })();
   </script>
 </body>
 </html>
