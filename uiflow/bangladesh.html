@@ -81,7 +81,6 @@
       <span class="eyebrow"><span class="dot"></span> Bangladesh 🇧🇩</span>
       <h1 class="display">Free UI Flow license<br />for Bangladesh</h1>
       <p class="lead">
-        বাংলাদেশের সবার জন্য UI Flow সম্পূর্ণ ফ্রি। সাইন আপ করুন — লাইসেন্স কী আপনার ইমেইলে চলে যাবে।<br />
         Sign up and your free lifetime key is sent straight to your email.
       </p>
     </div>
@@ -177,7 +176,7 @@
       if (status === 'existing') {
         res.querySelector('#resIcon').textContent = '🔑';
         res.querySelector('#resHead').textContent = 'You already have a license key';
-        res.querySelector('#resMsg').innerHTML = 'A key for <strong>' + email + '</strong> already exists — we’ve emailed it to you again. Please check your <strong>inbox</strong>, <strong>Spam</strong> and <strong>Promotions</strong> folders.';
+        res.querySelector('#resMsg').innerHTML = 'We already sent your license key to <strong>' + email + '</strong> earlier. Please check your <strong>inbox</strong> — and your <strong>Spam</strong> / <strong>Promotions</strong> folders.';
       } else {
         res.querySelector('#resIcon').textContent = '📩';
         res.querySelector('#resHead').textContent = 'Check your email!';

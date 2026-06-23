@@ -93,17 +93,18 @@ export default async function handler(req, res) {
   if (!process.env.RESEND_API_KEY) return res.status(500).json({ error: 'Email service not configured yet.' });
 
   try {
-    let status = 'new';
-    let key = await rpc('get_bd_free_key_by_email', { p_email: email });
-    if (key) {
-      status = 'existing';
-    } else {
-      key = await rpc('claim_bd_free_key', { p_name: name, p_email: email, p_whatsapp: whatsapp });
+    // Already signed up? We already emailed the key once — do NOT resend.
+    const existing = await rpc('get_bd_free_key_by_email', { p_email: email });
+    if (existing) {
+      return res.status(200).json({ status: 'existing' });
     }
+
+    // New signup — mint a key and email it.
+    const key = await rpc('claim_bd_free_key', { p_name: name, p_email: email, p_whatsapp: whatsapp });
     if (!key) return res.status(500).json({ error: 'Could not generate a key. Please try again.' });
 
     await sendEmail(email, key);
-    return res.status(200).json({ status });
+    return res.status(200).json({ status: 'new' });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Something went wrong. Please try again.' });
   }
