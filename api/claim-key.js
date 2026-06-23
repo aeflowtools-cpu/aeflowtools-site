@@ -39,7 +39,7 @@ function keyEmailHtml(key) {
 }
 
 async function sendEmail(to, key) {
-  const FROM = process.env.RESEND_FROM || 'UI Flow <noreply@aeflowtools.com>';
+  const FROM = process.env.RESEND_FROM || 'UI Flow <noreply@contact.aeflowtools.com>';
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
