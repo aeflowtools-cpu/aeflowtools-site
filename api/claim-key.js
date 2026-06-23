@@ -46,6 +46,7 @@ async function sendEmail(to, key) {
     body: JSON.stringify({
       from: FROM,
       to: [to],
+      reply_to: 'contact@aeflowtools.com',
       subject: 'Your UI Flow lifetime license key 🔑',
       html: keyEmailHtml(key),
     }),

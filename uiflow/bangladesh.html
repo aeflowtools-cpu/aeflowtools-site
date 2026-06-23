@@ -121,7 +121,7 @@
             <div class="bd-result">
               <div class="result-icon" id="resIcon">📩</div>
               <div class="result-head" id="resHead">Check your email!</div>
-              <p class="result-msg" id="resMsg">Your lifetime free license key has been sent to your email. Please check your <strong>inbox</strong> — and your <strong>spam</strong> folder too.</p>
+              <p class="result-msg" id="resMsg">Your lifetime free license key has been sent to your email. Please check your <strong>inbox</strong> — and your <strong>Spam</strong> / <strong>Promotions</strong> folders too.</p>
               <ol class="steps">
                 <li>Open the email from <strong>AE Flow Tools</strong> and copy your key.</li>
                 <li>Open the <strong>UI Flow</strong> plugin in Figma.</li>
@@ -177,11 +177,11 @@
       if (status === 'existing') {
         res.querySelector('#resIcon').textContent = '🔑';
         res.querySelector('#resHead').textContent = 'You already have a license key';
-        res.querySelector('#resMsg').innerHTML = 'A key for <strong>' + email + '</strong> already exists — we’ve emailed it to you again. Please check your <strong>inbox</strong> and <strong>spam</strong> folder.';
+        res.querySelector('#resMsg').innerHTML = 'A key for <strong>' + email + '</strong> already exists — we’ve emailed it to you again. Please check your <strong>inbox</strong>, <strong>Spam</strong> and <strong>Promotions</strong> folders.';
       } else {
         res.querySelector('#resIcon').textContent = '📩';
         res.querySelector('#resHead').textContent = 'Check your email!';
-        res.querySelector('#resMsg').innerHTML = 'Your lifetime free license key has been sent to <strong>' + email + '</strong>. Please check your <strong>inbox</strong> — and your <strong>spam</strong> folder too.';
+        res.querySelector('#resMsg').innerHTML = 'Your lifetime free license key has been sent to <strong>' + email + '</strong>. Please check your <strong>inbox</strong> — and your <strong>Spam</strong> / <strong>Promotions</strong> folders too.';
       }
       res.style.display = 'block';
     }
