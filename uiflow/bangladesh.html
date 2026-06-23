@@ -6,8 +6,6 @@
   <title>Free UI Flow License for Bangladesh 🇧🇩 | AE Flow Tools</title>
   <meta name="description" content="Bangladeshi users get a free lifetime UI Flow license, sent straight to your email." />
   <link rel="stylesheet" href="../styles.css" />
-  <!-- Cloudflare Turnstile (captcha) -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     .bd-single { max-width: 480px; margin: 0 auto; }
     .bd-card { position: relative; border-radius: 22px; padding: 1px;
@@ -33,7 +31,6 @@
     .bd-form input:focus { border-color: var(--accent-2); background: rgba(37,99,235,0.06); }
     .bd-form .btn { margin-top: 6px; width: 100%; justify-content: center; }
     .hp-field { position: absolute; left: -9999px; }
-    .cf-turnstile { margin-bottom: 14px; }
     .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; line-height: 1.5; }
     .form-status.ok { color: #4ade80; }
     .form-status.err { color: #f87171; }
@@ -110,9 +107,6 @@
                 <label for="c-wa">WhatsApp number <span>*</span></label>
                 <input id="c-wa" type="tel" name="whatsapp" required placeholder="01XXXXXXXXX" />
               </div>
-              <!-- TODO: replace data-sitekey with your real Cloudflare Turnstile site key.
-                   Current value is Cloudflare's "always passes" TEST key. -->
-              <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA"></div>
               <button class="btn btn-primary" type="submit">Get my free key <span class="arrow">→</span></button>
               <p class="form-status" role="status"></p>
             </form>
@@ -198,21 +192,16 @@
       if (!EMAIL_RE.test(email)) { setStatus(form, 'Please enter a valid email address.'); return false; }
       if (!PHONE_RE.test(whatsapp)) { setStatus(form, 'Please enter a valid Bangladeshi WhatsApp number (e.g. 01XXXXXXXXX).'); return false; }
 
-      var tkEl = form.querySelector('[name="cf-turnstile-response"]');
-      var token = tkEl ? tkEl.value : '';
-      if (window.turnstile && !token) { setStatus(form, 'Please complete the verification.'); return false; }
-
       setStatus(form, 'Sending your key…', true);
       try {
         var r = await fetch('/api/claim-key', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, whatsapp: whatsapp, company: '', token: token })
+          body: JSON.stringify({ name: name, email: email, whatsapp: whatsapp, company: '' })
         });
         var d = await r.json().catch(function () { return {}; });
         if (!r.ok) {
           setStatus(form, d.error || 'Something went wrong. Please try again.');
-          if (window.turnstile) { try { turnstile.reset(); } catch (x) {} }
           return false;
         }
         setStatus(form, '');
