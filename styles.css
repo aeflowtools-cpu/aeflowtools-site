@@ -263,6 +263,12 @@ h1.display {
 }
 .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
+/* Compact hero for form / utility pages (smaller heading, less height) */
+.hero-sm { padding-top: 54px; padding-bottom: 24px; }
+.hero-sm h1.display { font-size: clamp(28px, 4.2vw, 44px); margin-bottom: 12px; }
+.hero-sm .lead { font-size: clamp(15px, 1.5vw, 17px); margin-bottom: 0; }
+.hero-sm .eyebrow { margin-bottom: 18px; }
+
 /* ---------- Section ---------- */
 .section { position: relative; z-index: 1; padding: 72px 0; }
 .section-head { text-align: center; max-width: 640px; margin: 0 auto 52px; }
