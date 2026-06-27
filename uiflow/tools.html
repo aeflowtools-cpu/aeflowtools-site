@@ -70,19 +70,14 @@
   </div>
 
   <script>
-    // Log each "Download UI Flow v2.0.0" click to Supabase (track_download RPC)
-    var SB_URL = 'https://zomjnvryqmotggdkseag.supabase.co';
-    var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvbWpudnJ5cW1vdGdnZGtzZWFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MjQxMjcsImV4cCI6MjA5MTMwMDEyN30.R4z2Knbz9Bv6JU7ilXq47MJck7kMbnHWbe71UMYuwRE';
+    // Log each "Download UI Flow v2.0.0" click. The Vercel function adds the
+    // visitor's country (server-side geo) before saving to Supabase.
     function trackDownload() {
       try {
-        fetch(SB_URL + '/rest/v1/rpc/track_download', {
+        fetch('/api/track-download', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SB_ANON,
-            'Authorization': 'Bearer ' + SB_ANON
-          },
-          body: JSON.stringify({ p_button: 'uiflow_v2.0.0' }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ button: 'uiflow_v2.0.0' }),
           keepalive: true
         });
       } catch (e) {}
