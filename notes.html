@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Notes</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    .notes-wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
+
+    /* password gate */
+    .gate { min-height: 70vh; display: flex; align-items: center; justify-content: center; }
+    .gate-card {
+      width: 100%; max-width: 380px; text-align: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%);
+      border: 1px solid var(--border); border-radius: 22px; padding: 40px 32px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .gate-card .lock { font-size: 40px; margin-bottom: 14px; }
+    .gate-card h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .gate-card p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+    .gate-card input { width: 100%; padding: 13px 14px; border-radius: 12px; margin-bottom: 14px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text);
+      font-family: inherit; font-size: 15px; outline: none; text-align: center; }
+    .gate-card input:focus { border-color: var(--accent-2); background: rgba(37,99,235,0.06); }
+    .gate-card .btn { width: 100%; justify-content: center; }
+    .gate-err { color: #f87171; font-size: 13.5px; margin-top: 12px; min-height: 18px; }
+
+    /* app */
+    .notes-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .notes-head h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .lock-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted);
+      font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 10px; cursor: pointer; }
+    .lock-btn:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+
+    .new-note {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+      border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 24px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .new-note textarea, .note textarea {
+      width: 100%; padding: 12px 14px; border-radius: 12px; resize: vertical; min-height: 80px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text);
+      font-family: inherit; font-size: 15px; line-height: 1.6; outline: none;
+    }
+    .new-note textarea:focus, .note textarea:focus { border-color: var(--accent-2); background: rgba(37,99,235,0.06); }
+    .new-note .row { display: flex; justify-content: flex-end; margin-top: 12px; }
+    .new-note .btn { padding: 11px 22px; }
+
+    .notes-list { display: flex; flex-direction: column; gap: 14px; }
+    .note {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+      border: 1px solid var(--border); border-radius: 16px; padding: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .note .content { white-space: pre-wrap; word-break: break-word; font-size: 15px; line-height: 1.65; color: var(--text); }
+    .note .meta { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 12px; }
+    .note .date { color: var(--faint); font-size: 12.5px; }
+    .note .actions { display: flex; gap: 8px; }
+    .note .actions button { background: none; border: 1px solid var(--border); color: var(--muted);
+      font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 9px; cursor: pointer; transition: all 0.15s ease; }
+    .note .actions .edit:hover { color: var(--accent-2); border-color: var(--accent-2); }
+    .note .actions .del:hover { color: #f87171; border-color: rgba(248,113,113,0.5); }
+    .note .actions .save { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: #fff; border: 0; }
+    .empty { text-align: center; color: var(--faint); padding: 40px 0; font-size: 14.5px; }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <div class="notes-wrap">
+    <!-- PASSWORD GATE -->
+    <div class="gate" id="gate">
+      <div class="gate-card">
+        <div class="lock">🔒</div>
+        <h1>Notes</h1>
+        <p>Enter the password to continue.</p>
+        <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()" autocomplete="current-password" />
+        <button class="btn btn-primary" onclick="unlock()">Unlock</button>
+        <p class="gate-err" id="gateErr"></p>
+      </div>
+    </div>
+
+    <!-- NOTES APP -->
+    <div id="app" style="display:none;">
+      <div class="notes-head">
+        <h1>My Notes</h1>
+        <button class="lock-btn" onclick="lock()">🔒 Lock</button>
+      </div>
+
+      <div class="new-note">
+        <textarea id="newContent" placeholder="Write a note…"></textarea>
+        <div class="row"><button class="btn btn-primary" onclick="addNote()">Add note</button></div>
+      </div>
+
+      <div class="notes-list" id="list"></div>
+    </div>
+  </div>
+
+  <script>
+    var notes = [];
+    var editingId = null;
+
+    function pw() { return sessionStorage.getItem('notes_pw') || ''; }
+
+    async function api(action, extra) {
+      var payload = Object.assign({ password: pw(), action: action }, extra || {});
+      var r = await fetch('/api/notes', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      var data = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    async function unlock() {
+      var input = document.getElementById('pw').value;
+      var err = document.getElementById('gateErr');
+      err.textContent = 'Checking…';
+      sessionStorage.setItem('notes_pw', input);
+      try {
+        var data = await api('list');
+        notes = data.notes || [];
+        err.textContent = '';
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        render();
+      } catch (e) {
+        sessionStorage.removeItem('notes_pw');
+        err.textContent = e.message;
+      }
+    }
+
+    function lock() {
+      sessionStorage.removeItem('notes_pw');
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('gate').style.display = 'flex';
+      document.getElementById('pw').value = '';
+    }
+
+    function fmt(ts) {
+      try { return new Date(ts).toLocaleString('en-US', { timeZone: 'Asia/Dhaka', dateStyle: 'medium', timeStyle: 'short' }); }
+      catch (e) { return ''; }
+    }
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+    function render() {
+      var list = document.getElementById('list');
+      if (!notes.length) { list.innerHTML = '<div class="empty">No notes yet — add your first one above.</div>'; return; }
+      list.innerHTML = notes.map(function (n) {
+        if (n.id === editingId) {
+          return '<div class="note"><textarea id="edit-' + n.id + '">' + esc(n.content) + '</textarea>' +
+            '<div class="meta"><span class="date">Editing…</span><div class="actions">' +
+            '<button class="save" onclick="saveNote(' + n.id + ')">Save</button>' +
+            '<button onclick="cancelEdit()">Cancel</button></div></div></div>';
+        }
+        return '<div class="note"><div class="content">' + esc(n.content) + '</div>' +
+          '<div class="meta"><span class="date">' + fmt(n.updated_at) + '</span><div class="actions">' +
+          '<button class="edit" onclick="startEdit(' + n.id + ')">Edit</button>' +
+          '<button class="del" onclick="deleteNote(' + n.id + ')">Delete</button></div></div></div>';
+      }).join('');
+    }
+
+    async function addNote() {
+      var ta = document.getElementById('newContent');
+      var content = ta.value.trim();
+      if (!content) return;
+      try {
+        var data = await api('add', { content: content });
+        notes.unshift(data.note);
+        ta.value = '';
+        render();
+      } catch (e) { alert(e.message); }
+    }
+
+    function startEdit(id) { editingId = id; render(); }
+    function cancelEdit() { editingId = null; render(); }
+
+    async function saveNote(id) {
+      var content = document.getElementById('edit-' + id).value.trim();
+      try {
+        var data = await api('update', { id: id, content: content });
+        var i = notes.findIndex(function (n) { return n.id === id; });
+        if (i > -1) notes[i] = data.note;
+        editingId = null;
+        // move edited note to top (most recently updated)
+        notes.sort(function (a, b) { return new Date(b.updated_at) - new Date(a.updated_at); });
+        render();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function deleteNote(id) {
+      if (!confirm('Delete this note?')) return;
+      try {
+        await api('delete', { id: id });
+        notes = notes.filter(function (n) { return n.id !== id; });
+        render();
+      } catch (e) { alert(e.message); }
+    }
+
+    // If already unlocked this session, skip the gate
+    if (pw()) { unlock(); }
+  </script>
+</body>
+</html>
