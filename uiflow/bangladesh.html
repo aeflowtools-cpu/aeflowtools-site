@@ -96,7 +96,6 @@
 
             <div class="bd-scope">
             <form class="bd-form" autocomplete="on" onsubmit="return claimKey(this, event)">
-              <input type="text" name="company" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
               <div class="field">
                 <label for="c-name">Full name <span>*</span></label>
                 <input id="c-name" type="text" name="name" required placeholder="Your full name" />
@@ -183,8 +182,6 @@
 
     async function claimKey(form, e) {
       e.preventDefault();
-      // honeypot
-      if (form.elements['company'] && form.elements['company'].value) return false;
 
       var name = (form.elements['name'].value || '').trim();
       var email = (form.elements['email'].value || '').trim();
@@ -194,22 +191,28 @@
       if (!EMAIL_RE.test(email)) { setStatus(form, 'Please enter a valid email address.'); return false; }
       if (!PHONE_RE.test(whatsapp)) { setStatus(form, 'Please enter a valid Bangladeshi WhatsApp number (e.g. 01XXXXXXXXX).'); return false; }
 
+      var btn = form.querySelector('button[type="submit"]');
+      var btnHtml = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
       setStatus(form, 'Sending your key…', true);
+
       try {
         var r = await fetch('/api/claim-key', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, whatsapp: whatsapp, company: '' })
+          body: JSON.stringify({ name: name, email: email, whatsapp: whatsapp })
         });
         var d = await r.json().catch(function () { return {}; });
         if (!r.ok) {
           setStatus(form, d.error || 'Something went wrong. Please try again.');
+          if (btn) { btn.disabled = false; btn.innerHTML = btnHtml; }
           return false;
         }
         setStatus(form, '');
         showClaimResult(form.closest('.bd-scope'), d.status, email);
       } catch (err) {
         setStatus(form, 'Network error — please check your connection and try again.');
+        if (btn) { btn.disabled = false; btn.innerHTML = btnHtml; }
       }
       return false;
     }

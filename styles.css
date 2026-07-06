@@ -225,6 +225,7 @@ a.lib-card:hover .card-cta .arrow { transform: translateX(4px); }
 .btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); transform: translateY(-2px); }
 .btn .arrow { transition: transform 0.18s ease; }
 .btn:hover .arrow { transform: translateX(4px); }
+.btn:disabled { opacity: 0.6; cursor: default; transform: none !important; filter: none !important; }
 
 /* ---------- Hero ---------- */
 .hero { position: relative; z-index: 1; padding: 96px 0 72px; text-align: center; }
