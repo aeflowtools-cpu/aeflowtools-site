@@ -95,6 +95,18 @@
     .subtabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
     .popup-card { border: 1px dashed var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; position: relative; }
     .popup-card .del-popup { position: absolute; top: 10px; right: 10px; }
+    /* collapsible list (promo banners / popups) */
+    .item { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; background: rgba(255,255,255,0.03); }
+    .item-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; }
+    .item-head:hover { background: rgba(255,255,255,0.04); }
+    .item-head .ico { color: var(--muted); font-size: 11px; transition: transform 0.2s; }
+    .item.open .item-head .ico { transform: rotate(90deg); }
+    .item-head .ttl { flex: 1; font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-head .stat { font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 999px; flex-shrink: 0; }
+    .stat.on { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .stat.off { background: rgba(148,163,184,0.12); color: #94a3b8; }
+    .item-body { display: none; padding: 6px 16px 16px; border-top: 1px solid var(--border); }
+    .item.open .item-body { display: block; }
     @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -344,6 +356,18 @@
     function cbody(h) { document.getElementById('cbody').innerHTML = h; }
     var REGION_NOTE = 'Region: <code>all</code> · <code>international</code> · <code>bd</code> · a country code like <code>IN</code> · or a list <code>IN,PK</code>.';
 
+    // collapsible list item: title + active badge in the head, full form in the (hidden) body
+    function item(i, title, active, body) {
+      var t = (title && String(title).trim()) || 'Untitled';
+      return '<div class="item"><div class="item-head" onclick="toggleItem(this)">' +
+        '<span class="ico">▸</span><span class="ttl">' + esc(t) + '</span>' +
+        '<span class="stat ' + (active ? 'on' : 'off') + '">' + (active ? 'Active' : 'Off') + '</span></div>' +
+        '<div class="item-body">' + body + '</div></div>';
+    }
+    function toggleItem(head) { head.parentElement.classList.toggle('open'); }
+    function updHead(chk) { var s = chk.closest('.item').querySelector('.item-head .stat'); s.className = 'stat ' + (chk.checked ? 'on' : 'off'); s.textContent = chk.checked ? 'Active' : 'Off'; }
+    function updTitle(inp) { inp.closest('.item').querySelector('.item-head .ttl').textContent = (inp.value.trim() || 'Untitled'); }
+
     async function loadConfig() {
       var c = (await api('get_content', { file: 'config.json' })).content || {};
       cbody('<div class="card"><h3>Daily free-export limit</h3><div class="desc">How many free exports per 24h before a free user is blocked.</div>' +
@@ -373,14 +397,14 @@
       drawPromo();
     }
     function drawPromo() {
-      var html = '<div class="card"><h3>Promotions banners</h3><div class="desc">Banners shown inside the plugin. Each can target a region + audience, run on a daily <b>time window</b>, and schedule by <b>date range</b>. ' + REGION_NOTE + '</div>';
+      var html = '<div class="card"><h3>Promotions banners</h3><div class="desc">Click a banner title to edit it. ' + REGION_NOTE + '</div>';
       html += promoBanners.map(function (b, i) {
-        return '<div class="popup-card"><button class="rowbtn danger del-popup" onclick="delPromo(' + i + ')">✕ Delete</button>' +
+        var body =
+          '<div class="fld"><label>Title / label (for you)</label><input type="text" data-i="' + i + '" data-k="title" value="' + esc(b.title || '') + '" oninput="updTitle(this)" placeholder="e.g. India tutorial banner"></div>' +
           '<div class="grid2">' +
-          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (b.active ? 'checked' : '') + '><label>Active</label></div>' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (b.active ? 'checked' : '') + ' onchange="updHead(this)"><label>Active</label></div>' +
           '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="dismissible" ' + (b.dismissible ? 'checked' : '') + '><label>Dismissible</label></div>' +
-          txt(i, 'region', 'Region', b.region || 'all', 'all / international / bd / india / IN') +
-          aud(i, b.audience || 'all') +
+          txt(i, 'region', 'Region', b.region || 'all', 'all / international / bd / india / IN') + aud(i, b.audience || 'all') +
           '</div>' +
           '<div class="fld"><label>Text</label><input type="text" data-i="' + i + '" data-k="text" value="' + esc(b.text || '') + '"></div>' +
           '<div class="grid2">' + txt(i, 'url', 'URL', b.url || '') + txt(i, 'image', 'Image/GIF URL (optional — shows instead of text)', b.image || '') + '</div>' +
@@ -388,8 +412,10 @@
           '<div class="grid2">' + tm(i, 'start', 'Start time', b.start || '') + tm(i, 'end', 'End time', b.end || '') + '</div>' +
           '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="date" ' + (b.date ? 'checked' : '') + '><label>📅 Only show between these dates</label></div>' +
           '<div class="grid2">' + dt(i, 'startDate', 'Start date', b.startDate || '') + dt(i, 'endDate', 'End date', b.endDate || '') + '</div>' +
-          '<div class="grid2">' + txt(i, 'bg', 'Background', b.bg || '', '#10233f') + txt(i, 'border', 'Border', b.border || '', '#3b82f6') + txt(i, 'color', 'Text color', b.color || '', '#bfdbfe') + '</div></div>';
-      }).join('');
+          '<div class="grid2">' + txt(i, 'bg', 'Background', b.bg || '', '#10233f') + txt(i, 'border', 'Border', b.border || '', '#3b82f6') + txt(i, 'color', 'Text color', b.color || '', '#bfdbfe') + '</div>' +
+          '<div class="rowbar"><button class="rowbtn danger" onclick="delPromo(' + i + ')">✕ Delete banner</button></div>';
+        return item(i, b.title, b.active, body);
+      }).join('') || '<div class="muted" style="padding:12px 0;">No banners yet.</div>';
       html += '<div class="rowbar"><button class="rowbtn" onclick="addPromo()">+ Add banner</button><button class="btn btn-primary" onclick="savePromo()">Save all</button><span class="save-status" id="cStatus"></span></div></div>';
       cbody(html);
       function txt(i, k, l, v, p) { return '<div class="fld"><label>' + l + '</label><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '" placeholder="' + (p || '') + '"></div>'; }
@@ -410,6 +436,7 @@
           date: !!o.date, startDate: o.startDate || '', endDate: o.endDate || '',
           url: (o.url || '').trim(), bg: (o.bg || '').trim(), border: (o.border || '').trim(), color: (o.color || '').trim(),
           dismissible: !!o.dismissible };
+        if (o.title && o.title.trim()) out.title = o.title.trim();
         if (o.text && o.text.trim()) out.text = o.text;
         if (o.image && o.image.trim()) out.image = o.image.trim();
         return out;
@@ -426,22 +453,24 @@
       drawPopups();
     }
     function drawPopups() {
-      var html = '<div class="card"><h3>Launch popups</h3><div class="desc">Shown once per open to non-licensed users; first matching popup wins. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
+      var html = '<div class="card"><h3>Launch popups</h3><div class="desc">Click a popup title to edit it. Shown once per open to non-licensed users; first matching popup wins. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
       html += popups.map(function (p, i) {
-        return '<div class="popup-card"><button class="rowbtn danger del-popup" onclick="delPopup(' + i + ')">✕ Delete</button>' +
-          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (p.active ? 'checked' : '') + '><label>Active</label></div>' +
+        var body =
+          '<div class="fld"><label>Title</label><input type="text" data-i="' + i + '" data-k="title" value="' + esc(p.title || '') + '" oninput="updTitle(this)" placeholder="Popup title"></div>' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (p.active ? 'checked' : '') + ' onchange="updHead(this)"><label>Active</label></div>' +
           '<div class="grid2">' +
           pf(i, 'region', 'Region', p.region || 'all', 'all / international / bd / IN,PK') +
           pf(i, 'users', 'Target user ids (comma-sep, optional)', (Array.isArray(p.users) ? p.users.join(',') : (p.users || '')), 'user_123,uid_abc') +
-          pf(i, 'title', 'Title', p.title || '') +
           pf(i, 'button', 'Button label', p.button || '') +
           pf(i, 'url', 'URL', p.url || '') +
           pf(i, 'gif', 'GIF/Image URL (optional, full-bleed)', p.gif || p.image || '') +
           pf(i, 'bg', 'Background', p.bg || '', '#0a7c3f') +
           pf(i, 'border', 'Border', p.border || '', '#16a34a') +
           pf(i, 'color', 'Text color', p.color || '', '#ffffff') +
-          '</div><div class="fld"><label>Text</label><textarea data-i="' + i + '" data-k="text">' + esc(p.text || '') + '</textarea></div></div>';
-      }).join('');
+          '</div><div class="fld"><label>Text</label><textarea data-i="' + i + '" data-k="text">' + esc(p.text || '') + '</textarea></div>' +
+          '<div class="rowbar"><button class="rowbtn danger" onclick="delPopup(' + i + ')">✕ Delete popup</button></div>';
+        return item(i, p.title, p.active, body);
+      }).join('') || '<div class="muted" style="padding:12px 0;">No popups yet.</div>';
       html += '<div class="rowbar"><button class="rowbtn" onclick="addPopup()">+ Add popup</button><button class="btn btn-primary" onclick="savePopups()">Save all</button><span class="save-status" id="cStatus"></span></div></div>';
       cbody(html);
       function pf(i, k, label, val, ph) { return '<div class="fld"><label>' + label + '</label><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(val) + '" placeholder="' + (ph || '') + '"></div>'; }
