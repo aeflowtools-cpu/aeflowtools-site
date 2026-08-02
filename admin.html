@@ -366,27 +366,58 @@
         discount: parseInt(document.getElementById('of_disc').value || '0', 10), text: document.getElementById('of_text').value.trim() }, 'cStatus');
     }
 
+    var promoBanners = [];
     async function loadPromo() {
-      var p = (await api('get_content', { file: 'promo.json' })).content || {};
-      cbody('<div class="card"><h3>Promotions banner</h3><div class="desc">The banner inside the plugin. ' + REGION_NOTE + '</div>' +
-        '<div class="fld chk"><input type="checkbox" id="pr_active" ' + (p.active ? 'checked' : '') + '><label>Active</label></div>' +
-        '<div class="fld"><label>Text</label><input type="text" id="pr_text" value="' + esc(p.text || '') + '"></div>' +
-        '<div class="grid2"><div class="fld"><label>URL</label><input type="url" id="pr_url" value="' + esc(p.url || '') + '"></div>' +
-        '<div class="fld"><label>Image URL (optional — shows instead of text)</label><input type="url" id="pr_image" value="' + esc(p.image || '') + '"></div>' +
-        '<div class="fld"><label>Region</label><input type="text" id="pr_region" value="' + esc(p.region || 'all') + '" placeholder="all / international / bd / IN"></div>' +
-        '<div class="fld chk"><input type="checkbox" id="pr_dismiss" ' + (p.dismissible ? 'checked' : '') + '><label>Dismissible</label></div>' +
-        '<div class="fld"><label>Background</label><input type="text" id="pr_bg" value="' + esc(p.bg || '') + '" placeholder="#10233f"></div>' +
-        '<div class="fld"><label>Border</label><input type="text" id="pr_border" value="' + esc(p.border || '') + '" placeholder="#3b82f6"></div>' +
-        '<div class="fld"><label>Text color</label><input type="text" id="pr_color" value="' + esc(p.color || '') + '" placeholder="#bfdbfe"></div></div>' +
-        '<div class="rowbar"><button class="btn btn-primary" onclick="savePromo()">Save</button><span class="save-status" id="cStatus"></span></div></div>');
+      var c = (await api('get_content', { file: 'promo.json' })).content || {};
+      promoBanners = (c.banners || []).slice();
+      drawPromo();
     }
-    async function savePromo() {
-      var o = { active: document.getElementById('pr_active').checked, text: document.getElementById('pr_text').value, url: document.getElementById('pr_url').value.trim(),
-        region: document.getElementById('pr_region').value.trim() || 'all', dismissible: document.getElementById('pr_dismiss').checked };
-      var img = document.getElementById('pr_image').value.trim(); if (img) o.image = img;
-      ['bg', 'border', 'color'].forEach(function (f) { var v = document.getElementById('pr_' + f).value.trim(); if (v) o[f] = v; });
-      await saveFile('promo.json', o, 'cStatus');
+    function drawPromo() {
+      var html = '<div class="card"><h3>Promotions banners</h3><div class="desc">Banners shown inside the plugin. Each can target a region + audience, run on a daily <b>time window</b>, and schedule by <b>date range</b>. ' + REGION_NOTE + '</div>';
+      html += promoBanners.map(function (b, i) {
+        return '<div class="popup-card"><button class="rowbtn danger del-popup" onclick="delPromo(' + i + ')">✕ Delete</button>' +
+          '<div class="grid2">' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (b.active ? 'checked' : '') + '><label>Active</label></div>' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="dismissible" ' + (b.dismissible ? 'checked' : '') + '><label>Dismissible</label></div>' +
+          txt(i, 'region', 'Region', b.region || 'all', 'all / international / bd / india / IN') +
+          aud(i, b.audience || 'all') +
+          '</div>' +
+          '<div class="fld"><label>Text</label><input type="text" data-i="' + i + '" data-k="text" value="' + esc(b.text || '') + '"></div>' +
+          '<div class="grid2">' + txt(i, 'url', 'URL', b.url || '') + txt(i, 'image', 'Image/GIF URL (optional — shows instead of text)', b.image || '') + '</div>' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="time" ' + (b.time ? 'checked' : '') + '><label>⏰ Only show during a daily time window</label></div>' +
+          '<div class="grid2">' + tm(i, 'start', 'Start time', b.start || '') + tm(i, 'end', 'End time', b.end || '') + '</div>' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="date" ' + (b.date ? 'checked' : '') + '><label>📅 Only show between these dates</label></div>' +
+          '<div class="grid2">' + dt(i, 'startDate', 'Start date', b.startDate || '') + dt(i, 'endDate', 'End date', b.endDate || '') + '</div>' +
+          '<div class="grid2">' + txt(i, 'bg', 'Background', b.bg || '', '#10233f') + txt(i, 'border', 'Border', b.border || '', '#3b82f6') + txt(i, 'color', 'Text color', b.color || '', '#bfdbfe') + '</div></div>';
+      }).join('');
+      html += '<div class="rowbar"><button class="rowbtn" onclick="addPromo()">+ Add banner</button><button class="btn btn-primary" onclick="savePromo()">Save all</button><span class="save-status" id="cStatus"></span></div></div>';
+      cbody(html);
+      function txt(i, k, l, v, p) { return '<div class="fld"><label>' + l + '</label><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '" placeholder="' + (p || '') + '"></div>'; }
+      function tm(i, k, l, v) { return '<div class="fld"><label>' + l + '</label><input type="time" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '"></div>'; }
+      function dt(i, k, l, v) { return '<div class="fld"><label>' + l + '</label><input type="date" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '"></div>'; }
+      function aud(i, v) { return '<div class="fld"><label>Audience</label><select data-i="' + i + '" data-k="audience">' + ['all', 'free', 'licensed'].map(function (o) { return '<option' + (o === v ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></div>'; }
     }
+    function collectPromo() {
+      var by = {};
+      promoBanners.forEach(function (_, i) { by[i] = {}; });
+      document.getElementById('cbody').querySelectorAll('[data-i]').forEach(function (el) {
+        by[el.getAttribute('data-i')][el.getAttribute('data-k')] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      return Object.keys(by).map(function (i) {
+        var o = by[i];
+        var out = { active: !!o.active, region: (o.region || 'all').trim(), audience: o.audience || 'all',
+          time: !!o.time, start: o.start || '', end: o.end || '',
+          date: !!o.date, startDate: o.startDate || '', endDate: o.endDate || '',
+          url: (o.url || '').trim(), bg: (o.bg || '').trim(), border: (o.border || '').trim(), color: (o.color || '').trim(),
+          dismissible: !!o.dismissible };
+        if (o.text && o.text.trim()) out.text = o.text;
+        if (o.image && o.image.trim()) out.image = o.image.trim();
+        return out;
+      });
+    }
+    function addPromo() { promoBanners = collectPromo(); promoBanners.push({ active: false, region: 'all', audience: 'all', time: false, date: false, start: '', end: '', startDate: '', endDate: '', text: '', url: '' }); drawPromo(); }
+    function delPromo(i) { promoBanners = collectPromo(); promoBanners.splice(i, 1); drawPromo(); }
+    async function savePromo() { await saveFile('promo.json', { banners: collectPromo() }, 'cStatus'); }
 
     var popups = [];
     async function loadPopups() {
