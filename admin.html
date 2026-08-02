@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>UI Flow Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    body { overflow-x: hidden; }
+    .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 24px 18px 80px; }
+
+    /* gate */
+    .gate { min-height: 78vh; display: flex; align-items: center; justify-content: center; }
+    .gate-card { width: 100%; max-width: 360px; text-align: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(20px) saturate(140%); border: 1px solid var(--border); border-radius: 22px; padding: 40px 30px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08); }
+    .gate-card h1 { font-size: 22px; font-weight: 800; margin: 14px 0 8px; }
+    .gate-card p { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+    .gate-card input { width: 100%; padding: 13px 14px; border-radius: 12px; margin-bottom: 14px; text-align: center;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 15px; outline: none; }
+    .gate-card input:focus { border-color: var(--accent-2); }
+    .gate-card .btn { width: 100%; justify-content: center; }
+    .err { color: #f87171; font-size: 13px; min-height: 18px; margin-top: 10px; }
+
+    /* header + tabs */
+    .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+    .top h1 { font-size: 22px; font-weight: 800; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+    .tab { padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: #fff; background: linear-gradient(180deg, var(--accent-2), var(--accent)); border-color: transparent; }
+    .lock-btn { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.05);
+      color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .lock-btn:hover { color: var(--text); }
+
+    /* stat cards */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .stat { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+    .stat .n { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; }
+    .stat .l { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+    /* toolbar */
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+    .toolbar input.search { flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 14px; outline: none; }
+    .toolbar input.search:focus { border-color: var(--accent-2); }
+    .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .chip.active { color: #fff; background: rgba(37,99,235,0.25); border-color: rgba(37,99,235,0.5); }
+
+    /* tables */
+    .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px 12px; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(255,255,255,0.02); position: sticky; top: 0; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    td.wrap-cell { white-space: normal; word-break: break-word; max-width: 260px; }
+    .badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+    .b-vip { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .b-paid { background: rgba(37,99,235,0.18); color: #60a5fa; }
+    .b-bd { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .b-free { background: rgba(148,163,184,0.12); color: #cbd5e1; }
+    .b-rev { background: rgba(248,113,113,0.15); color: #f87171; }
+    .rowbtn { padding: 4px 9px; border-radius: 7px; border: 1px solid var(--border); background: none; color: var(--muted);
+      font-family: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; margin-right: 4px; }
+    .rowbtn:hover { color: var(--text); border-color: var(--accent-2); }
+    .rowbtn.danger:hover { color: #f87171; border-color: rgba(248,113,113,0.5); }
+    .muted { color: var(--faint); }
+
+    /* forms / cards */
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px; margin-bottom: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+    .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .card .desc { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fld { margin-bottom: 12px; }
+    .fld label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .fld input[type=text], .fld input[type=email], .fld input[type=number], .fld input[type=url], .fld select, .fld textarea {
+      width: 100%; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 14px; outline: none; }
+    .fld input:focus, .fld select:focus, .fld textarea:focus { border-color: var(--accent-2); }
+    .fld textarea { resize: vertical; min-height: 60px; }
+    .fld.chk { display: flex; align-items: center; gap: 8px; }
+    .fld.chk input { width: 18px; height: 18px; }
+    .fld.chk label { margin: 0; }
+    .rowbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+    .note { color: var(--faint); font-size: 12px; }
+    .save-status { font-size: 13px; margin-left: 8px; }
+    .save-status.ok { color: #4ade80; } .save-status.err { color: #f87171; }
+    .subtabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .popup-card { border: 1px dashed var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; position: relative; }
+    .popup-card .del-popup { position: absolute; top: 10px; right: 10px; }
+    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <div class="wrap">
+    <!-- GATE -->
+    <div class="gate" id="gate">
+      <div class="gate-card">
+        <div style="font-size:38px;">🛠️</div>
+        <h1>UI Flow Admin</h1>
+        <p>Enter the admin password.</p>
+        <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()" />
+        <button class="btn btn-primary" onclick="unlock()">Unlock</button>
+        <div class="err" id="gateErr"></div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app" style="display:none;">
+      <div class="top">
+        <h1>🛠️ UI Flow Admin</h1>
+        <button class="lock-btn" onclick="lock()">🔒 Lock</button>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div id="view"></div>
+    </div>
+  </div>
+
+  <script>
+    var TABS = ['Overview', 'Users', 'BD Free', 'Keys', 'VIPs', 'Content'];
+    var cur = 'Overview';
+    var cache = {};        // data cache per tab
+    var userFilter = 'All';
+    var contentTab = 'Popups';
+
+    function pw() { return sessionStorage.getItem('admin_pw') || ''; }
+    function esc(s) { var d = document.createElement('div'); d.textContent = (s === null || s === undefined) ? '' : String(s); return d.innerHTML; }
+    function fmt(ts) { if (!ts) return '—'; try { return new Date(ts).toLocaleString('en-US', { timeZone: 'Asia/Dhaka', dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ts; } }
+
+    async function api(action, extra) {
+      var r = await fetch('/api/admin', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({ password: pw(), action: action }, extra || {})) });
+      var d = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(d.error || 'Request failed');
+      return d;
+    }
+
+    async function unlock() {
+      var val = document.getElementById('pw').value;
+      var err = document.getElementById('gateErr');
+      err.textContent = 'Checking…';
+      sessionStorage.setItem('admin_pw', val);
+      try {
+        await api('ping');
+        err.textContent = '';
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        renderTabs(); go('Overview');
+      } catch (e) { sessionStorage.removeItem('admin_pw'); err.textContent = e.message; }
+    }
+    function lock() { sessionStorage.removeItem('admin_pw'); location.reload(); }
+
+    function renderTabs() {
+      document.getElementById('tabs').innerHTML = TABS.map(function (t) {
+        return '<button class="tab' + (t === cur ? ' active' : '') + '" onclick="go(\'' + t + '\')">' + t + '</button>';
+      }).join('');
+    }
+    function go(t) { cur = t; renderTabs(); render(); }
+
+    function view(html) { document.getElementById('view').innerHTML = html; }
+    function loading() { view('<div class="muted" style="padding:30px;text-align:center;">Loading…</div>'); }
+
+    async function render() {
+      try {
+        if (cur === 'Overview') return renderOverview();
+        if (cur === 'Users') return renderUsers();
+        if (cur === 'BD Free') return renderBd();
+        if (cur === 'Keys') return renderKeys();
+        if (cur === 'VIPs') return renderVips();
+        if (cur === 'Content') return renderContent();
+      } catch (e) { view('<div class="err" style="padding:20px;">' + esc(e.message) + '</div>'); }
+    }
+
+    // ---------- OVERVIEW ----------
+    async function renderOverview() {
+      loading();
+      var d = await api('overview'); var s = d.stats;
+      view('<div class="stats">' +
+        card(s.users, 'Total users') + card(s.paidKeys, 'Active paid keys') + card(s.bd, 'BD free signups') +
+        card(s.vips, 'VIPs') + card(s.activeToday, 'Active (24h)') + '</div>');
+      function card(n, l) { return '<div class="stat"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
+    }
+
+    // ---------- USERS ----------
+    async function renderUsers() {
+      loading();
+      var d = await api('users'); cache.users = d.rows || [];
+      drawUsers();
+    }
+    function drawUsers() {
+      var filters = ['All', 'VIP', 'Paid', 'BD Free', 'Free', 'Hottest leads'];
+      var html = '<div class="toolbar"><input class="search" id="uSearch" placeholder="Search user id…" oninput="drawUsers()" value="' + (document.getElementById('uSearch') ? esc(document.getElementById('uSearch').value) : '') + '">' +
+        filters.map(function (f) { return '<button class="chip' + (userFilter === f ? ' active' : '') + '" onclick="userFilter=\'' + f + '\';drawUsers()">' + f + '</button>'; }).join('') +
+        '<button class="chip" onclick="exportCSV(filteredUsers(),\'users\')">⬇ CSV</button></div>';
+      var rows = filteredUsers();
+      html += '<div class="tbl-wrap"><table><thead><tr><th>User ID</th><th>Status</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
+      html += rows.map(function (u) {
+        return '<tr><td class="wrap-cell">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
+      }).join('') || '<tr><td colspan="5" class="muted" style="text-align:center;padding:24px;">No users.</td></tr>';
+      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      view(html);
+    }
+    function filteredUsers() {
+      var q = (document.getElementById('uSearch') ? document.getElementById('uSearch').value : '').toLowerCase().trim();
+      return (cache.users || []).filter(function (u) {
+        if (q && String(u.user_id).toLowerCase().indexOf(q) < 0) return false;
+        if (userFilter === 'Hottest leads') return u._status === 'Free' && (u.completed_usage || 0) >= 2;
+        if (userFilter !== 'All' && u._status !== userFilter) return false;
+        return true;
+      });
+    }
+    function statusBadge(s) {
+      var c = s === 'VIP' ? 'b-vip' : s === 'Paid' ? 'b-paid' : s === 'BD Free' ? 'b-bd' : 'b-free';
+      return '<span class="badge ' + c + '">' + s + '</span>';
+    }
+
+    // ---------- BD FREE ----------
+    async function renderBd() {
+      loading();
+      var d = await api('bd_users'); cache.bd = d.rows || [];
+      drawBd();
+    }
+    function drawBd() {
+      var q = (document.getElementById('bdSearch') ? document.getElementById('bdSearch').value : '');
+      var rows = (cache.bd || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || (r.name + ' ' + r.email + ' ' + r.whatsapp + ' ' + r.license_key).toLowerCase().indexOf(s) >= 0; });
+      var html = '<div class="toolbar"><input class="search" id="bdSearch" placeholder="Search name / email / phone / key…" oninput="drawBd()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bd,\'bd_free_users\')">⬇ CSV</button></div>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>License key</th><th>Activated</th><th>Signed up</th></tr></thead><tbody>';
+      html += rows.map(function (r) {
+        var act = r.client_id ? '<span class="badge b-bd">Yes</span> <span class="muted">' + fmt(r.activated_at) + '</span>' : '<span class="badge b-free">No</span>';
+        return '<tr><td>' + esc(r.name) + '</td><td class="wrap-cell">' + esc(r.email) + '</td><td>' + esc(r.whatsapp) + '</td><td class="wrap-cell">' + esc(r.license_key) + '</td><td>' + act + '</td><td>' + fmt(r.created_at) + '</td></tr>';
+      }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px;">No signups.</td></tr>';
+      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      view(html);
+    }
+
+    // ---------- KEYS ----------
+    async function renderKeys() {
+      loading();
+      var d = await api('keys'); cache.keys = d.rows || [];
+      drawKeys();
+    }
+    function drawKeys() {
+      var q = (document.getElementById('kSearch') ? document.getElementById('kSearch').value : '');
+      var rows = (cache.keys || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || (r.key + ' ' + (r.email || '') + ' ' + (r.bound_client || '')).toLowerCase().indexOf(s) >= 0; });
+      var html = '<div class="card"><h3>Create a key</h3><div class="desc">Issue a new license key manually.</div>' +
+        '<div class="grid2">' +
+        '<div class="fld"><label>Key string</label><input type="text" id="ck_key" placeholder="UIFLOW-XXXX-XXXX"></div>' +
+        '<div class="fld"><label>Email (optional)</label><input type="email" id="ck_email" placeholder="buyer@email.com"></div>' +
+        '<div class="fld"><label>Plan</label><select id="ck_plan"><option value="pro">pro (paid)</option><option value="bd-free">bd-free</option></select></div>' +
+        '<div class="fld"><label>License type</label><select id="ck_type"><option value="lifetime">lifetime</option><option value="clicks">clicks (credit pack)</option></select></div>' +
+        '<div class="fld"><label>Total clicks (clicks type)</label><input type="number" id="ck_total" value="0"></div>' +
+        '<div class="fld"><label>Clicks remaining (clicks type)</label><input type="number" id="ck_rem" value="0"></div>' +
+        '</div><div class="rowbar"><button class="btn btn-primary" onclick="createKey()">Create key</button><span class="save-status" id="ckStatus"></span></div></div>';
+
+      html += '<div class="toolbar"><input class="search" id="kSearch" placeholder="Search key / email / bound account…" oninput="drawKeys()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.keys,\'license_keys\')">⬇ CSV</button></div>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>Key</th><th>Plan</th><th>Type</th><th>Email</th><th>Bound to</th><th>Clicks</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+      html += rows.map(function (r) {
+        var st = r.is_revoked ? '<span class="badge b-rev">Revoked</span>' : (r.bound_client ? '<span class="badge b-paid">Active</span>' : '<span class="badge b-free">Available</span>');
+        var clicks = r.license_type === 'clicks' ? ((r.clicks_remaining != null ? r.clicks_remaining : '?') + ' / ' + (r.total_clicks != null ? r.total_clicks : '?')) : '∞';
+        var kEsc = encodeURIComponent(r.key);
+        var acts = '';
+        acts += r.is_revoked ? '<button class="rowbtn" onclick="patchKey(\'' + kEsc + '\',{is_revoked:false})">Un-revoke</button>' : '<button class="rowbtn danger" onclick="patchKey(\'' + kEsc + '\',{is_revoked:true})">Revoke</button>';
+        if (r.bound_client) acts += '<button class="rowbtn" onclick="patchKey(\'' + kEsc + '\',{bound_client:null,activated_at:null})">Unbind</button>';
+        if (r.license_type === 'clicks') acts += '<button class="rowbtn" onclick="editClicks(\'' + kEsc + '\')">Edit clicks</button>';
+        acts += '<button class="rowbtn danger" onclick="delKey(\'' + kEsc + '\')">Delete</button>';
+        return '<tr><td class="wrap-cell">' + esc(r.key) + '</td><td>' + esc(r.plan) + '</td><td>' + esc(r.license_type) + '</td><td class="wrap-cell">' + esc(r.email || '') + '</td><td class="wrap-cell">' + esc(r.bound_client || '—') + '</td><td>' + clicks + '</td><td>' + st + '</td><td>' + acts + '</td></tr>';
+      }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No keys.</td></tr>';
+      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      view(html);
+    }
+    async function createKey() {
+      var st = document.getElementById('ckStatus');
+      var payload = {
+        key: document.getElementById('ck_key').value.trim(),
+        email: document.getElementById('ck_email').value.trim() || null,
+        plan: document.getElementById('ck_plan').value,
+        license_type: document.getElementById('ck_type').value,
+        total_clicks: parseInt(document.getElementById('ck_total').value || '0', 10),
+        clicks_remaining: parseInt(document.getElementById('ck_rem').value || '0', 10),
+        is_revoked: false
+      };
+      if (!payload.key) { st.className = 'save-status err'; st.textContent = 'Enter a key string.'; return; }
+      st.className = 'save-status'; st.textContent = 'Saving…';
+      try { await api('create_key', { key: payload }); st.className = 'save-status ok'; st.textContent = 'Created ✓'; await renderKeys(); }
+      catch (e) { st.className = 'save-status err'; st.textContent = e.message; }
+    }
+    async function patchKey(kEnc, patch) {
+      try { await api('update_key', { key: decodeURIComponent(kEnc), patch: patch }); await renderKeys(); }
+      catch (e) { alert(e.message); }
+    }
+    async function editClicks(kEnc) {
+      var v = prompt('Set clicks remaining:'); if (v === null) return;
+      var n = parseInt(v, 10); if (isNaN(n)) return alert('Enter a number.');
+      patchKey(kEnc, { clicks_remaining: n });
+    }
+    async function delKey(kEnc) {
+      if (!confirm('Delete this key permanently?')) return;
+      try { await api('delete_key', { key: decodeURIComponent(kEnc) }); await renderKeys(); } catch (e) { alert(e.message); }
+    }
+
+    // ---------- VIPS ----------
+    async function renderVips() {
+      loading();
+      var d = await api('vips'); cache.vips = d.rows || [];
+      var html = '<div class="card"><h3>Add VIP</h3><div class="desc">Instantly grants unlimited exports to a client id (re-checked on next launch).</div>' +
+        '<div class="rowbar"><input type="text" id="vipId" placeholder="user_12345 or uid_abc" style="flex:1;min-width:220px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:14px;">' +
+        '<button class="btn btn-primary" onclick="addVip()">Add VIP</button><span class="save-status" id="vipStatus"></span></div></div>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>Client ID</th><th></th></tr></thead><tbody>';
+      html += (cache.vips || []).map(function (v) {
+        return '<tr><td class="wrap-cell">' + esc(v.client_id) + '</td><td style="text-align:right;"><button class="rowbtn danger" onclick="removeVip(\'' + encodeURIComponent(v.client_id) + '\')">Remove</button></td></tr>';
+      }).join('') || '<tr><td colspan="2" class="muted" style="text-align:center;padding:24px;">No VIPs.</td></tr>';
+      html += '</tbody></table></div>';
+      view(html);
+    }
+    async function addVip() {
+      var id = document.getElementById('vipId').value.trim(); var st = document.getElementById('vipStatus');
+      if (!id) { st.className = 'save-status err'; st.textContent = 'Enter a client id.'; return; }
+      st.className = 'save-status'; st.textContent = 'Adding…';
+      try { await api('add_vip', { client_id: id }); await renderVips(); } catch (e) { st.className = 'save-status err'; st.textContent = e.message; }
+    }
+    async function removeVip(idEnc) {
+      if (!confirm('Remove VIP?')) return;
+      try { await api('remove_vip', { client_id: decodeURIComponent(idEnc) }); await renderVips(); } catch (e) { alert(e.message); }
+    }
+
+    // ---------- CONTENT ----------
+    function renderContent() {
+      var subs = ['Popups', 'Promo', 'Offer', 'Config'];
+      var html = '<div class="subtabs">' + subs.map(function (s) { return '<button class="tab' + (contentTab === s ? ' active' : '') + '" onclick="contentTab=\'' + s + '\';renderContent()">' + s + '</button>'; }).join('') + '</div><div id="cbody"><div class="muted" style="padding:20px;">Loading…</div></div>';
+      view(html);
+      if (contentTab === 'Popups') loadPopups();
+      else if (contentTab === 'Promo') loadPromo();
+      else if (contentTab === 'Offer') loadOffer();
+      else loadConfig();
+    }
+    function cbody(h) { document.getElementById('cbody').innerHTML = h; }
+    var REGION_NOTE = 'Region: <code>all</code> · <code>international</code> · <code>bd</code> · a country code like <code>IN</code> · or a list <code>IN,PK</code>.';
+
+    async function loadConfig() {
+      var c = (await api('get_content', { file: 'config.json' })).content || {};
+      cbody('<div class="card"><h3>Daily free-export limit</h3><div class="desc">How many free exports per 24h before a free user is blocked.</div>' +
+        '<div class="fld" style="max-width:220px;"><label>freeLimit</label><input type="number" id="cfg_limit" value="' + esc(c.freeLimit != null ? c.freeLimit : 20) + '"></div>' +
+        '<div class="rowbar"><button class="btn btn-primary" onclick="saveConfig()">Save</button><span class="save-status" id="cStatus"></span></div></div>');
+    }
+    async function saveConfig() { await saveFile('config.json', { freeLimit: parseInt(document.getElementById('cfg_limit').value || '20', 10) }, 'cStatus'); }
+
+    async function loadOffer() {
+      var o = (await api('get_content', { file: 'offer.json' })).content || {};
+      cbody('<div class="card"><h3>Offer (paid / non-BD users)</h3><div class="desc">Discount shown near "Buy License". Hidden for Bangladesh.</div>' +
+        '<div class="fld chk"><input type="checkbox" id="of_active" ' + (o.active ? 'checked' : '') + '><label>Active</label></div>' +
+        '<div class="grid2"><div class="fld"><label>Code</label><input type="text" id="of_code" value="' + esc(o.code || '') + '"></div>' +
+        '<div class="fld"><label>Discount (%)</label><input type="number" id="of_disc" value="' + esc(o.discount != null ? o.discount : 0) + '"></div></div>' +
+        '<div class="fld"><label>Text</label><input type="text" id="of_text" value="' + esc(o.text || '') + '"></div>' +
+        '<div class="rowbar"><button class="btn btn-primary" onclick="saveOffer()">Save</button><span class="save-status" id="cStatus"></span></div></div>');
+    }
+    async function saveOffer() {
+      await saveFile('offer.json', { active: document.getElementById('of_active').checked, code: document.getElementById('of_code').value.trim(),
+        discount: parseInt(document.getElementById('of_disc').value || '0', 10), text: document.getElementById('of_text').value.trim() }, 'cStatus');
+    }
+
+    async function loadPromo() {
+      var p = (await api('get_content', { file: 'promo.json' })).content || {};
+      cbody('<div class="card"><h3>Promotions banner</h3><div class="desc">The banner inside the plugin. ' + REGION_NOTE + '</div>' +
+        '<div class="fld chk"><input type="checkbox" id="pr_active" ' + (p.active ? 'checked' : '') + '><label>Active</label></div>' +
+        '<div class="fld"><label>Text</label><input type="text" id="pr_text" value="' + esc(p.text || '') + '"></div>' +
+        '<div class="grid2"><div class="fld"><label>URL</label><input type="url" id="pr_url" value="' + esc(p.url || '') + '"></div>' +
+        '<div class="fld"><label>Image URL (optional — shows instead of text)</label><input type="url" id="pr_image" value="' + esc(p.image || '') + '"></div>' +
+        '<div class="fld"><label>Region</label><input type="text" id="pr_region" value="' + esc(p.region || 'all') + '" placeholder="all / international / bd / IN"></div>' +
+        '<div class="fld chk"><input type="checkbox" id="pr_dismiss" ' + (p.dismissible ? 'checked' : '') + '><label>Dismissible</label></div>' +
+        '<div class="fld"><label>Background</label><input type="text" id="pr_bg" value="' + esc(p.bg || '') + '" placeholder="#10233f"></div>' +
+        '<div class="fld"><label>Border</label><input type="text" id="pr_border" value="' + esc(p.border || '') + '" placeholder="#3b82f6"></div>' +
+        '<div class="fld"><label>Text color</label><input type="text" id="pr_color" value="' + esc(p.color || '') + '" placeholder="#bfdbfe"></div></div>' +
+        '<div class="rowbar"><button class="btn btn-primary" onclick="savePromo()">Save</button><span class="save-status" id="cStatus"></span></div></div>');
+    }
+    async function savePromo() {
+      var o = { active: document.getElementById('pr_active').checked, text: document.getElementById('pr_text').value, url: document.getElementById('pr_url').value.trim(),
+        region: document.getElementById('pr_region').value.trim() || 'all', dismissible: document.getElementById('pr_dismiss').checked };
+      var img = document.getElementById('pr_image').value.trim(); if (img) o.image = img;
+      ['bg', 'border', 'color'].forEach(function (f) { var v = document.getElementById('pr_' + f).value.trim(); if (v) o[f] = v; });
+      await saveFile('promo.json', o, 'cStatus');
+    }
+
+    var popups = [];
+    async function loadPopups() {
+      var c = (await api('get_content', { file: 'bdpopup.json' })).content || {};
+      popups = (c.popups || []).slice();
+      drawPopups();
+    }
+    function drawPopups() {
+      var html = '<div class="card"><h3>Launch popups</h3><div class="desc">Shown once per open to non-licensed users; first matching popup wins. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
+      html += popups.map(function (p, i) {
+        return '<div class="popup-card"><button class="rowbtn danger del-popup" onclick="delPopup(' + i + ')">✕ Delete</button>' +
+          '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (p.active ? 'checked' : '') + '><label>Active</label></div>' +
+          '<div class="grid2">' +
+          pf(i, 'region', 'Region', p.region || 'all', 'all / international / bd / IN,PK') +
+          pf(i, 'users', 'Target user ids (comma-sep, optional)', (Array.isArray(p.users) ? p.users.join(',') : (p.users || '')), 'user_123,uid_abc') +
+          pf(i, 'title', 'Title', p.title || '') +
+          pf(i, 'button', 'Button label', p.button || '') +
+          pf(i, 'url', 'URL', p.url || '') +
+          pf(i, 'gif', 'GIF/Image URL (optional, full-bleed)', p.gif || p.image || '') +
+          pf(i, 'bg', 'Background', p.bg || '', '#0a7c3f') +
+          pf(i, 'border', 'Border', p.border || '', '#16a34a') +
+          pf(i, 'color', 'Text color', p.color || '', '#ffffff') +
+          '</div><div class="fld"><label>Text</label><textarea data-i="' + i + '" data-k="text">' + esc(p.text || '') + '</textarea></div></div>';
+      }).join('');
+      html += '<div class="rowbar"><button class="rowbtn" onclick="addPopup()">+ Add popup</button><button class="btn btn-primary" onclick="savePopups()">Save all</button><span class="save-status" id="cStatus"></span></div></div>';
+      cbody(html);
+      function pf(i, k, label, val, ph) { return '<div class="fld"><label>' + label + '</label><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(val) + '" placeholder="' + (ph || '') + '"></div>'; }
+    }
+    function collectPopups() {
+      var wrap = document.getElementById('cbody');
+      var byIndex = {};
+      popups.forEach(function (_, i) { byIndex[i] = {}; });
+      wrap.querySelectorAll('[data-i]').forEach(function (el) {
+        var i = el.getAttribute('data-i'), k = el.getAttribute('data-k');
+        byIndex[i][k] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      return Object.keys(byIndex).map(function (i) {
+        var o = byIndex[i]; var out = { active: !!o.active, region: (o.region || 'all').trim(), title: o.title || '', text: o.text || '', button: o.button || '', url: (o.url || '').trim() };
+        if (o.users && o.users.trim()) out.users = o.users.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        if (o.gif && o.gif.trim()) out.gif = o.gif.trim();
+        ['bg', 'border', 'color'].forEach(function (f) { if (o[f] && o[f].trim()) out[f] = o[f].trim(); });
+        return out;
+      });
+    }
+    function addPopup() { popups.push({ active: true, region: 'all', title: '', text: '', button: '', url: '' }); drawPopups(); }
+    function delPopup(i) { popups = collectPopups(); popups.splice(i, 1); drawPopups(); }
+    async function savePopups() { await saveFile('bdpopup.json', { popups: collectPopups() }, 'cStatus'); }
+
+    async function saveFile(file, obj, statusId) {
+      var st = document.getElementById(statusId); st.className = 'save-status'; st.textContent = 'Saving…';
+      try { await api('save_content', { file: file, content: obj }); st.className = 'save-status ok'; st.textContent = 'Saved ✓ (live on next plugin open)'; }
+      catch (e) { st.className = 'save-status err'; st.textContent = e.message; }
+    }
+
+    // ---------- CSV ----------
+    function exportCSV(rows, name) {
+      if (!rows || !rows.length) return;
+      var cols = Object.keys(rows[0]).filter(function (c) { return c.charAt(0) !== '_'; });
+      var csv = [cols.join(',')].concat(rows.map(function (r) {
+        return cols.map(function (c) { var v = r[c] == null ? '' : String(r[c]); return '"' + v.replace(/"/g, '""') + '"'; }).join(',');
+      })).join('\n');
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = name + '.csv'; a.click();
+    }
+
+    if (pw()) { unlock(); }
+  </script>
+</body>
+</html>
