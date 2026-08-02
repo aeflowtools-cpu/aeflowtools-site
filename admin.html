@@ -338,10 +338,8 @@
       var subs = ['Popups', 'Promo', 'Offer', 'Config'];
       var html = '<div class="subtabs">' + subs.map(function (s) { return '<button class="tab' + (contentTab === s ? ' active' : '') + '" onclick="contentTab=\'' + s + '\';renderContent()">' + s + '</button>'; }).join('') + '</div><div id="cbody"><div class="muted" style="padding:20px;">Loading…</div></div>';
       view(html);
-      if (contentTab === 'Popups') loadPopups();
-      else if (contentTab === 'Promo') loadPromo();
-      else if (contentTab === 'Offer') loadOffer();
-      else loadConfig();
+      var fn = contentTab === 'Popups' ? loadPopups : contentTab === 'Promo' ? loadPromo : contentTab === 'Offer' ? loadOffer : loadConfig;
+      fn().catch(function (e) { cbody('<div class="err" style="padding:16px;">' + esc(e.message) + '</div>'); });
     }
     function cbody(h) { document.getElementById('cbody').innerHTML = h; }
     var REGION_NOTE = 'Region: <code>all</code> · <code>international</code> · <code>bd</code> · a country code like <code>IN</code> · or a list <code>IN,PK</code>.';

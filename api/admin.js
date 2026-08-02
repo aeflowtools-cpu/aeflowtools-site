@@ -25,9 +25,10 @@ async function count(table, filter) {
 
 async function readFile(name) {
   const r = await fetch(`${SB_URL}/storage/v1/object/public/${BUCKET}/${name}?t=${Date.now()}`, { headers: { apikey: svc(), Authorization: `Bearer ${svc()}` }, cache: 'no-store' });
-  if (r.status === 404) return null;
-  if (!r.ok) throw new Error('Could not read ' + name);
-  return await r.json();
+  // File may not exist yet — treat any non-OK read as "empty", so the editor shows
+  // defaults and creates the file on first Save. (Real errors surface on write.)
+  if (!r.ok) return null;
+  try { return await r.json(); } catch (e) { return null; }
 }
 
 async function writeFile(name, obj) {
