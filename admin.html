@@ -107,6 +107,23 @@
     .stat.off { background: rgba(148,163,184,0.12); color: #94a3b8; }
     .item-body { display: none; padding: 6px 16px 16px; border-top: 1px solid var(--border); }
     .item.open .item-body { display: block; }
+    tbody tr.clickable { cursor: pointer; }
+    /* user profile modal */
+    .um-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .um-overlay.open { opacity: 1; pointer-events: auto; }
+    .um-modal { position: relative; width: 100%; max-width: 560px; max-height: calc(100vh - 40px); overflow-y: auto;
+      background: linear-gradient(180deg, rgba(22,24,30,0.98), rgba(13,14,18,0.99)); border: 1px solid var(--border);
+      border-radius: 18px; padding: 26px; box-shadow: 0 30px 80px rgba(0,0,0,0.55); }
+    .um-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 0; color: var(--text); font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .um-close:hover { background: rgba(255,255,255,0.16); }
+    .um-title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+    .sec-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; margin: 20px 0 4px; }
+    .dl { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+    .dl .dk { color: var(--muted); flex-shrink: 0; }
+    .dl .dv { text-align: right; word-break: break-word; }
+    .dl .dv a { color: var(--accent-2); }
     @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -131,10 +148,21 @@
     <div id="app" style="display:none;">
       <div class="top">
         <h1>🛠️ UI Flow Admin</h1>
-        <button class="lock-btn" onclick="lock()">🔒 Lock</button>
+        <div style="display:flex; gap:8px;">
+          <button class="lock-btn" onclick="render()">↻ Refresh</button>
+          <button class="lock-btn" onclick="lock()">🔒 Lock</button>
+        </div>
       </div>
       <div class="tabs" id="tabs"></div>
       <div id="view"></div>
+    </div>
+  </div>
+
+  <!-- user profile modal -->
+  <div class="um-overlay" id="userModal">
+    <div class="um-modal">
+      <button class="um-close" onclick="closeUserModal()">×</button>
+      <div id="umBody"></div>
     </div>
   </div>
 
@@ -213,21 +241,22 @@
     }
     function drawUsers() {
       var filters = ['All', 'VIP', 'Paid', 'BD Free', 'Free', 'Hottest leads'];
-      var html = '<div class="toolbar"><input class="search" id="uSearch" placeholder="Search user id…" oninput="drawUsers()" value="' + (document.getElementById('uSearch') ? esc(document.getElementById('uSearch').value) : '') + '">' +
+      var html = '<div class="toolbar"><input class="search" id="uSearch" placeholder="Search name / user id / email…" oninput="drawUsers()" value="' + (document.getElementById('uSearch') ? esc(document.getElementById('uSearch').value) : '') + '">' +
         filters.map(function (f) { return '<button class="chip' + (userFilter === f ? ' active' : '') + '" onclick="userFilter=\'' + f + '\';drawUsers()">' + f + '</button>'; }).join('') +
         '<button class="chip" onclick="exportCSV(filteredUsers(),\'users\')">⬇ CSV</button></div>';
       var rows = filteredUsers();
-      html += '<div class="tbl-wrap"><table><thead><tr><th>User ID</th><th>Status</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
       html += rows.map(function (u) {
-        return '<tr><td class="wrap-cell">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
-      }).join('') || '<tr><td colspan="5" class="muted" style="text-align:center;padding:24px;">No users.</td></tr>';
-      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+        var nm = u._name || (u._email || '—');
+        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
+      }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px;">No users.</td></tr>';
+      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown · click a row for the full profile</div>';
       view(html);
     }
     function filteredUsers() {
       var q = (document.getElementById('uSearch') ? document.getElementById('uSearch').value : '').toLowerCase().trim();
       return (cache.users || []).filter(function (u) {
-        if (q && String(u.user_id).toLowerCase().indexOf(q) < 0) return false;
+        if (q && (String(u.user_id) + ' ' + (u._name || '') + ' ' + (u._email || '')).toLowerCase().indexOf(q) < 0) return false;
         if (userFilter === 'Hottest leads') return u._status === 'Free' && (u.completed_usage || 0) >= 2;
         if (userFilter !== 'All' && u._status !== userFilter) return false;
         return true;
@@ -236,6 +265,62 @@
     function statusBadge(s) {
       var c = s === 'VIP' ? 'b-vip' : s === 'Paid' ? 'b-paid' : s === 'BD Free' ? 'b-bd' : 'b-free';
       return '<span class="badge ' + c + '">' + s + '</span>';
+    }
+
+    // ----- user profile modal -----
+    async function openUserProfile(idEnc) {
+      var id = decodeURIComponent(idEnc);
+      var m = document.getElementById('userModal');
+      document.getElementById('umBody').innerHTML = '<div class="muted" style="padding:24px;text-align:center;">Loading…</div>';
+      m.classList.add('open'); document.body.style.overflow = 'hidden';
+      try { renderUserProfile(await api('user_detail', { user_id: id }), id); }
+      catch (e) { document.getElementById('umBody').innerHTML = '<div class="err" style="padding:10px;">' + esc(e.message) + '</div>'; }
+    }
+    function closeUserModal() { document.getElementById('userModal').classList.remove('open'); document.body.style.overflow = ''; }
+    function dl(k, v) { return '<div class="dl"><span class="dk">' + k + '</span><span class="dv">' + v + '</span></div>'; }
+    function renderUserProfile(d, id) {
+      var au = d.app_user || {}, bd = d.bd_user, keys = d.keys || [], vip = d.vip, usage = d.usage;
+      var status = vip ? 'VIP' : (keys.some(function (k) { return !k.is_revoked && k.plan === 'pro'; }) ? 'Paid'
+        : ((keys.some(function (k) { return !k.is_revoked && k.plan === 'bd-free'; }) || bd) ? 'BD Free' : 'Free'));
+      var name = (bd && bd.name) ? bd.name : '—';
+      var email = (bd && bd.email) ? bd.email : (keys[0] && keys[0].email ? keys[0].email : '—');
+
+      var h = '<div class="um-title">' + esc(name) + ' &nbsp;' + statusBadge(status) + '</div>';
+      h += '<div class="muted" style="font-size:12px;margin-top:4px;word-break:break-all;">' + esc(id) + '</div>';
+
+      h += '<div class="sec-title">Account</div>';
+      h += dl('Email', esc(email));
+      if (bd && bd.whatsapp) h += dl('WhatsApp', esc(bd.whatsapp));
+
+      h += '<div class="sec-title">Activity</div>';
+      h += dl('Plugin opens', au.open_count || 0);
+      h += dl('Days hit free limit', au.completed_usage || 0);
+      h += dl('Last seen', fmt(au.last_seen));
+      if (au.last_completed_day) h += dl('Last maxed day', esc(au.last_completed_day));
+      if (usage) { h += dl('Exports (current window)', (usage.click_count != null ? usage.click_count : '—')); h += dl('Window started', fmt(usage.window_start)); }
+
+      if (bd) {
+        h += '<div class="sec-title">Bangladesh signup</div>';
+        h += dl('Name', esc(bd.name || '—'));
+        h += dl('Email', esc(bd.email || '—'));
+        h += dl('WhatsApp', esc(bd.whatsapp || '—'));
+        h += dl('License key', esc(bd.license_key || '—'));
+        h += dl('Activated', bd.client_id ? fmt(bd.activated_at) : 'Not yet');
+        h += dl('Signed up', fmt(bd.created_at));
+      }
+
+      h += '<div class="sec-title">Licenses (' + keys.length + ')</div>';
+      h += keys.length ? keys.map(function (k) {
+        return '<div style="border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:8px;">' +
+          dl('Key', esc(k.key)) + dl('Plan / type', esc(k.plan) + ' · ' + esc(k.license_type)) +
+          (k.email ? dl('Email', esc(k.email)) : '') + dl('Revoked', k.is_revoked ? 'Yes' : 'No') +
+          (k.license_type === 'clicks' ? dl('Clicks', (k.clicks_remaining != null ? k.clicks_remaining : '?') + ' / ' + (k.total_clicks != null ? k.total_clicks : '?')) : '') +
+          dl('Activated', fmt(k.activated_at)) + '</div>';
+      }).join('') : '<div class="muted" style="padding:6px 0;">No license bound to this user.</div>';
+
+      if (vip) h += '<div class="sec-title">VIP</div>' + dl('VIP', 'Yes — unlimited');
+
+      document.getElementById('umBody').innerHTML = h;
     }
 
     // ---------- BD FREE ----------
@@ -549,6 +634,14 @@
       a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
       a.download = name + '.csv'; a.click();
     }
+
+    (function () {
+      var m = document.getElementById('userModal');
+      if (m) {
+        m.addEventListener('click', function (e) { if (e.target === m) closeUserModal(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && m.classList.contains('open')) closeUserModal(); });
+      }
+    })();
 
     if (pw()) { unlock(); }
   </script>

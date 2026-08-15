@@ -72,27 +72,43 @@ export default async function handler(req, res) {
     }
 
     if (a === 'users') {
-      const [users, vips, keys] = await Promise.all([
+      const [users, vips, keys, bd] = await Promise.all([
         rest('app_users?select=*&order=last_seen.desc.nullslast&limit=2000'),
         rest('vip_users?select=client_id'),
-        rest('license_keys?select=bound_client,plan,is_revoked&bound_client=not.is.null'),
+        rest('license_keys?select=bound_client,plan,is_revoked,email&bound_client=not.is.null'),
+        rest('bd_free_users?select=client_id,name,email,whatsapp&client_id=not.is.null'),
       ]);
       const vipSet = new Set(vips.map(function (v) { return v.client_id; }));
-      const paid = new Set(), bdset = new Set();
+      const paid = new Set(), bdset = new Set(), emailMap = {};
       keys.forEach(function (k) {
         if (!k.is_revoked && k.bound_client) {
           if (k.plan === 'pro') paid.add(k.bound_client);
           else if (k.plan === 'bd-free') bdset.add(k.bound_client);
+          if (k.email && !emailMap[k.bound_client]) emailMap[k.bound_client] = k.email;
         }
       });
+      const bdMap = {};
+      bd.forEach(function (u) { if (u.client_id) bdMap[u.client_id] = u; });
       const rows = users.map(function (u) {
         var status = 'Free';
         if (vipSet.has(u.user_id)) status = 'VIP';
         else if (paid.has(u.user_id)) status = 'Paid';
         else if (bdset.has(u.user_id)) status = 'BD Free';
-        return Object.assign({ _status: status }, u);
+        var info = bdMap[u.user_id] || {};
+        return Object.assign({ _status: status, _name: info.name || '', _email: info.email || emailMap[u.user_id] || '', _whatsapp: info.whatsapp || '' }, u);
       });
       return res.status(200).json({ rows: rows });
+    }
+    if (a === 'user_detail') {
+      const id = encodeURIComponent(body.user_id || '');
+      const [au, bdu, keys, vip, usage] = await Promise.all([
+        rest('app_users?select=*&user_id=eq.' + id),
+        rest('bd_free_users?select=*&client_id=eq.' + id),
+        rest('license_keys?select=*&bound_client=eq.' + id),
+        rest('vip_users?select=*&client_id=eq.' + id),
+        rest('usage_tracking?select=*&client_id=eq.' + id),
+      ]);
+      return res.status(200).json({ app_user: au[0] || null, bd_user: bdu[0] || null, keys: keys || [], vip: vip[0] || null, usage: usage[0] || null });
     }
 
     if (a === 'bd_users') return res.status(200).json({ rows: await rest('bd_free_users?select=*&order=created_at.desc&limit=3000') });
