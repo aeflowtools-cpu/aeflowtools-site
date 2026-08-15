@@ -17,6 +17,18 @@ async function insert(table, row) {
   if (!r.ok) { const e = await r.text(); throw new Error(e || 'Could not save'); }
 }
 
+// Optional Telegram notification (fires only if the bot env vars are set).
+async function telegram(text) {
+  const token = process.env.TELEGRAM_BOT_TOKEN, chat = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chat) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chat, text: text, disable_web_page_preview: true }),
+    });
+  } catch (e) {}
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -42,6 +54,10 @@ export default async function handler(req, res) {
         description: description,
         video_link: (b.video_link || '').trim() || null,
       });
+      await telegram('🐞 New bug report\nFrom: ' + email +
+        '\nOS: ' + ((b.os || '').trim() || '—') + '  ·  AE: ' + ((b.ae_version || '').trim() || '—') +
+        ((b.video_link || '').trim() ? '\n🎥 ' + (b.video_link || '').trim() : '') +
+        '\n\n' + description);
       return res.status(200).json({ success: true });
     }
 
