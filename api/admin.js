@@ -98,6 +98,13 @@ export default async function handler(req, res) {
     if (a === 'bd_users') return res.status(200).json({ rows: await rest('bd_free_users?select=*&order=created_at.desc&limit=3000') });
     if (a === 'keys') return res.status(200).json({ rows: await rest('license_keys?select=*&order=activated_at.desc.nullslast&limit=3000') });
     if (a === 'vips') return res.status(200).json({ rows: await rest('vip_users?select=*') });
+    if (a === 'bug_reports') return res.status(200).json({ rows: await rest('bug_reports?select=*&order=created_at.desc&limit=3000') });
+    if (a === 'reviews') return res.status(200).json({ rows: await rest('reviews?select=*&order=created_at.desc&limit=3000') });
+    if (a === 'delete_feedback') {
+      if (['bug_reports', 'reviews'].indexOf(body.table) < 0) return res.status(400).json({ error: 'bad table' });
+      await rest(body.table + '?id=eq.' + encodeURIComponent(body.id), { method: 'DELETE' });
+      return res.status(200).json({ ok: true });
+    }
 
     if (a === 'create_key') {
       const row = await rest('license_keys', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(body.key || {}) });

@@ -139,7 +139,7 @@
   </div>
 
   <script>
-    var TABS = ['Overview', 'Users', 'BD Free', 'Keys', 'VIPs', 'Content'];
+    var TABS = ['Overview', 'Users', 'BD Free', 'Keys', 'VIPs', 'Bugs', 'Reviews', 'Content'];
     var cur = 'Overview';
     var cache = {};        // data cache per tab
     var userFilter = 'All';
@@ -189,6 +189,8 @@
         if (cur === 'BD Free') return renderBd();
         if (cur === 'Keys') return renderKeys();
         if (cur === 'VIPs') return renderVips();
+        if (cur === 'Bugs') return renderBugs();
+        if (cur === 'Reviews') return renderReviews();
         if (cur === 'Content') return renderContent();
       } catch (e) { view('<div class="err" style="padding:20px;">' + esc(e.message) + '</div>'); }
     }
@@ -343,6 +345,41 @@
     async function removeVip(idEnc) {
       if (!confirm('Remove VIP?')) return;
       try { await api('remove_vip', { client_id: decodeURIComponent(idEnc) }); await renderVips(); } catch (e) { alert(e.message); }
+    }
+
+    // ---------- BUG REPORTS ----------
+    async function renderBugs() { loading(); cache.bugs = (await api('bug_reports')).rows || []; drawBugs(); }
+    function drawBugs() {
+      var q = (document.getElementById('bgSearch') ? document.getElementById('bgSearch').value : '');
+      var rows = (cache.bugs || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || ((r.email || '') + ' ' + (r.description || '')).toLowerCase().indexOf(s) >= 0; });
+      var html = '<div class="toolbar"><input class="search" id="bgSearch" placeholder="Search email / text…" oninput="drawBugs()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bugs,\'bug_reports\')">⬇ CSV</button></div>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Email</th><th>OS</th><th>AE</th><th>Description</th><th>Video</th><th></th></tr></thead><tbody>';
+      html += rows.map(function (r) {
+        var vid = r.video_link ? '<a href="' + esc(r.video_link) + '" target="_blank" style="color:var(--accent-2)">link</a>' : '—';
+        return '<tr><td>' + fmt(r.created_at) + '</td><td class="wrap-cell">' + esc(r.email || '') + '</td><td>' + esc(r.os || '') + '</td><td>' + esc(r.ae_version || '') + '</td><td class="wrap-cell">' + esc(r.description || '') + '</td><td>' + vid + '</td><td><button class="rowbtn danger" onclick="delFeedback(\'bug_reports\',' + r.id + ')">Delete</button></td></tr>';
+      }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px;">No bug reports.</td></tr>';
+      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      view(html);
+    }
+
+    // ---------- REVIEWS ----------
+    async function renderReviews() { loading(); cache.reviews = (await api('reviews')).rows || []; drawReviews(); }
+    function drawReviews() {
+      var q = (document.getElementById('rvSearch') ? document.getElementById('rvSearch').value : '');
+      var rows = (cache.reviews || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || ((r.name || '') + ' ' + (r.review || '') + ' ' + (r.social_profile || '')).toLowerCase().indexOf(s) >= 0; });
+      var html = '<div class="toolbar"><input class="search" id="rvSearch" placeholder="Search name / text / social…" oninput="drawReviews()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.reviews,\'reviews\')">⬇ CSV</button></div>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Name</th><th>Role</th><th>Rating</th><th>Social</th><th>Review</th><th></th></tr></thead><tbody>';
+      html += rows.map(function (r) {
+        var soc = r.social_profile ? '<a href="' + esc(r.social_profile) + '" target="_blank" style="color:var(--accent-2)">profile</a>' : '—';
+        return '<tr><td>' + fmt(r.created_at) + '</td><td>' + esc(r.name || '') + '</td><td>' + esc(r.role || '') + '</td><td>' + esc(r.rating || '') + '</td><td>' + soc + '</td><td class="wrap-cell">' + esc(r.review || '') + '</td><td><button class="rowbtn danger" onclick="delFeedback(\'reviews\',' + r.id + ')">Delete</button></td></tr>';
+      }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px;">No reviews.</td></tr>';
+      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      view(html);
+    }
+
+    async function delFeedback(table, id) {
+      if (!confirm('Delete this entry?')) return;
+      try { await api('delete_feedback', { table: table, id: id }); if (table === 'bug_reports') renderBugs(); else renderReviews(); } catch (e) { alert(e.message); }
     }
 
     // ---------- CONTENT ----------

@@ -874,6 +874,7 @@
     function submitReviewForm(form, e) {
       e.preventDefault();
       var status = form.querySelector('.form-status');
+      if (form.elements['botcheck'] && form.elements['botcheck'].checked) return false;
       var social = (form.elements['social_profile'].value || '').trim();
       if (!/^(https?:\/\/)?([a-z0-9-]+\.)?(facebook\.com|fb\.com|fb\.me|instagram\.com|instagr\.am|linkedin\.com)\/[^\s]{2,}$/i.test(social)) {
         status.className = 'form-status err';
@@ -883,35 +884,44 @@
       }
       status.className = 'form-status';
       status.textContent = 'Sending…';
-      fetch(form.action, { method: 'POST', body: new FormData(form) })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (!data.success) throw new Error(data.message || 'failed');
-          form.reset();
-          status.className = 'form-status ok';
+      var payload = { type: 'review', name: (form.elements['name'].value || '').trim(),
+        role: form.elements['role'] ? (form.elements['role'].value || '').trim() : '',
+        rating: form.elements['rating'] ? form.elements['rating'].value : '',
+        social_profile: social, review: (form.elements['review'].value || '').trim() };
+      fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok || !d.success) throw new Error(d.error || 'failed');
+          form.reset(); status.className = 'form-status ok';
           status.textContent = '✓ Thank you for your review! It means a lot. 💙';
-        }).catch(function () {
+        }); }).catch(function (e2) {
           status.className = 'form-status err';
-          status.textContent = 'Something went wrong — please email contact@aeflowtools.com instead.';
+          status.textContent = (e2 && e2.message) || 'Something went wrong — please email contact@aeflowtools.com instead.';
         });
       return false;
     }
 
     function submitBugForm(form, e) {
       e.preventDefault();
-      var status = document.getElementById('bugStatus');
+      var status = form.querySelector('.form-status');
+      if (form.elements['botcheck'] && form.elements['botcheck'].checked) return false;
+      var email = (form.elements['email'].value || '').trim();
+      var description = (form.elements['description'].value || '').trim();
+      if (!email) { status.className = 'form-status err'; status.textContent = 'Please enter your email.'; return false; }
+      if (!description) { status.className = 'form-status err'; status.textContent = 'Please describe the bug.'; return false; }
       status.className = 'form-status';
       status.textContent = 'Sending…';
-      fetch(form.action, { method: 'POST', body: new FormData(form) })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (!data.success) throw new Error(data.message || 'failed');
-          form.reset();
-          status.className = 'form-status ok';
+      var payload = { type: 'bug', email: email, description: description,
+        os: form.elements['os'] ? form.elements['os'].value : '',
+        ae_version: form.elements['ae_version'] ? (form.elements['ae_version'].value || '').trim() : '',
+        video_link: form.elements['video_link'] ? (form.elements['video_link'].value || '').trim() : '' };
+      fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok || !d.success) throw new Error(d.error || 'failed');
+          form.reset(); status.className = 'form-status ok';
           status.textContent = '✓ Thank you! Your report was submitted successfully. I will try to fix this issue in our next update — a new update is coming soon.';
-        }).catch(function () {
+        }); }).catch(function (e2) {
           status.className = 'form-status err';
-          status.textContent = 'Something went wrong — please email contact@aeflowtools.com instead.';
+          status.textContent = (e2 && e2.message) || 'Something went wrong — please email contact@aeflowtools.com instead.';
         });
       return false;
     }
