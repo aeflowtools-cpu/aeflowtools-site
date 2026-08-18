@@ -492,11 +492,25 @@
 
     async function loadConfig() {
       var c = (await api('get_content', { file: 'config.json' })).content || {};
+      var t = c.tutorial || {};
       cbody('<div class="card"><h3>Daily free-export limit</h3><div class="desc">How many free exports per 24h before a free user is blocked.</div>' +
-        '<div class="fld" style="max-width:220px;"><label>freeLimit</label><input type="number" id="cfg_limit" value="' + esc(c.freeLimit != null ? c.freeLimit : 20) + '"></div>' +
+        '<div class="fld" style="max-width:220px;"><label>freeLimit</label><input type="number" id="cfg_limit" value="' + esc(c.freeLimit != null ? c.freeLimit : 10) + '"></div></div>' +
+        '<div class="card"><h3>Tutorial button</h3><div class="desc">The “Watch Tutorial” link shown in the plugin.</div>' +
+        '<div class="fld chk"><input type="checkbox" id="cfg_tut_enabled" ' + (t.enabled ? 'checked' : '') + '><label>Enabled</label></div>' +
+        '<div class="fld"><label>URL</label><input type="url" id="cfg_tut_url" value="' + esc(t.url || '') + '" placeholder="https://www.youtube.com/@uiflow.plugin"></div>' +
+        '<div class="fld"><label>Tooltip</label><input type="text" id="cfg_tut_tooltip" value="' + esc(t.tooltip || '') + '" placeholder="Watch Tutorial"></div>' +
         '<div class="rowbar"><button class="btn btn-primary" onclick="saveConfig()">Save</button><span class="save-status" id="cStatus"></span></div></div>');
     }
-    async function saveConfig() { await saveFile('config.json', { freeLimit: parseInt(document.getElementById('cfg_limit').value || '20', 10) }, 'cStatus'); }
+    async function saveConfig() {
+      await saveFile('config.json', {
+        freeLimit: parseInt(document.getElementById('cfg_limit').value || '10', 10),
+        tutorial: {
+          enabled: document.getElementById('cfg_tut_enabled').checked,
+          url: document.getElementById('cfg_tut_url').value.trim(),
+          tooltip: document.getElementById('cfg_tut_tooltip').value.trim()
+        }
+      }, 'cStatus');
+    }
 
     async function loadOffer() {
       var o = (await api('get_content', { file: 'offer.json' })).content || {};
