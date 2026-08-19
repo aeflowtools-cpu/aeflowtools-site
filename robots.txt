@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /notes
+Disallow: /api/
+
+Sitemap: https://www.aeflowtools.com/sitemap.xml
