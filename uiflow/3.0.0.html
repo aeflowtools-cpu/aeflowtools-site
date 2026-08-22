@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI Flow 3.0.0 — Now Available | Figma Motion to After Effects</title>
+  <meta name="description" content="UI Flow 3.0.0 is here: send your Figma motion into After Effects as real, editable keyframes — plus pixel-accurate text, missing-font alerts, and faster, cleaner transfers." />
+  <link rel="canonical" href="https://www.aeflowtools.com/uiflow/3.0.0" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AE Flow Tools" />
+  <meta property="og:title" content="UI Flow 3.0.0 — Now Available" />
+  <meta property="og:description" content="Send your Figma motion into After Effects as real, editable keyframes. Plus pixel-accurate text, missing-font alerts, and faster transfers." />
+  <meta property="og:url" content="https://www.aeflowtools.com/uiflow/3.0.0" />
+  <meta property="og:image" content="https://i.postimg.cc/25Mw22Mf/UI-Flow-Logo.png" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <style>
+    /* ---- V3 announcement page-specific ---- */
+    .kf { position: relative; height: 16px; max-width: 520px; margin: 34px auto 0; display: flex; align-items: center; justify-content: space-between; }
+    .kf::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%);
+      background: linear-gradient(90deg, transparent, var(--accent-2), transparent); }
+    .kf i { position: relative; width: 11px; height: 11px; transform: rotate(45deg); border-radius: 2px;
+      background: var(--accent-2); box-shadow: 0 0 12px var(--accent-glow); }
+    .kf i:nth-child(even) { width: 8px; height: 8px; opacity: 0.8; }
+
+    .flag { position: relative; border-radius: 22px; padding: 34px; overflow: hidden;
+      background: linear-gradient(160deg, rgba(37,99,235,0.14), rgba(37,99,235,0.04)); border: 1px solid var(--border);
+      backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+    .flag .ic { width: 54px; height: 54px; border-radius: 15px; display: grid; place-items: center; font-size: 26px;
+      background: linear-gradient(150deg, rgba(37,99,235,0.30), rgba(59,130,246,0.14)); border: 1px solid rgba(255,255,255,0.14); }
+    .flag h3 { font-size: clamp(22px, 3.2vw, 32px); font-weight: 800; letter-spacing: -0.02em; margin: 18px 0 0; }
+    .flag p { margin: 12px 0 0; color: var(--muted); font-size: 16px; max-width: 64ch; }
+    .beta { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #06210f; background: linear-gradient(180deg, #86efac, #22c55e);
+      padding: 4px 9px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+    .chip { font-size: 12.5px; font-weight: 600; color: #93c5fd; background: rgba(37,99,235,0.10);
+      border: 1px solid rgba(37,99,235,0.30); padding: 6px 13px; border-radius: 999px; }
+
+    .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .step { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+    .step .n { font-size: 12.5px; font-weight: 700; color: var(--accent-2); letter-spacing: 0.03em; }
+    .step h4 { font-size: 17px; font-weight: 700; margin: 8px 0 0; letter-spacing: -0.01em; }
+    .step p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+
+    .display .grad { background: linear-gradient(100deg, #93c5fd, #60a5fa);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../">
+        <img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" />
+        AE Flow Tools
+      </a>
+      <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+      <div class="nav-links" id="navlinks">
+        <a href="../">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
+          <div class="dropdown-menu">
+            <a href="../uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" style="padding-top:64px;">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> Version 3.0.0 · Now available</span>
+      <h1 class="display">UI Flow <span class="grad">V3</span> is here.</h1>
+      <p class="lead">
+        Your Figma motion now lands in After Effects as real, editable keyframes — no rebuilding timelines by hand.
+        Plus pixel-accurate text, missing-font alerts, and faster, cleaner transfers.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/uiflow/tools">Download 3.0.0 <span class="arrow">→</span></a>
+        <a class="btn btn-ghost" href="#whats-new">See what's new ↓</a>
+      </div>
+      <div class="kf" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </header>
+
+  <!-- HEADLINE FEATURE -->
+  <section class="section" id="whats-new" style="padding-top:24px;">
+    <div class="container">
+      <div class="section-head">
+        <span class="group-label">The headline feature</span>
+        <h2>Animate in Figma. Finish in After Effects.</h2>
+        <p>The one you've been waiting for — your motion comes across, not just your layers.</p>
+      </div>
+      <div class="flag">
+        <div class="ic">🎬</div>
+        <h3>Figma Motion → After Effects <span class="beta">Beta</span></h3>
+        <p>
+          Design and animate your interface in Figma, then send it over — UI Flow now brings your motion across as real
+          After Effects keyframes you can keep editing. What used to mean rebuilding every move by hand now lands ready to refine.
+        </p>
+        <div class="chips">
+          <span class="chip">Position</span><span class="chip">Scale</span><span class="chip">Rotation</span>
+          <span class="chip">Opacity</span><span class="chip">Effects</span><span class="chip">Path trim</span><span class="chip">Easing</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALSO IN 3.0.0 -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div class="section-head">
+        <span class="group-label">Also in 3.0.0</span>
+        <h2>Sharper, smarter transfers</h2>
+        <p>The details that make every export land closer to your design.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="ficon">🔤</div>
+          <h4>Pixel-accurate text</h4>
+          <p>Gradient text, multi-color text, and wrapped multi-line text now come across exactly as designed — correctly rendered and aligned, every time.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">🅰️</div>
+          <h4>Missing-font alerts</h4>
+          <p>After a transfer, UI Flow shows you which fonts After Effects had to substitute — so you know exactly what to install to match your design.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">⚡</div>
+          <h4>Faster &amp; cleaner</h4>
+          <p>Smoother transfers, better precomp and matte handling, and a long list of fixes for a more reliable Figma-to-AE flow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPGRADING -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div class="section-head">
+        <span class="group-label">Upgrading</span>
+        <h2>Already on UI Flow? Update in two steps.</h2>
+      </div>
+      <div class="steps" style="max-width:820px; margin:0 auto;">
+        <div class="step">
+          <div class="n">01 · After Effects</div>
+          <h4>Install 3.0.0</h4>
+          <p>Download the new build and run it — it updates your existing UI Flow panel in place. Restart After Effects and you're on 3.0.0.</p>
+        </div>
+        <div class="step">
+          <div class="n">02 · Figma</div>
+          <h4>Nothing to do</h4>
+          <p>The Figma plugin updates itself automatically from the Figma Community. Open it and you're ready to send to the new version.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <h2>Update to UI Flow 3.0.0</h2>
+        <p>Free for designers in Bangladesh. One-time license for everyone else — no subscriptions, ever.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/uiflow/tools">Get UI Flow 3.0.0 <span class="arrow">→</span></a>
+          <a class="btn btn-ghost" href="/uiflow/bangladesh">Free key for Bangladesh 🇧🇩</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="../"><img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
+        <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/uiflow">UI Flow</a>
+        <a href="/uiflow/tools">Download</a>
+        <a href="/uiflow/review">Reviews</a>
+        <a href="/uiflow/bugs">Report a bug</a>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/uiflow.ae" target="_blank" rel="noopener" aria-label="Instagram" title="@uiflow.ae">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="mailto:contact@aeflowtools.com" aria-label="Email" title="contact@aeflowtools.com">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('.dropdown').forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>
