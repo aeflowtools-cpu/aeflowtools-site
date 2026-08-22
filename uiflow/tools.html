@@ -51,9 +51,9 @@
         <h1>Download UI Flow</h1>
         <p class="sub">Get both pieces — the After Effects plugin and the Figma plugin.</p>
 
-        <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip" onclick="trackDownload()">
+        <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20v2.0.0.zip" onclick="trackDownload()">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#00005B"/><text x="12" y="16.5" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#9B9BFF" text-anchor="middle">Ae</text></svg>
-          Download UI Flow v3.0.0 <span class="arrow">→</span>
+          Download UI Flow v2.0.0 <span class="arrow">→</span>
         </a>
         <a class="btn btn-ghost" href="https://www.figma.com/community/plugin/1605150908629430996/ui-flow" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 38 57" aria-hidden="true">
@@ -72,14 +72,14 @@
   </div>
 
   <script>
-    // Log each "Download UI Flow v3.0.0" click. The Vercel function adds the
+    // Log each "Download UI Flow v2.0.0" click. The Vercel function adds the
     // visitor's country (server-side geo) before saving to Supabase.
     function trackDownload() {
       try {
         fetch('/api/track-download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ button: 'uiflow_v3.0.0' }),
+          body: JSON.stringify({ button: 'uiflow_v2.0.0' }),
           keepalive: true
         });
       } catch (e) {}
