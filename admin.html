@@ -107,6 +107,12 @@
     .stat.off { background: rgba(148,163,184,0.12); color: #94a3b8; }
     .item-body { display: none; padding: 6px 16px 16px; border-top: 1px solid var(--border); }
     .item.open .item-body { display: block; }
+    .item-head .prio { font: 700 11px ui-monospace, monospace; color: var(--accent-2); flex-shrink: 0;
+      background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.3); padding: 2px 8px; border-radius: 999px; }
+    .pop-reorder { display: inline-flex; gap: 4px; flex-shrink: 0; }
+    .pop-reorder .rowbtn { padding: 2px 9px; margin: 0; line-height: 1.2; font-size: 13px; }
+    .pop-reorder .rowbtn:disabled { opacity: 0.28; cursor: default; }
+    .pop-import textarea { width: 100%; min-height: 150px; font: 500 12.5px ui-monospace, monospace; }
     tbody tr.clickable { cursor: pointer; }
     /* user profile modal */
     .um-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
@@ -589,27 +595,69 @@
       drawPopups();
     }
     function drawPopups() {
-      var html = '<div class="card"><h3>Launch popups</h3><div class="desc">Click a popup title to edit it. Shown once per open to non-licensed users; first matching popup wins. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
+      var html = '<div class="card"><h3>Launch popups</h3><div class="desc">Shown to unlicensed users when the plugin opens. ' +
+        'They run in <strong>priority order</strong> — the popup at the top (#1) shows first; use the ▲▼ buttons to reorder. ' +
+        '<code>Max opens</code> caps how many times each popup shows to one user (blank = every open). ' +
+        'A popup can be a <code>video</code>, an image/GIF, or a text card. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
       html += popups.map(function (p, i) {
         var body =
-          '<div class="fld"><label>Title</label><input type="text" data-i="' + i + '" data-k="title" value="' + esc(p.title || '') + '" oninput="updTitle(this)" placeholder="Popup title"></div>' +
+          '<div class="fld"><label>Title <span class="note">(shown on text popups; leave blank for a video-only popup)</span></label><input type="text" data-i="' + i + '" data-k="title" value="' + esc(p.title || '') + '" oninput="updTitle(this)" placeholder="Popup title"></div>' +
           '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (p.active ? 'checked' : '') + ' onchange="updHead(this)"><label>Active</label></div>' +
           '<div class="grid2">' +
-          pf(i, 'region', 'Region', p.region || 'all', 'all / international / bd / IN,PK') +
+          pf(i, 'region', 'Region', p.region || 'all', 'all / international / bd / india / IN,PK') +
+          aud(i, p.audience || 'all') +
+          num(i, 'maxOpens', 'Max opens per user', (p.maxOpens != null ? p.maxOpens : ''), 'blank = unlimited') +
           pf(i, 'users', 'Target user ids (comma-sep, optional)', (Array.isArray(p.users) ? p.users.join(',') : (p.users || '')), 'user_123,uid_abc') +
-          pf(i, 'button', 'Button label', p.button || '') +
-          pf(i, 'url', 'URL', p.url || '') +
-          pf(i, 'gif', 'GIF/Image URL (optional, full-bleed)', p.gif || p.image || '') +
-          pf(i, 'bg', 'Background', p.bg || '', '#0a7c3f') +
-          pf(i, 'border', 'Border', p.border || '', '#16a34a') +
+          '</div>' +
+          '<div class="grid2">' +
+          pf(i, 'video', 'Video URL (.mp4, optional)', p.video || '', 'https://…/clip.mp4') +
+          pf(i, 'gif', 'GIF / image URL (optional)', p.gif || p.image || '', 'https://…/promo.gif') +
+          '</div>' +
+          '<div class="grid2">' +
+          pf(i, 'button', 'Button label', p.button || '', 'Get My Free Key') +
+          pf(i, 'url', 'Button URL', p.url || '', 'https://…') +
+          '</div>' +
+          '<div class="grid2">' +
+          dt(i, 'starts', 'Starts (optional)', p.starts || '') +
+          dt(i, 'expires', 'Expires (optional)', p.expires || '') +
+          '</div>' +
+          '<div class="grid2">' +
+          pf(i, 'bg', 'Background', p.bg || '', '#10233f') +
+          pf(i, 'border', 'Border', p.border || '', '#3b82f6') +
           pf(i, 'color', 'Text color', p.color || '', '#ffffff') +
-          '</div><div class="fld"><label>Text</label><textarea data-i="' + i + '" data-k="text">' + esc(p.text || '') + '</textarea></div>' +
+          '</div>' +
+          '<div class="fld"><label>Text</label><textarea data-i="' + i + '" data-k="text">' + esc(p.text || '') + '</textarea></div>' +
           '<div class="rowbar"><button class="rowbtn danger" onclick="delPopup(' + i + ')">✕ Delete popup</button></div>';
-        return item(i, p.title, p.active, body);
+        return popupItem(i, p, body);
       }).join('') || '<div class="muted" style="padding:12px 0;">No popups yet.</div>';
-      html += '<div class="rowbar"><button class="rowbtn" onclick="addPopup()">+ Add popup</button><button class="btn btn-primary" onclick="savePopups()">Save all</button><span class="save-status" id="cStatus"></span></div></div>';
+      html += '<div class="rowbar"><button class="rowbtn" onclick="addPopup()">+ Add popup</button>' +
+        '<button class="rowbtn" onclick="toggleImport()">⤵ Import / paste JSON</button>' +
+        '<button class="btn btn-primary" onclick="savePopups()">Save all</button><span class="save-status" id="cStatus"></span></div>' +
+        '<div id="popImport" class="pop-import" style="display:none; margin-top:14px;">' +
+        '<div class="fld"><label>Paste a full <code>bdpopup.json</code> — “Load into editor” replaces the list above (nothing is saved until you click “Save all”)</label>' +
+        '<textarea id="popImportText" placeholder=\'{ "popups": [ … ] }\'></textarea></div>' +
+        '<div class="rowbar"><button class="rowbtn" onclick="importPopups()">Load into editor</button></div></div>' +
+        '</div>';
       cbody(html);
       function pf(i, k, label, val, ph) { return '<div class="fld"><label>' + label + '</label><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(val) + '" placeholder="' + (ph || '') + '"></div>'; }
+      function num(i, k, label, val, ph) { return '<div class="fld"><label>' + label + '</label><input type="number" min="1" data-i="' + i + '" data-k="' + k + '" value="' + esc(val) + '" placeholder="' + (ph || '') + '"></div>'; }
+      function dt(i, k, label, val) { return '<div class="fld"><label>' + label + '</label><input type="date" data-i="' + i + '" data-k="' + k + '" value="' + esc(val) + '"></div>'; }
+      function aud(i, v) { return '<div class="fld"><label>Audience</label><select data-i="' + i + '" data-k="audience">' + ['all', 'unlicensed', 'licensed'].map(function (o) { return '<option' + (o === v ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></div>'; }
+    }
+    // popup list item with priority number + reorder controls in the head
+    function popupItem(i, p, body) {
+      var t = (p.title && String(p.title).trim()) || (p.video ? '🎬 Video popup' : (p.gif || p.image ? '🖼️ Image popup' : 'Untitled'));
+      var last = popups.length - 1;
+      return '<div class="item"><div class="item-head" onclick="toggleItem(this)">' +
+        '<span class="ico">▸</span>' +
+        '<span class="prio">#' + (i + 1) + '</span>' +
+        '<span class="ttl">' + esc(t) + '</span>' +
+        '<span class="pop-reorder">' +
+          '<button class="rowbtn" title="Move up (higher priority)" ' + (i === 0 ? 'disabled' : '') + ' onclick="event.stopPropagation();movePopup(' + i + ',-1)">▲</button>' +
+          '<button class="rowbtn" title="Move down (lower priority)" ' + (i === last ? 'disabled' : '') + ' onclick="event.stopPropagation();movePopup(' + i + ',1)">▼</button>' +
+        '</span>' +
+        '<span class="stat ' + (p.active ? 'on' : 'off') + '">' + (p.active ? 'Active' : 'Off') + '</span>' +
+        '</div><div class="item-body">' + body + '</div></div>';
     }
     function collectPopups() {
       var wrap = document.getElementById('cbody');
@@ -620,15 +668,44 @@
         byIndex[i][k] = el.type === 'checkbox' ? el.checked : el.value;
       });
       return Object.keys(byIndex).map(function (i) {
-        var o = byIndex[i]; var out = { active: !!o.active, region: (o.region || 'all').trim(), title: o.title || '', text: o.text || '', button: o.button || '', url: (o.url || '').trim() };
-        if (o.users && o.users.trim()) out.users = o.users.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var o = byIndex[i];
+        var out = { active: !!o.active, region: (o.region || 'all').trim(), audience: (o.audience || 'all') };
+        if (o.url && o.url.trim()) out.url = o.url.trim();
+        if (o.title && o.title.trim()) out.title = o.title.trim();
+        if (o.text && o.text.trim()) out.text = o.text;
+        if (o.button && o.button.trim()) out.button = o.button.trim();
+        if (o.video && o.video.trim()) out.video = o.video.trim();
         if (o.gif && o.gif.trim()) out.gif = o.gif.trim();
+        var mo = parseInt(o.maxOpens, 10); if (!isNaN(mo) && mo > 0) out.maxOpens = mo;
+        if (o.users && o.users.trim()) out.users = o.users.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        if (o.starts && o.starts.trim()) out.starts = o.starts.trim();
+        if (o.expires && o.expires.trim()) out.expires = o.expires.trim();
         ['bg', 'border', 'color'].forEach(function (f) { if (o[f] && o[f].trim()) out[f] = o[f].trim(); });
         return out;
       });
     }
-    function addPopup() { popups.push({ active: true, region: 'all', title: '', text: '', button: '', url: '' }); drawPopups(); }
+    function movePopup(i, dir) {
+      popups = collectPopups();
+      var j = i + dir;
+      if (j < 0 || j >= popups.length) return;
+      var t = popups[i]; popups[i] = popups[j]; popups[j] = t;
+      drawPopups();
+    }
+    function addPopup() { popups = collectPopups(); popups.push({ active: true, region: 'all', audience: 'unlicensed', title: '', text: '', button: '', url: '' }); drawPopups(); }
     function delPopup(i) { popups = collectPopups(); popups.splice(i, 1); drawPopups(); }
+    function toggleImport() { var el = document.getElementById('popImport'); if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
+    function importPopups() {
+      var ta = document.getElementById('popImportText');
+      try {
+        var parsed = JSON.parse(ta.value);
+        var arr = Array.isArray(parsed) ? parsed : (parsed && parsed.popups);
+        if (!Array.isArray(arr)) throw new Error('Expected a "popups" array.');
+        popups = arr;
+        drawPopups();
+        var st = document.getElementById('cStatus');
+        if (st) { st.className = 'save-status ok'; st.textContent = 'Loaded ' + arr.length + ' popups — review, then “Save all”.'; }
+      } catch (e) { alert('Invalid JSON: ' + e.message); }
+    }
     async function savePopups() { await saveFile('bdpopup.json', { popups: collectPopups() }, 'cStatus'); }
 
     async function saveFile(file, obj, statusId) {
