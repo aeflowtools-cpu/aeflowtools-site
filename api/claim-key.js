@@ -30,9 +30,9 @@ function keyEmailHtml(key) {
     <p style="margin:0 0 6px;"><strong>How to activate:</strong></p>
     <ol style="color:#333;line-height:1.7;padding-left:20px;margin:0 0 18px;">
       <li>Open the UI Flow plugin in Figma.</li>
-      <li>Click the key icon (top-right of the panel).</li>
-      <li>Paste your key and click Activate.</li>
-      <li>Done — unlimited free exports. 🎉</li>
+      <li>Click the settings icon ⚙️ (top-right of the panel).</li>
+      <li>Click "Enter license key", paste your key in, and click Activate.</li>
+      <li>Done — unlimited exports. 🎉</li>
     </ol>
     <p style="color:#888;font-size:13px;margin:0;">Need help? Email contact@aeflowtools.com</p>
   </div>`;
