@@ -135,10 +135,21 @@
 
   <script>
     var DOWNLOAD_URL = 'https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip';
+    var SOURCE_GATE_ENABLED = false;   // ← PAUSED. Set to true to ask "Where did you hear about UI Flow?" again.
     var sgSource = null;
 
-    // Called by the download button — always open the gate first (no direct download).
+    // Called by the download button.
     function openSourceGate(e) {
+      if (!SOURCE_GATE_ENABLED) {
+        // Gate paused: still log the download (button + country, no source), then let it download.
+        try {
+          fetch('/api/track-download', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ button: 'uiflow_v3.0.0' }), keepalive: true
+          });
+        } catch (e2) {}
+        return true;   // allow the link to proceed to the download
+      }
       if (e) e.preventDefault();
       document.getElementById('sgOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';
