@@ -172,6 +172,8 @@
         Array.prototype.forEach.call(opts.querySelectorAll('.sg-opt'), function (o) { o.classList.toggle('sel', o === b); });
         social.classList.toggle('show', sgSource === 'Social Media');
         other.classList.toggle('show', sgSource === '__other');
+        // Auto-open the platform dropdown right when Social Media is picked.
+        if (sgSource === 'Social Media') { try { socialSel.showPicker(); } catch (e) { try { socialSel.focus(); } catch (e2) {} } }
         if (sgSource === '__other') setTimeout(function () { otherText.focus(); }, 60);
         refresh();
       });
