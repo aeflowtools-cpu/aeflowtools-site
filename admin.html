@@ -138,6 +138,7 @@
     .toolbar select:focus { border-color: var(--accent-2); }
     .toolbar select option { background: #14161c; color: var(--text); }
     .dl-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .dl-cols.dl-cols-1 { grid-template-columns: 1fr; }
     @media (max-width: 820px) { .dl-cols { grid-template-columns: 1fr; } }
     .dlbar { display: grid; grid-template-columns: 132px 1fr auto; align-items: center; gap: 12px; padding: 5px 0; font-size: 13px; }
     .dlbar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -265,18 +266,20 @@
         filters.map(function (f) { return '<button class="chip' + (userFilter === f ? ' active' : '') + '" onclick="userFilter=\'' + f + '\';drawUsers()">' + f + '</button>'; }).join('') +
         '<button class="chip" onclick="exportCSV(filteredUsers(),\'users\')">⬇ CSV</button></div>';
       var rows = filteredUsers();
-      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th><th>Country</th><th>Source</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
       html += rows.map(function (u) {
         var nm = u._name || (u._email || '—');
-        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
-      }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px;">No users.</td></tr>';
+        var cty = u.country ? esc(flagEmoji(u.country) + ' ' + countryName(u.country)) : '<span class="muted">—</span>';
+        var src = u.source ? esc(u.source) : '<span class="muted">—</span>';
+        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + cty + '</td><td class="wrap-cell">' + src + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
+      }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No users.</td></tr>';
       html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown · click a row for the full profile</div>';
       view(html);
     }
     function filteredUsers() {
       var q = (document.getElementById('uSearch') ? document.getElementById('uSearch').value : '').toLowerCase().trim();
       return (cache.users || []).filter(function (u) {
-        if (q && (String(u.user_id) + ' ' + (u._name || '') + ' ' + (u._email || '')).toLowerCase().indexOf(q) < 0) return false;
+        if (q && (String(u.user_id) + ' ' + (u._name || '') + ' ' + (u._email || '') + ' ' + (u.source || '') + ' ' + (u.country || '') + ' ' + countryName(u.country)).toLowerCase().indexOf(q) < 0) return false;
         if (userFilter === 'Hottest leads') return u._status === 'Free' && (u.completed_usage || 0) >= 2;
         if (userFilter !== 'All' && u._status !== userFilter) return false;
         return true;
@@ -311,6 +314,8 @@
       h += '<div class="sec-title">Account</div>';
       h += dl('Email', esc(email));
       if (bd && bd.whatsapp) h += dl('WhatsApp', esc(bd.whatsapp));
+      if (au.country) h += dl('Country', esc(flagEmoji(au.country) + ' ' + countryName(au.country)));
+      if (au.source) h += dl('Heard about us', esc(au.source));
 
       h += '<div class="sec-title">Activity</div>';
       h += dl('Plugin opens', au.open_count || 0);
@@ -516,13 +521,9 @@
     function drawDownloads() {
       var all = cache.downloads || [];
       if (!all.length) { view('<div class="muted" style="padding:30px;text-align:center;">No downloads recorded yet.</div>'); return; }
-      var srcOpts = ['All'].concat(uniqSorted(all.map(function (r) { return r.source || '—'; })));
       var ctyOpts = ['All'].concat(uniqSorted(all.map(function (r) { return r.country || '—'; })));
       var html = '<div class="toolbar">' +
-        '<input class="search" id="dlSearch" placeholder="Search source / country / version…" oninput="renderDlResults()">' +
-        '<select id="dlSrc" onchange="renderDlResults()">' + srcOpts.map(function (o) {
-          return '<option value="' + esc(o) + '">' + (o === 'All' ? 'All sources' : (o === '—' ? '(not recorded)' : esc(o))) + '</option>';
-        }).join('') + '</select>' +
+        '<input class="search" id="dlSearch" placeholder="Search country / version…" oninput="renderDlResults()">' +
         '<select id="dlCty" onchange="renderDlResults()">' + ctyOpts.map(function (o) {
           return '<option value="' + esc(o) + '">' + (o === 'All' ? 'All countries' : (o === '—' ? '(not recorded)' : esc(flagEmoji(o) + ' ' + countryName(o)))) + '</option>';
         }).join('') + '</select>' +
@@ -533,13 +534,11 @@
     }
     function filteredDownloads() {
       var q = (document.getElementById('dlSearch') ? document.getElementById('dlSearch').value : '').toLowerCase().trim();
-      var fs = document.getElementById('dlSrc') ? document.getElementById('dlSrc').value : 'All';
       var fc = document.getElementById('dlCty') ? document.getElementById('dlCty').value : 'All';
       return (cache.downloads || []).filter(function (r) {
-        if (fs !== 'All' && (r.source || '—') !== fs) return false;
         if (fc !== 'All' && (r.country || '—') !== fc) return false;
         if (q) {
-          var hay = ((r.source || '') + ' ' + (r.country || '') + ' ' + countryName(r.country) + ' ' + (r.button || '')).toLowerCase();
+          var hay = ((r.country || '') + ' ' + countryName(r.country) + ' ' + (r.button || '')).toLowerCase();
           if (hay.indexOf(q) < 0) return false;
         }
         return true;
@@ -562,20 +561,18 @@
     function renderDlResults() {
       var all = cache.downloads || [];
       var rows = filteredDownloads();
-      var bySrc = countBy(rows, function (r) { return r.source || '—'; });
       var byCty = countBy(rows, function (r) { return r.country || '—'; });
       var h = '<div class="stats" style="margin:4px 0 18px;">' +
         dlStat(rows.length, 'Downloads shown') + dlStat(all.length, 'All-time downloads') +
-        dlStat(bySrc.length, 'Distinct sources') + dlStat(byCty.length, 'Countries') + '</div>';
-      h += '<div class="dl-cols">' + dlBars('Top sources 📱', bySrc, rows.length, false) + dlBars('Top countries 🌍', byCty, rows.length, true) + '</div>';
-      h += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Version</th><th>Source</th><th>Country</th></tr></thead><tbody>';
+        dlStat(byCty.length, 'Countries') + '</div>';
+      h += '<div class="dl-cols dl-cols-1">' + dlBars('Top countries 🌍', byCty, rows.length, true) + '</div>';
+      h += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Version</th><th>Country</th></tr></thead><tbody>';
       h += rows.slice(0, 500).map(function (r) {
         return '<tr><td>' + fmt(r.created_at) + '</td><td class="muted">' + esc(r.button || '') + '</td>' +
-          '<td>' + (r.source ? esc(r.source) : '<span class="muted">—</span>') + '</td>' +
           '<td>' + (r.country ? esc(flagEmoji(r.country) + ' ' + countryName(r.country)) : '<span class="muted">—</span>') + '</td></tr>';
-      }).join('') || '<tr><td colspan="4" class="muted" style="text-align:center;padding:24px;">No downloads match.</td></tr>';
+      }).join('') || '<tr><td colspan="3" class="muted" style="text-align:center;padding:24px;">No downloads match.</td></tr>';
       h += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown' +
-        (rows.length > 500 ? ' · table capped at 500 (breakdowns count all matches)' : '') + '</div>';
+        (rows.length > 500 ? ' · table capped at 500 (breakdown counts all matches)' : '') + '</div>';
       document.getElementById('dlResults').innerHTML = h;
     }
 
