@@ -57,11 +57,12 @@
     .sg-opt .ic { font-size: 17px; width: 20px; text-align: center; }
     .sg-opt .tick { margin-left: auto; opacity: 0; color: var(--accent-2); font-weight: 800; }
     .sg-opt.sel .tick { opacity: 1; }
-    .sg-other { margin-bottom: 14px; max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
-    .sg-other.show { max-height: 80px; }
-    .sg-other input { width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.03);
+    .sg-reveal { margin-bottom: 14px; max-height: 0; overflow: hidden; transition: max-height 0.22s ease; }
+    .sg-reveal.show { max-height: 80px; }
+    .sg-reveal input, .sg-select { width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.03);
       border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 15px; outline: none; }
-    .sg-other input:focus { border-color: var(--accent-2); }
+    .sg-reveal input:focus, .sg-select:focus { border-color: var(--accent-2); }
+    .sg-select option { background: #14161c; color: var(--text); }
     .sg-go { width: 100%; justify-content: center; margin-top: 4px; }
     .sg-go[disabled] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
     .sg-cancel { display: block; margin: 14px auto 0; background: none; border: 0; color: var(--faint); font-size: 13px; cursor: pointer; font-family: inherit; }
@@ -106,13 +107,23 @@
         <h2 id="sgTitle">Where did you hear about UI Flow?</h2>
         <p class="sg-sub">Quick question before your download — it really helps us. 🙏</p>
         <div class="sg-opts" id="sgOpts">
-          <button type="button" class="sg-opt" data-src="Facebook"><span class="ic">📘</span> Facebook <span class="tick">✓</span></button>
-          <button type="button" class="sg-opt" data-src="YouTube"><span class="ic">▶️</span> YouTube <span class="tick">✓</span></button>
+          <button type="button" class="sg-opt" data-src="Social Media"><span class="ic">📱</span> Social Media <span class="tick">✓</span></button>
           <button type="button" class="sg-opt" data-src="Referred by a friend"><span class="ic">🤝</span> Referred by a friend <span class="tick">✓</span></button>
           <button type="button" class="sg-opt" data-src="Figma Community"><span class="ic">🎨</span> Figma Community <span class="tick">✓</span></button>
           <button type="button" class="sg-opt" data-src="__other"><span class="ic">✨</span> Somewhere else <span class="tick">✓</span></button>
         </div>
-        <div class="sg-other" id="sgOther">
+        <div class="sg-reveal" id="sgSocial">
+          <select id="sgSocialSel" class="sg-select" aria-label="Which social platform?">
+            <option value="">Select platform…</option>
+            <option>Facebook</option>
+            <option>Instagram</option>
+            <option>X (Twitter)</option>
+            <option>YouTube</option>
+            <option>LinkedIn</option>
+            <option>TikTok</option>
+          </select>
+        </div>
+        <div class="sg-reveal" id="sgOther">
           <input type="text" id="sgOtherText" maxlength="80" placeholder="Tell us where…" autocomplete="off" />
         </div>
         <button type="button" class="btn btn-primary sg-go" id="sgGo" disabled>Download UI Flow v3.0.0 <span class="arrow">→</span></button>
@@ -139,30 +150,38 @@
 
     (function () {
       var opts = document.getElementById('sgOpts');
+      var social = document.getElementById('sgSocial');
+      var socialSel = document.getElementById('sgSocialSel');
       var other = document.getElementById('sgOther');
       var otherText = document.getElementById('sgOtherText');
       var go = document.getElementById('sgGo');
       var cancel = document.getElementById('sgCancel');
 
-      function refresh() {
-        var valid = sgSource === '__other' ? otherText.value.trim().length > 0 : !!sgSource;
-        go.disabled = !valid;
+      // Resolve the final source string, or null if the choice isn't complete yet.
+      function resolveSource() {
+        if (sgSource === 'Social Media') return socialSel.value ? ('Social Media: ' + socialSel.value) : null;
+        if (sgSource === '__other') return otherText.value.trim() ? ('Other: ' + otherText.value.trim()) : null;
+        return sgSource || null;
       }
+      function refresh() { go.disabled = !resolveSource(); }
+
       opts.addEventListener('click', function (e) {
         var b = e.target.closest('.sg-opt'); if (!b) return;
         sgSource = b.getAttribute('data-src');
         Array.prototype.forEach.call(opts.querySelectorAll('.sg-opt'), function (o) { o.classList.toggle('sel', o === b); });
+        social.classList.toggle('show', sgSource === 'Social Media');
         other.classList.toggle('show', sgSource === '__other');
         if (sgSource === '__other') setTimeout(function () { otherText.focus(); }, 60);
         refresh();
       });
+      socialSel.addEventListener('change', refresh);
       otherText.addEventListener('input', refresh);
       otherText.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !go.disabled) go.click(); });
       cancel.addEventListener('click', closeSourceGate);
 
       go.addEventListener('click', function () {
         if (go.disabled) return;
-        var source = sgSource === '__other' ? ('Other: ' + otherText.value.trim()) : sgSource;
+        var source = resolveSource();
         // Log the download + source. The Vercel function adds the visitor's
         // country (server-side geo) before saving to Supabase.
         try {
