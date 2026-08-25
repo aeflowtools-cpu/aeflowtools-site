@@ -57,8 +57,9 @@
     .sg-opt .ic { font-size: 17px; width: 20px; text-align: center; }
     .sg-opt .tick { margin-left: auto; opacity: 0; color: var(--accent-2); font-weight: 800; }
     .sg-opt.sel .tick { opacity: 1; }
-    .sg-reveal { margin-bottom: 14px; max-height: 0; overflow: hidden; transition: max-height 0.22s ease; }
-    .sg-reveal.show { max-height: 80px; }
+    .sg-reveal { display: none; }
+    .sg-reveal.show { display: block; animation: sgReveal 0.18s ease; }
+    @keyframes sgReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
     .sg-reveal input, .sg-select { width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.03);
       border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 15px; outline: none; }
     .sg-reveal input:focus, .sg-select:focus { border-color: var(--accent-2); }
@@ -108,23 +109,23 @@
         <p class="sg-sub">Quick question before your download — it really helps us. 🙏</p>
         <div class="sg-opts" id="sgOpts">
           <button type="button" class="sg-opt" data-src="Social Media"><span class="ic">📱</span> Social Media <span class="tick">✓</span></button>
+          <div class="sg-reveal" id="sgSocial">
+            <select id="sgSocialSel" class="sg-select" aria-label="Which social platform?">
+              <option value="">Select platform…</option>
+              <option>Facebook</option>
+              <option>Instagram</option>
+              <option>X (Twitter)</option>
+              <option>YouTube</option>
+              <option>LinkedIn</option>
+              <option>TikTok</option>
+            </select>
+          </div>
           <button type="button" class="sg-opt" data-src="Referred by a friend"><span class="ic">🤝</span> Referred by a friend <span class="tick">✓</span></button>
           <button type="button" class="sg-opt" data-src="Figma Community"><span class="ic">🎨</span> Figma Community <span class="tick">✓</span></button>
           <button type="button" class="sg-opt" data-src="__other"><span class="ic">✨</span> Somewhere else <span class="tick">✓</span></button>
-        </div>
-        <div class="sg-reveal" id="sgSocial">
-          <select id="sgSocialSel" class="sg-select" aria-label="Which social platform?">
-            <option value="">Select platform…</option>
-            <option>Facebook</option>
-            <option>Instagram</option>
-            <option>X (Twitter)</option>
-            <option>YouTube</option>
-            <option>LinkedIn</option>
-            <option>TikTok</option>
-          </select>
-        </div>
-        <div class="sg-reveal" id="sgOther">
-          <input type="text" id="sgOtherText" maxlength="80" placeholder="Tell us where…" autocomplete="off" />
+          <div class="sg-reveal" id="sgOther">
+            <input type="text" id="sgOtherText" maxlength="80" placeholder="Tell us where…" autocomplete="off" />
+          </div>
         </div>
         <button type="button" class="btn btn-primary sg-go" id="sgGo" disabled>Download UI Flow v3.0.0 <span class="arrow">→</span></button>
         <button type="button" class="sg-cancel" id="sgCancel">Cancel</button>
