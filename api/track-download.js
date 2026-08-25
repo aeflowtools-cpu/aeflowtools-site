@@ -9,16 +9,23 @@ export default async function handler(request) {
   const country = request.headers.get('x-vercel-ip-country') || null;
 
   let button = 'uiflow_v2.0.0';
+  let source = null;
   try {
     const b = await request.json();
     if (b && b.button) button = String(b.button);
+    if (b && b.source) source = String(b.source).slice(0, 120);
   } catch (e) {}
+
+  // Fold the "where did you hear about us" answer into the tracked label so it
+  // lands in the existing downloads table with no schema change, e.g.
+  // "uiflow_v3.0.0 | YouTube".
+  const label = source ? `${button} | ${source}` : button;
 
   try {
     await fetch(`${SB_URL}/rest/v1/rpc/track_download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` },
-      body: JSON.stringify({ p_button: button, p_country: country }),
+      body: JSON.stringify({ p_button: label, p_country: country }),
     });
   } catch (e) {}
 

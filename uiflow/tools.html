@@ -38,6 +38,34 @@
     .dl-card .btn small { font-weight: 500; opacity: 0.8; }
     .dl-back { display: inline-block; margin-top: 26px; font-size: 13.5px; color: var(--faint); }
     .dl-back:hover { color: var(--muted); }
+
+    /* ---- mandatory "where did you hear about us" gate ---- */
+    .sg-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .sg-overlay.open { opacity: 1; pointer-events: auto; }
+    .sg-modal { width: 100%; max-width: 440px; border-radius: 24px; padding: 1px;
+      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(37,99,235,0.4)); box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
+    .sg-inner { background: linear-gradient(180deg, rgba(20,22,28,0.98), rgba(13,14,18,0.99)); border-radius: 23px; padding: 32px 28px; }
+    .sg-inner h2 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .sg-inner .sg-sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+    .sg-opts { display: grid; gap: 10px; margin-bottom: 14px; }
+    .sg-opt { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; cursor: pointer;
+      padding: 13px 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+      color: var(--text); font-family: inherit; font-size: 15px; font-weight: 600; transition: border-color 0.15s ease, background 0.15s ease; }
+    .sg-opt:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+    .sg-opt.sel { border-color: var(--accent-2); background: rgba(37,99,235,0.12); }
+    .sg-opt .ic { font-size: 17px; width: 20px; text-align: center; }
+    .sg-opt .tick { margin-left: auto; opacity: 0; color: var(--accent-2); font-weight: 800; }
+    .sg-opt.sel .tick { opacity: 1; }
+    .sg-other { margin-bottom: 14px; max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
+    .sg-other.show { max-height: 80px; }
+    .sg-other input { width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 15px; outline: none; }
+    .sg-other input:focus { border-color: var(--accent-2); }
+    .sg-go { width: 100%; justify-content: center; margin-top: 4px; }
+    .sg-go[disabled] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+    .sg-cancel { display: block; margin: 14px auto 0; background: none; border: 0; color: var(--faint); font-size: 13px; cursor: pointer; font-family: inherit; }
+    .sg-cancel:hover { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -51,7 +79,7 @@
         <h1>Download UI Flow</h1>
         <p class="sub">Get both pieces — the After Effects plugin and the Figma plugin.</p>
 
-        <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip" onclick="trackDownload()">
+        <a class="btn btn-primary" id="aeDownloadBtn" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip" onclick="return openSourceGate(event)">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#00005B"/><text x="12" y="16.5" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#9B9BFF" text-anchor="middle">Ae</text></svg>
           Download UI Flow v3.0.0 <span class="arrow">→</span>
         </a>
@@ -71,19 +99,84 @@
     </div>
   </div>
 
+  <!-- Mandatory "where did you hear about UI Flow?" gate -->
+  <div class="sg-overlay" id="sgOverlay" role="dialog" aria-modal="true" aria-labelledby="sgTitle">
+    <div class="sg-modal">
+      <div class="sg-inner">
+        <h2 id="sgTitle">Where did you hear about UI Flow?</h2>
+        <p class="sg-sub">Quick question before your download — it really helps us. 🙏</p>
+        <div class="sg-opts" id="sgOpts">
+          <button type="button" class="sg-opt" data-src="Facebook"><span class="ic">📘</span> Facebook <span class="tick">✓</span></button>
+          <button type="button" class="sg-opt" data-src="YouTube"><span class="ic">▶️</span> YouTube <span class="tick">✓</span></button>
+          <button type="button" class="sg-opt" data-src="Referred by a friend"><span class="ic">🤝</span> Referred by a friend <span class="tick">✓</span></button>
+          <button type="button" class="sg-opt" data-src="Figma Community"><span class="ic">🎨</span> Figma Community <span class="tick">✓</span></button>
+          <button type="button" class="sg-opt" data-src="__other"><span class="ic">✨</span> Somewhere else <span class="tick">✓</span></button>
+        </div>
+        <div class="sg-other" id="sgOther">
+          <input type="text" id="sgOtherText" maxlength="80" placeholder="Tell us where…" autocomplete="off" />
+        </div>
+        <button type="button" class="btn btn-primary sg-go" id="sgGo" disabled>Download UI Flow v3.0.0 <span class="arrow">→</span></button>
+        <button type="button" class="sg-cancel" id="sgCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Log each "Download UI Flow v3.0.0" click. The Vercel function adds the
-    // visitor's country (server-side geo) before saving to Supabase.
-    function trackDownload() {
-      try {
-        fetch('/api/track-download', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ button: 'uiflow_v3.0.0' }),
-          keepalive: true
-        });
-      } catch (e) {}
+    var DOWNLOAD_URL = 'https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip';
+    var sgSource = null;
+
+    // Called by the download button — always open the gate first (no direct download).
+    function openSourceGate(e) {
+      if (e) e.preventDefault();
+      document.getElementById('sgOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      return false;
     }
+    function closeSourceGate() {
+      document.getElementById('sgOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    (function () {
+      var opts = document.getElementById('sgOpts');
+      var other = document.getElementById('sgOther');
+      var otherText = document.getElementById('sgOtherText');
+      var go = document.getElementById('sgGo');
+      var cancel = document.getElementById('sgCancel');
+
+      function refresh() {
+        var valid = sgSource === '__other' ? otherText.value.trim().length > 0 : !!sgSource;
+        go.disabled = !valid;
+      }
+      opts.addEventListener('click', function (e) {
+        var b = e.target.closest('.sg-opt'); if (!b) return;
+        sgSource = b.getAttribute('data-src');
+        Array.prototype.forEach.call(opts.querySelectorAll('.sg-opt'), function (o) { o.classList.toggle('sel', o === b); });
+        other.classList.toggle('show', sgSource === '__other');
+        if (sgSource === '__other') setTimeout(function () { otherText.focus(); }, 60);
+        refresh();
+      });
+      otherText.addEventListener('input', refresh);
+      otherText.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !go.disabled) go.click(); });
+      cancel.addEventListener('click', closeSourceGate);
+
+      go.addEventListener('click', function () {
+        if (go.disabled) return;
+        var source = sgSource === '__other' ? ('Other: ' + otherText.value.trim()) : sgSource;
+        // Log the download + source. The Vercel function adds the visitor's
+        // country (server-side geo) before saving to Supabase.
+        try {
+          fetch('/api/track-download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ button: 'uiflow_v3.0.0', source: source }),
+            keepalive: true
+          });
+        } catch (e) {}
+        closeSourceGate();
+        window.location.href = DOWNLOAD_URL;   // start the download
+      });
+    })();
   </script>
 </body>
 </html>
