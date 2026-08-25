@@ -116,6 +116,7 @@ export default async function handler(req, res) {
     if (a === 'vips') return res.status(200).json({ rows: await rest('vip_users?select=*') });
     if (a === 'bug_reports') return res.status(200).json({ rows: await rest('bug_reports?select=*&order=created_at.desc&limit=3000') });
     if (a === 'reviews') return res.status(200).json({ rows: await rest('reviews?select=*&order=created_at.desc&limit=3000') });
+    if (a === 'downloads') return res.status(200).json({ rows: await rest('download_clicks?select=*&order=created_at.desc&limit=5000') });
     if (a === 'delete_feedback') {
       if (['bug_reports', 'reviews'].indexOf(body.table) < 0) return res.status(400).json({ error: 'bad table' });
       await rest(body.table + '?id=eq.' + encodeURIComponent(body.id), { method: 'DELETE' });
