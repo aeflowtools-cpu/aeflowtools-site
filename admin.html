@@ -260,30 +260,57 @@
       var d = await api('users'); cache.users = d.rows || [];
       drawUsers();
     }
+    var userOpens = 1;   // minimum opens filter (1 = all users)
     function drawUsers() {
       var filters = ['All', 'VIP', 'Paid', 'BD Free', 'Free', 'Hottest leads'];
-      var html = '<div class="toolbar"><input class="search" id="uSearch" placeholder="Search name / user id / email…" oninput="drawUsers()" value="' + (document.getElementById('uSearch') ? esc(document.getElementById('uSearch').value) : '') + '">' +
-        filters.map(function (f) { return '<button class="chip' + (userFilter === f ? ' active' : '') + '" onclick="userFilter=\'' + f + '\';drawUsers()">' + f + '</button>'; }).join('') +
-        '<button class="chip" onclick="exportCSV(filteredUsers(),\'users\')">⬇ CSV</button></div>';
-      var rows = filteredUsers();
-      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th><th>Country</th><th>Source</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
-      html += rows.map(function (u) {
-        var nm = u._name || (u._email || '—');
-        var cty = u.country ? esc(flagEmoji(u.country) + ' ' + countryName(u.country)) : '<span class="muted">—</span>';
-        var src = u.source ? esc(u.source) : '<span class="muted">—</span>';
-        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + cty + '</td><td class="wrap-cell">' + src + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
-      }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No users.</td></tr>';
-      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown · click a row for the full profile</div>';
+      var opensOpts = [1, 2, 3, 4, 5, 10];
+      var html = '<div class="toolbar">' +
+        '<input class="search" id="uSearch" placeholder="Search name / user id / email / source / country…" oninput="renderUsersResults()">' +
+        '<span id="uChips" style="display:flex;gap:6px;flex-wrap:wrap;">' +
+        filters.map(function (f) { return '<button class="chip' + (userFilter === f ? ' active' : '') + '" data-f="' + esc(f) + '" onclick="setUserFilter(\'' + f + '\')">' + f + '</button>'; }).join('') +
+        '</span>' +
+        '<select id="uOpens" onchange="userOpens=parseInt(this.value,10);renderUsersResults()">' +
+        opensOpts.map(function (n) { return '<option value="' + n + '"' + (userOpens === n ? ' selected' : '') + '>' + (n === 1 ? 'All opens' : n + '+ opens') + '</option>'; }).join('') +
+        '</select>' +
+        '<button class="chip" onclick="exportCSV(filteredUsers(),\'users\')">⬇ CSV</button></div>' +
+        '<div id="uResults"></div>';
       view(html);
+      renderUsersResults();
+    }
+    function setUserFilter(f) {
+      userFilter = f;
+      var chips = document.querySelectorAll('#uChips .chip');
+      Array.prototype.forEach.call(chips, function (c) { c.classList.toggle('active', c.getAttribute('data-f') === f); });
+      renderUsersResults();
     }
     function filteredUsers() {
       var q = (document.getElementById('uSearch') ? document.getElementById('uSearch').value : '').toLowerCase().trim();
       return (cache.users || []).filter(function (u) {
         if (q && (String(u.user_id) + ' ' + (u._name || '') + ' ' + (u._email || '') + ' ' + (u.source || '') + ' ' + (u.country || '') + ' ' + countryName(u.country)).toLowerCase().indexOf(q) < 0) return false;
+        if ((u.open_count || 0) < userOpens) return false;
         if (userFilter === 'Hottest leads') return u._status === 'Free' && (u.completed_usage || 0) >= 2;
         if (userFilter !== 'All' && u._status !== userFilter) return false;
         return true;
       });
+    }
+    function renderUsersResults() {
+      var rows = filteredUsers();
+      var byCty = countBy(rows, function (u) { return u.country || '—'; });
+      var bySrc = countBy(rows, function (u) { return u.source || '—'; });
+      var h = '<div class="stats" style="margin:4px 0 18px;">' +
+        dlStat(rows.length, 'Users shown') + dlStat(byCty.length, 'Countries') +
+        dlStat(rows.filter(function (u) { return u._status === 'Paid'; }).length, 'Paid') +
+        dlStat(rows.filter(function (u) { return u._status === 'VIP'; }).length, 'VIPs') + '</div>';
+      h += '<div class="dl-cols">' + dlBars('Top countries 🌍', byCty, rows.length, true) + dlBars('Top sources 📱', bySrc, rows.length, false) + '</div>';
+      h += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th><th>Country</th><th>Source</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
+      h += rows.slice(0, 1000).map(function (u) {
+        var nm = u._name || (u._email || '—');
+        var cty = u.country ? esc(flagEmoji(u.country) + ' ' + countryName(u.country)) : '<span class="muted">—</span>';
+        var src = u.source ? esc(u.source) : '<span class="muted">—</span>';
+        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + cty + '</td><td class="wrap-cell">' + src + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
+      }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No users match.</td></tr>';
+      h += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown · click a row for the full profile' + (rows.length > 1000 ? ' · table capped at 1000 (stats & graphs count all)' : '') + '</div>';
+      document.getElementById('uResults').innerHTML = h;
     }
     function statusBadge(s) {
       var c = s === 'VIP' ? 'b-vip' : s === 'Paid' ? 'b-paid' : s === 'BD Free' ? 'b-bd' : 'b-free';
