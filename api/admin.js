@@ -73,7 +73,7 @@ export default async function handler(req, res) {
 
     if (a === 'users') {
       const [users, vips, keys, bd] = await Promise.all([
-        rest('app_users?select=*&order=last_seen.desc.nullslast&limit=2000'),
+        rest('app_users?select=*&order=last_seen.desc.nullslast&limit=10000'),
         rest('vip_users?select=client_id'),
         rest('license_keys?select=bound_client,plan,is_revoked,email&bound_client=not.is.null'),
         rest('bd_free_users?select=client_id,name,email,whatsapp&client_id=not.is.null'),

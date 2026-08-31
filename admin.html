@@ -39,6 +39,9 @@
 
     /* stat cards */
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .nu-date { padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 14px; outline: none; color-scheme: dark; cursor: pointer; }
+    .nu-date:focus { border-color: var(--accent-2); }
     .stat { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid var(--border);
       border-radius: 16px; padding: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
     .stat .n { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; }
@@ -248,10 +251,54 @@
     async function renderOverview() {
       loading();
       var d = await api('overview'); var s = d.stats;
-      view('<div class="stats">' +
+      // users list (with first_seen) powers the per-day new-user counter
+      if (!cache.users) { try { cache.users = (await api('users')).rows || []; } catch (e) { cache.users = []; } }
+      var today = dhakaToday();
+      var html = '<div class="stats">' +
         card(s.users, 'Total users') + card(s.paidKeys, 'Active paid keys') + card(s.bd, 'BD free signups') +
-        card(s.vips, 'VIPs') + card(s.activeToday, 'Active (24h)') + '</div>');
+        card(s.vips, 'VIPs') + card(s.activeToday, 'Active (24h)') + '</div>' +
+        '<div class="card" style="margin-top:18px;">' +
+          '<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">' +
+            '<div><div id="nuCount" style="font-size:clamp(42px,7vw,62px);font-weight:900;letter-spacing:-0.02em;line-height:1;">–</div>' +
+            '<div class="l" id="nuLabel" style="color:var(--muted);margin-top:8px;font-size:15px;">new users</div></div>' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              '<button class="lock-btn" title="Previous day" onclick="nuShift(-1)">◀</button>' +
+              '<input type="date" id="nuDate" value="' + today + '" max="' + today + '" onchange="updateNewUsers()" class="nu-date">' +
+              '<button class="lock-btn" title="Next day" onclick="nuShift(1)">▶</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="note" id="nuSub" style="margin-top:14px;"></div>' +
+        '</div>';
+      view(html);
+      updateNewUsers();
       function card(n, l) { return '<div class="stat"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
+    }
+    // ---- per-day new users (Asia/Dhaka calendar days, from app_users.first_seen) ----
+    function dhakaDate(ts) {
+      if (!ts) return '';
+      try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dhaka', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ts)); }
+      catch (e) { return String(ts).slice(0, 10); }
+    }
+    function dhakaToday() { return dhakaDate(new Date().toISOString()); }
+    function shiftDate(str, delta) { var d = new Date(str + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + delta); return d.toISOString().slice(0, 10); }
+    function prettyDate(str) { try { return new Date(str + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return str; } }
+    function newUsersInRange(a, b) { return (cache.users || []).filter(function (u) { var dd = dhakaDate(u.first_seen); return dd && dd >= a && dd <= b; }).length; }
+    function updateNewUsers() {
+      var el = document.getElementById('nuDate'); if (!el) return;
+      var dateStr = el.value || dhakaToday();
+      var count = (cache.users || []).filter(function (u) { return dhakaDate(u.first_seen) === dateStr; }).length;
+      document.getElementById('nuCount').textContent = count;
+      document.getElementById('nuLabel').textContent = 'new users on ' + prettyDate(dateStr);
+      var d7 = newUsersInRange(shiftDate(dateStr, -6), dateStr);
+      var d30 = newUsersInRange(shiftDate(dateStr, -29), dateStr);
+      document.getElementById('nuSub').innerHTML = '7-day total (through this date): <strong>' + d7 + '</strong> &nbsp;·&nbsp; 30-day total: <strong>' + d30 + '</strong>';
+    }
+    function nuShift(delta) {
+      var el = document.getElementById('nuDate'); if (!el) return;
+      var next = shiftDate(el.value || dhakaToday(), delta);
+      if (next > dhakaToday()) return;   // don't go into the future
+      el.value = next;
+      updateNewUsers();
     }
 
     // ---------- USERS ----------
