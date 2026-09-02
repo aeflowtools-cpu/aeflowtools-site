@@ -17,6 +17,22 @@ async function rest(path, opts) {
   return data;
 }
 
+// Fetch ALL rows for a GET list, paging past Supabase's 1000-row max-rows cap.
+async function restAll(pathBase) {
+  const page = 1000;
+  let offset = 0, out = [];
+  for (;;) {
+    const sep = pathBase.indexOf('?') >= 0 ? '&' : '?';
+    const rows = await rest(`${pathBase}${sep}limit=${page}&offset=${offset}`);
+    if (!Array.isArray(rows) || rows.length === 0) break;
+    out = out.concat(rows);
+    if (rows.length < page) break;
+    offset += page;
+    if (offset >= 500000) break; // hard safety stop
+  }
+  return out;
+}
+
 async function count(table, filter) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*${filter ? '&' + filter : ''}`, { method: 'HEAD', headers: h({ Prefer: 'count=exact' }) });
   const cr = r.headers.get('content-range') || '*/0';
@@ -73,10 +89,10 @@ export default async function handler(req, res) {
 
     if (a === 'users') {
       const [users, vips, keys, bd] = await Promise.all([
-        rest('app_users?select=*&order=last_seen.desc.nullslast&limit=10000'),
-        rest('vip_users?select=client_id'),
-        rest('license_keys?select=bound_client,plan,is_revoked,email&bound_client=not.is.null'),
-        rest('bd_free_users?select=client_id,name,email,whatsapp&client_id=not.is.null'),
+        restAll('app_users?select=*&order=last_seen.desc.nullslast'),
+        restAll('vip_users?select=client_id'),
+        restAll('license_keys?select=bound_client,plan,is_revoked,email&bound_client=not.is.null'),
+        restAll('bd_free_users?select=client_id,name,email,whatsapp&client_id=not.is.null'),
       ]);
       const vipSet = new Set(vips.map(function (v) { return v.client_id; }));
       const paid = new Set(), bdset = new Set(), emailMap = {};
@@ -111,12 +127,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ app_user: au[0] || null, bd_user: bdu[0] || null, keys: keys || [], vip: vip[0] || null, usage: usage[0] || null });
     }
 
-    if (a === 'bd_users') return res.status(200).json({ rows: await rest('bd_free_users?select=*&order=created_at.desc&limit=3000') });
-    if (a === 'keys') return res.status(200).json({ rows: await rest('license_keys?select=*&order=activated_at.desc.nullslast&limit=3000') });
-    if (a === 'vips') return res.status(200).json({ rows: await rest('vip_users?select=*') });
-    if (a === 'bug_reports') return res.status(200).json({ rows: await rest('bug_reports?select=*&order=created_at.desc&limit=3000') });
-    if (a === 'reviews') return res.status(200).json({ rows: await rest('reviews?select=*&order=created_at.desc&limit=3000') });
-    if (a === 'downloads') return res.status(200).json({ rows: await rest('download_clicks?select=*&order=created_at.desc&limit=5000') });
+    if (a === 'bd_users') return res.status(200).json({ rows: await restAll('bd_free_users?select=*&order=created_at.desc') });
+    if (a === 'keys') return res.status(200).json({ rows: await restAll('license_keys?select=*&order=activated_at.desc.nullslast') });
+    if (a === 'vips') return res.status(200).json({ rows: await restAll('vip_users?select=*') });
+    if (a === 'bug_reports') return res.status(200).json({ rows: await restAll('bug_reports?select=*&order=created_at.desc') });
+    if (a === 'reviews') return res.status(200).json({ rows: await restAll('reviews?select=*&order=created_at.desc') });
+    if (a === 'downloads') return res.status(200).json({ rows: await restAll('download_clicks?select=*&order=created_at.desc') });
     if (a === 'delete_feedback') {
       if (['bug_reports', 'reviews'].indexOf(body.table) < 0) return res.status(400).json({ error: 'bad table' });
       await rest(body.table + '?id=eq.' + encodeURIComponent(body.id), { method: 'DELETE' });
