@@ -148,8 +148,6 @@
     .dlbar-track { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
     .dlbar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
     .dlbar-n { color: var(--muted); font-size: 12px; white-space: nowrap; }
-    .dlbar-more { margin-top: 8px; background: none; border: 0; color: var(--accent-2); font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 0; }
-    .dlbar-more:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -620,10 +618,9 @@
         return true;
       });
     }
-    var _barSeq = 0;
     function dlBars(title, items, total, isCountry) {
       var max = items.length ? items[0].n : 1;
-      function bar(it) {
+      var body = items.slice(0, 12).map(function (it) {
         var label = it.k === '—' ? '<span class="muted">(not recorded)</span>'
           : (isCountry ? esc(flagEmoji(it.k) + ' ' + countryName(it.k)) : esc(it.k));
         var pct = total ? Math.round(it.n / total * 100) : 0;
@@ -631,22 +628,9 @@
         return '<div class="dlbar"><div class="dlbar-label">' + label + '</div>' +
           '<div class="dlbar-track"><div class="dlbar-fill" style="width:' + w + '%"></div></div>' +
           '<div class="dlbar-n">' + it.n + ' · ' + pct + '%</div></div>';
-      }
-      if (!items.length) return '<div class="card"><h3 style="margin-bottom:14px;">' + title + '</h3><div class="muted" style="padding:8px 0;">No data.</div></div>';
-      var head = items.slice(0, 12).map(bar).join('');
-      var more = '';
-      if (items.length > 12) {
-        var id = 'more_' + (++_barSeq);
-        more = '<div id="' + id + '" style="display:none;">' + items.slice(12).map(bar).join('') + '</div>' +
-          '<button class="dlbar-more" onclick="dlToggleMore(this,\'' + id + '\')">+ ' + (items.length - 12) + ' more</button>';
-      }
-      return '<div class="card"><h3 style="margin-bottom:14px;">' + title + '</h3>' + head + more + '</div>';
-    }
-    function dlToggleMore(btn, id) {
-      var el = document.getElementById(id);
-      if (!el) return;
-      if (el.style.display === 'none') { el.style.display = ''; btn.textContent = 'Show less'; }
-      else { el.style.display = 'none'; btn.textContent = '+ ' + el.querySelectorAll('.dlbar').length + ' more'; }
+      }).join('') || '<div class="muted" style="padding:8px 0;">No data.</div>';
+      return '<div class="card"><h3 style="margin-bottom:14px;">' + title + '</h3>' + body +
+        (items.length > 12 ? '<div class="note" style="margin-top:8px;">+ ' + (items.length - 12) + ' more</div>' : '') + '</div>';
     }
     function renderDlResults() {
       var all = cache.downloads || [];
