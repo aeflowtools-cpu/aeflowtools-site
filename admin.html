@@ -775,6 +775,7 @@
       var html = '<div class="card"><h3>Launch popups</h3><div class="desc">Shown to unlicensed users when the plugin opens. ' +
         'They run in <strong>priority order</strong> — the popup at the top (#1) shows first; use the ▲▼ buttons to reorder. ' +
         '<code>Max opens</code> caps how many times each popup shows to one user (blank = every open). ' +
+        '<code>Min opens</code> hides it until the user has opened the plugin at least that many times. ' +
         'A popup can be a <code>video</code>, an image/GIF, or a text card. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
       html += popups.map(function (p, i) {
         var body =
@@ -784,6 +785,7 @@
           pf(i, 'region', 'Region', p.region || 'all', 'all / international / bd / india / IN,PK') +
           aud(i, p.audience || 'all') +
           num(i, 'maxOpens', 'Max opens per user', (p.maxOpens != null ? p.maxOpens : ''), 'blank = unlimited') +
+          num(i, 'minOpenCount', 'Min opens before showing', (p.minOpenCount != null ? p.minOpenCount : ''), 'blank = from 1st open') +
           pf(i, 'users', 'Target user ids (comma-sep, optional)', (Array.isArray(p.users) ? p.users.join(',') : (p.users || '')), 'user_123,uid_abc') +
           '</div>' +
           '<div class="grid2">' +
@@ -854,6 +856,7 @@
         if (o.video && o.video.trim()) out.video = o.video.trim();
         if (o.gif && o.gif.trim()) out.gif = o.gif.trim();
         var mo = parseInt(o.maxOpens, 10); if (!isNaN(mo) && mo > 0) out.maxOpens = mo;
+        var mn = parseInt(o.minOpenCount, 10); if (!isNaN(mn) && mn > 0) out.minOpenCount = mn;
         if (o.users && o.users.trim()) out.users = o.users.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
         if (o.starts && o.starts.trim()) out.starts = o.starts.trim();
         if (o.expires && o.expires.trim()) out.expires = o.expires.trim();
