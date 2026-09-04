@@ -716,14 +716,22 @@
       drawPromo();
     }
     function drawPromo() {
-      var html = '<div class="card"><h3>Promotions banners</h3><div class="desc">Click a banner title to edit it. ' + REGION_NOTE + '</div>';
+      var html = '<div class="card"><h3>Promotions banners</h3><div class="desc">Click a banner name to edit it. <code>Min opens</code> hides it until the user has opened the plugin that many times; <code>Max opens to still show</code> stops it once they pass that many opens; <code>Max times to show</code> caps how often it appears. <code>users</code> (client ids) override region. ' + REGION_NOTE + '</div>';
       html += promoBanners.map(function (b, i) {
         var body =
-          '<div class="fld"><label>Title / label (for you)</label><input type="text" data-i="' + i + '" data-k="title" value="' + esc(b.title || '') + '" oninput="updTitle(this)" placeholder="e.g. India tutorial banner"></div>' +
+          '<div class="fld"><label>Banner ID / name (for you)</label><input type="text" data-i="' + i + '" data-k="id" value="' + esc(b.id || b.title || '') + '" oninput="updTitle(this)" placeholder="e.g. new-user-tutorial"></div>' +
           '<div class="grid2">' +
           '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="active" ' + (b.active ? 'checked' : '') + ' onchange="updHead(this)"><label>Active</label></div>' +
           '<div class="fld chk"><input type="checkbox" data-i="' + i + '" data-k="dismissible" ' + (b.dismissible ? 'checked' : '') + '><label>Dismissible</label></div>' +
           txt(i, 'region', 'Region', b.region || 'all', 'all / international / bd / india / IN') + aud(i, b.audience || 'all') +
+          '</div>' +
+          '<div class="grid2">' +
+          txt(i, 'users', 'Target user ids (comma-sep, optional)', (Array.isArray(b.users) ? b.users.join(',') : (b.users || '')), 'user_123,uid_abc') +
+          pn(i, 'minOpenCount', 'Min opens before showing', (b.minOpenCount != null ? b.minOpenCount : ''), 'blank = from 1st open') +
+          '</div>' +
+          '<div class="grid2">' +
+          pn(i, 'maxOpenCount', 'Max opens to still show', (b.maxOpenCount != null ? b.maxOpenCount : ''), 'blank = no upper limit') +
+          pn(i, 'maxOpens', 'Max times to show', (b.maxOpens != null ? b.maxOpens : ''), 'blank = every open') +
           '</div>' +
           '<div class="fld"><label>Text</label><input type="text" data-i="' + i + '" data-k="text" value="' + esc(b.text || '') + '"></div>' +
           '<div class="grid2">' + txt(i, 'url', 'URL', b.url || '') + txt(i, 'image', 'Image/GIF URL (optional — shows instead of text)', b.image || '') + '</div>' +
@@ -733,13 +741,14 @@
           '<div class="grid2">' + dt(i, 'startDate', 'Start date', b.startDate || '') + dt(i, 'endDate', 'End date', b.endDate || '') + '</div>' +
           '<div class="grid2">' + txt(i, 'bg', 'Background', b.bg || '', '#10233f') + txt(i, 'border', 'Border', b.border || '', '#3b82f6') + txt(i, 'color', 'Text color', b.color || '', '#bfdbfe') + '</div>' +
           '<div class="rowbar"><button class="rowbtn danger" onclick="delPromo(' + i + ')">✕ Delete banner</button></div>';
-        return item(i, b.title, b.active, body);
+        return item(i, b.id || b.title, b.active, body);
       }).join('') || '<div class="muted" style="padding:12px 0;">No banners yet.</div>';
       html += '<div class="rowbar"><button class="rowbtn" onclick="addPromo()">+ Add banner</button><button class="btn btn-primary" onclick="savePromo()">Save all</button><span class="save-status" id="cStatus"></span></div></div>';
       cbody(html);
       function txt(i, k, l, v, p) { return '<div class="fld"><label>' + l + '</label><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '" placeholder="' + (p || '') + '"></div>'; }
       function tm(i, k, l, v) { return '<div class="fld"><label>' + l + '</label><input type="time" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '"></div>'; }
       function dt(i, k, l, v) { return '<div class="fld"><label>' + l + '</label><input type="date" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '"></div>'; }
+      function pn(i, k, l, v, p) { return '<div class="fld"><label>' + l + '</label><input type="number" min="1" data-i="' + i + '" data-k="' + k + '" value="' + esc(v) + '" placeholder="' + (p || '') + '"></div>'; }
       function aud(i, v) { return '<div class="fld"><label>Audience</label><select data-i="' + i + '" data-k="audience">' + ['all', 'free', 'licensed'].map(function (o) { return '<option' + (o === v ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></div>'; }
     }
     function collectPromo() {
@@ -755,9 +764,13 @@
           date: !!o.date, startDate: o.startDate || '', endDate: o.endDate || '',
           url: (o.url || '').trim(), bg: (o.bg || '').trim(), border: (o.border || '').trim(), color: (o.color || '').trim(),
           dismissible: !!o.dismissible };
-        if (o.title && o.title.trim()) out.title = o.title.trim();
+        if (o.id && o.id.trim()) out.id = o.id.trim();
         if (o.text && o.text.trim()) out.text = o.text;
         if (o.image && o.image.trim()) out.image = o.image.trim();
+        if (o.users && o.users.trim()) out.users = o.users.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var mn = parseInt(o.minOpenCount, 10); if (!isNaN(mn) && mn > 0) out.minOpenCount = mn;
+        var mxc = parseInt(o.maxOpenCount, 10); if (!isNaN(mxc) && mxc > 0) out.maxOpenCount = mxc;
+        var mx = parseInt(o.maxOpens, 10); if (!isNaN(mx) && mx > 0) out.maxOpens = mx;
         return out;
       });
     }
