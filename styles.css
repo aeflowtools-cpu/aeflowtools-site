@@ -437,23 +437,40 @@ h1.display {
   .nav-links.open {
     display: flex;
     position: absolute;
-    top: 68px; left: 0; right: 0;
+    /* sit directly under the bar whatever its height (68px was hardcoded and could gap/overlap) */
+    top: 100%; left: 0; right: 0;
+    z-index: 60;                       /* above page content */
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
     padding: 16px 24px 22px;
-    background: rgba(7,8,10,0.96);
+    background: #0e1118;               /* solid panel, clearly distinct from the page */
     border-bottom: 1px solid var(--border);
+    box-shadow: 0 26px 50px rgba(0,0,0,0.6);
+    max-height: calc(100svh - 64px);
+    overflow-y: auto;                  /* long menus stay reachable on short screens */
   }
-  .nav-links.open a { padding: 8px 0; width: 100%; }
-  /* dropdown becomes inline list on mobile */
+  .nav-links.open > a,
+  .nav-links.open .dropbtn { padding: 14px 2px; width: 100%; font-size: 16px; }
+  /* dividers between the top-level rows so it reads as a real menu */
+  .nav-links.open > a,
+  .nav-links.open > .dropdown { border-bottom: 1px solid rgba(255,255,255,0.06); }
+  /* dropdown becomes a COLLAPSIBLE inline list on mobile (tap "Plugins" to expand) */
   .nav-links.open .dropdown { width: 100%; }
-  .nav-links.open .dropbtn { padding: 8px 0; }
-  .nav-links.open .dropdown-menu {
-    position: static; transform: none; opacity: 1; visibility: visible; pointer-events: auto;
-    min-width: 0; width: 100%; box-shadow: none; background: transparent; border: 0;
-    padding: 0 0 0 14px; margin-top: 0;
+  .nav-links.open .dropbtn {
+    display: flex; align-items: center; justify-content: space-between;
   }
+  .nav-links.open .dropdown-menu {
+    position: static; transform: none;
+    display: none;                     /* collapsed until the user taps Plugins */
+    opacity: 1; visibility: visible; pointer-events: auto;
+    min-width: 0; width: 100%; box-shadow: none; background: transparent; border: 0;
+    padding: 2px 0 10px 8px; margin-top: 0;
+  }
+  .nav-links.open .dropdown.open .dropdown-menu { display: block; }
+  /* let long labels + pills fit on narrow phones instead of overflowing */
+  .nav-links.open .dropdown-menu a,
+  .nav-links.open .dropdown-menu .disabled { padding: 11px 10px; border-radius: 10px; white-space: normal; }
 
   /* iOS zooms into any field with font-size < 16px on focus — force 16px on phones */
   input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
