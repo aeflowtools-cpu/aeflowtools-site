@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
   <style>
-    .dl-wrap { position: relative; z-index: 1; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+    .dl-wrap { position: relative; z-index: 1; min-height: auto; display: flex; align-items: center; justify-content: center; padding: 64px 24px 24px; }
     .dl-card-wrap {
       width: 100%; max-width: 460px; border-radius: 28px; padding: 1px;
       background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 40%, rgba(37,99,235,0.4));
@@ -68,6 +68,32 @@
     .sg-go[disabled] { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
     .sg-cancel { display: block; margin: 14px auto 0; background: none; border: 0; color: var(--faint); font-size: 13px; cursor: pointer; font-family: inherit; }
     .sg-cancel:hover { color: var(--muted); }
+
+    /* version history / release notes timeline */
+    .vh { max-width: 800px; margin: 0 auto; padding: 8px 24px 80px; position: relative; z-index: 1; }
+    .vh-head { text-align: center; margin-bottom: 44px; }
+    .vh-eyebrow { color: var(--accent-2); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .vh-head h2 { font-size: clamp(28px, 5vw, 44px); font-weight: 900; letter-spacing: -0.02em; margin: 10px 0 0; }
+    .vh-head h2 .grad { background: linear-gradient(100deg, #60a5fa, #2563eb); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .vh-head p { color: var(--muted); max-width: 470px; margin: 12px auto 0; font-size: 15.5px; }
+    .timeline { position: relative; padding-left: 34px; }
+    .timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px;
+      background: linear-gradient(180deg, var(--accent-2), rgba(59,130,246,0.12)); }
+    .rel { position: relative; margin-bottom: 20px; }
+    .rel::before { content: ""; position: absolute; left: -34px; top: 24px; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--accent-2); box-shadow: 0 0 0 4px rgba(59,130,246,0.18); }
+    .rel-card { border-radius: 18px; padding: 22px 24px; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+    .rel-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .rel-ver { font-size: 23px; font-weight: 900; letter-spacing: -0.02em; }
+    .rel-badge { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+      background: rgba(34,197,94,0.14); color: #4ade80; border: 1px solid rgba(34,197,94,0.32); }
+    .rel-date { margin-left: auto; color: var(--faint); font-size: 13px; }
+    .rel-title { font-size: 16.5px; font-weight: 700; margin: 14px 0 12px; }
+    .rel-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 9px 22px; }
+    .rel-list li { display: flex; align-items: flex-start; gap: 9px; color: var(--text); font-size: 14px; line-height: 1.5; }
+    .rel-list .ck { color: var(--accent-2); flex-shrink: 0; font-weight: 800; }
+    @media (max-width: 620px) { .rel-list { grid-template-columns: 1fr; } .rel-date { margin-left: 0; width: 100%; } }
   </style>
 </head>
 <body>
@@ -100,6 +126,58 @@
       </main>
     </div>
   </div>
+
+  <!-- VERSION HISTORY / RELEASE NOTES -->
+  <section class="vh">
+    <div class="vh-head">
+      <div class="vh-eyebrow">Release notes</div>
+      <h2>It keeps <span class="grad">shipping.</span></h2>
+      <p>UI Flow keeps getting better — free, for life. Here's what each version changed.</p>
+    </div>
+    <div class="timeline">
+
+      <div class="rel">
+        <div class="rel-card">
+          <div class="rel-top">
+            <span class="rel-ver">3.1.5</span>
+            <span class="rel-badge">Released</span>
+            <span class="rel-date">Sep 2026</span>
+          </div>
+          <div class="rel-title">Fixes &amp; reliability</div>
+          <ul class="rel-list">
+            <li><span class="ck">✓</span> Exports no longer get stuck</li>
+            <li><span class="ck">✓</span> Text no longer loses its last letter</li>
+            <li><span class="ck">✓</span> Line spacing now matches Figma</li>
+            <li><span class="ck">✓</span> Rounded corners transfer correctly</li>
+            <li><span class="ck">✓</span> Nested frames keep their position</li>
+            <li><span class="ck">✓</span> Masks now apply to all layers above them</li>
+            <li><span class="ck">✓</span> Groups stay sharp when scaled up</li>
+            <li><span class="ck">✓</span> Works properly when Premiere Pro is open</li>
+            <li><span class="ck">✓</span> Free exports only count when they succeed</li>
+            <li><span class="ck">✓</span> Tooltips fixed on Mac</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rel">
+        <div class="rel-card">
+          <div class="rel-top">
+            <span class="rel-ver">3.0.0</span>
+            <span class="rel-badge">Released</span>
+            <span class="rel-date">Aug 2026</span>
+          </div>
+          <div class="rel-title">Figma Motion → After Effects</div>
+          <ul class="rel-list">
+            <li><span class="ck">✓</span> Send Figma motion as editable AE keyframes (Beta)</li>
+            <li><span class="ck">✓</span> Pixel-accurate text — gradient, multi-color &amp; wrapped</li>
+            <li><span class="ck">✓</span> Missing-font alerts after each transfer</li>
+            <li><span class="ck">✓</span> Faster, cleaner transfers &amp; better precomp handling</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- Mandatory "where did you hear about UI Flow?" gate -->
   <div class="sg-overlay" id="sgOverlay" role="dialog" aria-modal="true" aria-labelledby="sgTitle">
