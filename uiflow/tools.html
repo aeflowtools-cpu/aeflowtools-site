@@ -81,9 +81,9 @@
         <h1>Download UI Flow</h1>
         <p class="sub">Get both pieces — the After Effects plugin and the Figma plugin.</p>
 
-        <a class="btn btn-primary" id="aeDownloadBtn" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip" onclick="return openSourceGate(event)">
+        <a class="btn btn-primary" id="aeDownloadBtn" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI_Flow_3.1.5.zip" onclick="return openSourceGate(event)">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#00005B"/><text x="12" y="16.5" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#9B9BFF" text-anchor="middle">Ae</text></svg>
-          Download UI Flow v3.0.0 <span class="arrow">→</span>
+          Download UI Flow v3.1.5 <span class="arrow">→</span>
         </a>
         <a class="btn btn-ghost" href="https://www.figma.com/community/plugin/1605150908629430996/ui-flow" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 38 57" aria-hidden="true">
@@ -127,14 +127,14 @@
             <input type="text" id="sgOtherText" maxlength="80" placeholder="Tell us where…" autocomplete="off" />
           </div>
         </div>
-        <button type="button" class="btn btn-primary sg-go" id="sgGo" disabled>Download UI Flow v3.0.0 <span class="arrow">→</span></button>
+        <button type="button" class="btn btn-primary sg-go" id="sgGo" disabled>Download UI Flow v3.1.5 <span class="arrow">→</span></button>
         <button type="button" class="sg-cancel" id="sgCancel">Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
-    var DOWNLOAD_URL = 'https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI%20Flow%20V3.zip';
+    var DOWNLOAD_URL = 'https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/UI%20Flow/UI_Flow_3.1.5.zip';
     var SOURCE_GATE_ENABLED = false;   // ← PAUSED. Set to true to ask "Where did you hear about UI Flow?" again.
     var sgSource = null;
 
@@ -145,7 +145,7 @@
         try {
           fetch('/api/track-download', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ button: 'uiflow_v3.0.0' }), keepalive: true
+            body: JSON.stringify({ button: 'uiflow_v3.1.5' }), keepalive: true
           });
         } catch (e2) {}
         return true;   // allow the link to proceed to the download
@@ -202,7 +202,7 @@
           fetch('/api/track-download', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ button: 'uiflow_v3.0.0', source: source }),
+            body: JSON.stringify({ button: 'uiflow_v3.1.5', source: source }),
             keepalive: true
           });
         } catch (e) {}
