@@ -492,3 +492,38 @@ h1.display {
 @media (max-width: 400px) {
   .container { padding: 0 18px; }
 }
+
+/* ---------- Comparison accordion (How does UI Flow compare?) ---------- */
+.cmp-acc { max-width: 860px; margin: 0 auto; display: grid; gap: 12px; }
+.cmp-acc details { border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); overflow: hidden; }
+.cmp-acc summary { list-style: none; cursor: pointer; padding: 20px 24px; font-weight: 700; font-size: 17px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.cmp-acc summary::-webkit-details-marker { display: none; }
+.cmp-acc summary::after { content: "⌄"; font-size: 20px; color: var(--accent-2); transition: transform 0.2s ease; line-height: 1; margin-top: -4px; }
+.cmp-acc details[open] summary::after { transform: rotate(180deg); }
+.cmp-body { padding: 2px 24px 24px; }
+/* feature table */
+.cmp-table { display: grid; }
+.cmp-trow { display: grid; grid-template-columns: 1fr 84px 84px; align-items: center; gap: 12px;
+  padding: 13px 0; border-top: 1px solid var(--border); font-size: 14.5px; }
+.cmp-trow.head { border-top: 0; color: var(--muted); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.cmp-trow .c { text-align: center; }
+.cmp-feat { color: var(--text); }
+.cmp-yes { color: #4ade80; font-weight: 800; text-align: center; }
+.cmp-no { color: var(--faint); text-align: center; }
+/* two-column strengths */
+.cmp-2col { display: grid; grid-template-columns: 1fr 1fr; }
+.cmp-2col .col { padding: 6px 18px; }
+.cmp-2col .col + .col { border-left: 1px solid var(--border); }
+.cmp-2col .col h4 { text-align: center; font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+.cmp-2col ul { list-style: none; display: grid; gap: 12px; }
+.cmp-2col li { text-align: center; font-size: 14px; color: var(--muted); }
+.cmp-2col .good h4 { color: #86efac; }
+.cmp-2col .good li { color: var(--text); }
+@media (max-width: 620px) {
+  .cmp-trow { grid-template-columns: 1fr 52px 52px; gap: 8px; font-size: 13.5px; }
+  .cmp-2col { grid-template-columns: 1fr; }
+  .cmp-2col .col + .col { border-left: 0; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px; }
+}
