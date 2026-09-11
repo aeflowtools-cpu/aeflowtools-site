@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Meta Pixel -->
+  <script src="/meta-pixel.js"></script>
   <title>UI Flow Pro — Lifetime License | AE Flow Tools</title>
   <meta name="description" content="Unlock unlimited exports in UI Flow with a one-time lifetime license. No subscription." />
   <link rel="stylesheet" href="../styles.css" />
@@ -61,7 +63,7 @@
   <!-- TOP VIDEO -->
   <section class="section" style="padding-top:24px; padding-bottom:6px;">
     <div class="container">
-      <a class="pro-video" href="https://aeflowtools.gumroad.com/l/uiflowkey" aria-label="Get the UI Flow Pro early-bird offer">
+      <a class="pro-video" href="https://aeflowtools.gumroad.com/l/uiflowkey" aria-label="Get the UI Flow Pro early-bird offer" onclick="window.fbq&&fbq('track','InitiateCheckout')">
         <video src="https://zomjnvryqmotggdkseag.supabase.co/storage/v1/object/public/UI%20Flow%20AE%20Updates/Early%20bird%20offer%20horizontal.mp4"
                autoplay muted loop playsinline preload="auto"></video>
       </a>
@@ -96,7 +98,7 @@
             <li><span class="ck">✓</span> One-time payment — no subscription</li>
           </ul>
 
-          <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/uiflowkey" style="width:100%; justify-content:center;">
+          <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/uiflowkey" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
             Buy Lifetime License <span class="arrow">→</span>
           </a>
           <div class="pro-note">Secure checkout via Gumroad · You'll get a license key to activate in the Figma plugin.</div>
@@ -133,6 +135,8 @@
         if (!d.contains(e.target)) d.classList.remove('open');
       });
     });
+    // Meta Pixel: this is the pricing/offer page
+    try { window.fbq && fbq('track', 'ViewContent', { content_name: 'UI Flow Pro' }); } catch (e) {}
   </script>
 </body>
 </html>

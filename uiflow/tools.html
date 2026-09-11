@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Meta Pixel -->
+  <script src="/meta-pixel.js"></script>
   <title>Download UI Flow | AE Flow Tools</title>
   <meta name="description" content="Download UI Flow — the After Effects plugin and the Figma plugin." />
   <link rel="stylesheet" href="../styles.css" />
@@ -237,6 +239,7 @@
 
     // Called by the download button.
     function openSourceGate(e) {
+      try { window.fbq && fbq('track', 'Lead', { content_name: 'UI Flow download' }); } catch (e3) {}
       if (!SOURCE_GATE_ENABLED) {
         // Gate paused: still log the download (button + country, no source), then let it download.
         try {
