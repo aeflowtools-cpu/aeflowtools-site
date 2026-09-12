@@ -15,6 +15,9 @@
   <meta property="og:description" content="Click Send to Ae and watch your Figma design rebuild in After Effects, layer by layer." />
   <meta property="og:url" content="https://www.aeflowtools.com/uiflow/experience" />
   <meta property="og:image" content="https://i.postimg.cc/25Mw22Mf/UI-Flow-Logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
@@ -32,45 +35,59 @@
 
     /* Figma window */
     .win-fig { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); }
-    .fig-canvas { position: relative; background: #1b1d22; padding: 26px; min-height: 360px;
+    .fig-canvas { position: relative; background: #1b1d22; min-height: 470px; overflow: hidden;
       background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 22px 22px; }
-    .fig-card { position: relative; width: min(240px, 62%); margin: 0 auto; display: block; border-radius: 14px;
+    .fig-card { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 230px; display: block; border-radius: 14px;
       box-shadow: 0 20px 46px rgba(0,0,0,0.45); }
-    .fig-tag { position: absolute; top: 12px; left: 14px; font-size: 11px; font-weight: 700; color: #7aa5ff; }
+    .fig-tag { position: absolute; top: 12px; left: 14px; font-size: 11px; font-weight: 700; color: #7aa5ff; z-index: 6; }
 
-    /* UI Flow plugin panel (recreated) */
-    .uf-panel { position: absolute; right: 16px; top: 40px; width: 214px; z-index: 5; border-radius: 14px; overflow: hidden;
-      background: linear-gradient(180deg, #10192e, #0a1120); border: 1px solid rgba(255,255,255,0.10);
-      box-shadow: 0 24px 50px rgba(0,0,0,0.55); font-size: 12px; }
-    .uf-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .uf-logo { width: 18px; height: 18px; border-radius: 5px; background: linear-gradient(150deg, #4c8dff, #9c7bff); display: grid; place-items: center;
-      color: #fff; font-size: 9px; font-weight: 800; font-family: ui-monospace, monospace; }
-    .uf-head .nm { font-weight: 800; color: #eaf0fb; letter-spacing: -0.01em; }
-    .uf-head .nm b { color: #4c8dff; }
-    .uf-head .x { margin-left: auto; color: #6b7793; cursor: default; }
-    .uf-lic { display: flex; align-items: center; gap: 7px; padding: 9px 12px; color: #37d3a6; font-weight: 700; font-size: 10.5px; letter-spacing: 0.04em; }
-    .uf-lic .g { width: 7px; height: 7px; border-radius: 50%; background: #37d3a6; box-shadow: 0 0 6px #37d3a6; }
-    .uf-lic .gear { margin-left: auto; color: #6b7793; }
-    .uf-label { padding: 4px 12px; color: #6b7793; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; }
-    .uf-send-row { display: flex; gap: 8px; padding: 2px 12px 10px; }
-    .uf-primary { position: relative; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden;
-      height: 40px; border-radius: 10px; background: linear-gradient(180deg, #3f7bf6, #2f5fe0); color: #fff; font-weight: 700; font-size: 12.5px;
-      cursor: pointer; box-shadow: 0 8px 20px rgba(47,95,224,0.4); transition: transform 0.12s ease, filter 0.12s ease; user-select: none; }
-    .uf-primary:hover { filter: brightness(1.06); }
-    .uf-primary:active { transform: translateY(1px); }
-    .uf-primary svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
-    .uf-primary.thinking { pointer-events: none; }
-    .uf-primary.thinking::after { content: ""; position: absolute; inset: 0;
-      background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%); background-size: 220% 100%;
-      animation: ufshine 1s linear infinite; }
-    @keyframes ufshine { to { background-position: -220% 0; } }
-    .uf-primary.done { background: linear-gradient(180deg, #2fbf7a, #1f9d63); box-shadow: 0 8px 20px rgba(34,197,94,0.35); }
-    .uf-magic { width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px; display: grid; place-items: center; font-size: 15px;
-      background: linear-gradient(180deg, #24345a, #182747); border: 1px solid rgba(255,255,255,0.08); color: #9fb6ff; }
-    .uf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 12px 10px; }
-    .uf-grid div { height: 38px; border-radius: 10px; display: grid; place-items: center; font-size: 15px; color: #9fb6ff;
-      background: linear-gradient(180deg, #17233f, #101a30); border: 1px solid rgba(255,255,255,0.06); }
-    .uf-foot { text-align: center; padding: 8px; font-size: 10px; color: #4a5878; border-top: 1px solid rgba(255,255,255,0.06); }
+    /* ===== Exact UI Flow plugin panel (from dist/ui.html) — centered ===== */
+    .uf-panel-wrap { position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); z-index: 5; }
+    .ufp { --bg:#0f1623; --surface:#1a2540; --surface2:#1f2d4d; --border:#2a3d66; --accent:#3b82f6;
+      --accent-glow:rgba(59,130,246,0.25); --text:#e2e8f0; --muted:#64748b; --radius:10px; --success:#3ecf8e;
+      width: 300px; max-width: 84vw; background: var(--bg); color: var(--text); font-size: 11px; padding: 14px 14px 8px;
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 34px 80px rgba(0,0,0,0.62);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+    .ufp * { box-sizing: border-box; margin: 0; padding: 0; }
+    .ufp .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .ufp .header-left { display: flex; align-items: center; gap: 6px; }
+    .ufp .header-right { display: flex; align-items: center; gap: 8px; }
+    .ufp .licensed-badge { display: flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; color: var(--success);
+      text-transform: uppercase; letter-spacing: 0.06em; }
+    .ufp .licensed-badge::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--success);
+      box-shadow:0 0 5px var(--success); animation: lb-blink 2s infinite; }
+    @keyframes lb-blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .ufp .badge-caret { width: 11px; height: 11px; fill: currentColor; opacity: .7; }
+    .ufp .settings-btn { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; color: var(--muted); }
+    .ufp .settings-btn svg { width: 15px; height: 15px; fill: currentColor; }
+    .ufp .section { margin: 0 0 12px; }
+    .ufp .section-label { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 7px; }
+    .ufp .btn-send-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .ufp .btn-send-row .btn-primary { flex: 1; margin-bottom: 0; }
+    .ufp .btn-primary { position: relative; width: 100%; background: linear-gradient(135deg,#1e40af 0%,#3b82f6 100%);
+      border: 1px solid rgba(99,179,254,0.3); border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: center; gap: 10px;
+      cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(59,130,246,0.3); overflow: hidden; }
+    .ufp .btn-primary:hover { background: linear-gradient(135deg,#1d4ed8 0%,#60a5fa 100%); box-shadow: 0 6px 22px rgba(59,130,246,0.45); transform: translateY(-1px); }
+    .ufp .btn-primary:active { transform: translateY(0); opacity: .9; }
+    .ufp .btn-primary.thinking { pointer-events: none;
+      background: linear-gradient(60deg, rgba(30,64,175,0.6) 30%, rgba(96,165,250,0.8) 50%, rgba(30,64,175,0.6) 70%) 0% 0% / 300% 300%;
+      animation: ufshimmer 1.4s cubic-bezier(0.4,0,0.6,1) infinite alternate; background-size: 300%; }
+    @keyframes ufshimmer { 0% { background-position: -20% 50%; } 100% { background-position: 110% 50%; } }
+    .ufp .btn-primary svg { width: 16px; height: 16px; fill: #fff; flex-shrink: 0; }
+    .ufp .btn-primary span { font-size: 12px; font-weight: 600; color: #fff; letter-spacing: 0.02em; white-space: nowrap; }
+    .ufp .btn-prep { flex-shrink: 0; width: 72px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
+    .ufp .btn-prep svg { width: 16px; height: 16px; fill: var(--accent); flex-shrink: 0; }
+    .ufp .btn-prep:hover { background: var(--surface2); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+    .ufp .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .ufp .btn-secondary { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 10px 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+    .ufp .btn-secondary:hover { background: var(--surface2); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+    .ufp .btn-secondary svg { width: 18px; height: 18px; fill: var(--accent); }
+    .ufp .version { font-size: 0; }
+    .ufp .made-by { display: block; text-align: center; margin-top: 2px; font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+      color: var(--muted); text-decoration: none; opacity: 0.6; transition: opacity .15s, color .15s; }
+    .ufp .made-by:hover { opacity: 1; color: #c084fc; }
 
     /* arrow between */
     .exp-arrow { display: grid; place-items: center; color: var(--faint); font-size: 26px; position: relative; }
@@ -83,13 +100,13 @@
 
     /* After Effects window */
     .win-ae { background: #0e0f12; }
-    .ae-body { position: relative; }
-    .ae-canvas { position: relative; aspect-ratio: 456 / 552; width: min(240px, 62%); margin: 26px auto; border-radius: 6px; overflow: hidden;
+    .ae-body { position: relative; min-height: 470px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; }
+    .ae-canvas { position: relative; aspect-ratio: 456 / 552; width: 250px; max-width: 66%; margin: 0 auto; border-radius: 6px; overflow: hidden;
       background: repeating-conic-gradient(#26282d 0% 25%, #303338 0% 50%) 50% / 22px 22px; }
     .ae-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: top center; opacity: 0;
       transition: opacity 0.35s ease; }
     .ae-frame.show { opacity: 1; }
-    .ae-status { text-align: center; padding: 0 14px 18px; font-size: 12px; color: var(--muted); min-height: 20px; }
+    .ae-status { text-align: center; padding: 0 14px; margin-top: 18px; font-size: 12px; color: var(--muted); min-height: 20px; }
     .ae-status .bld { color: var(--accent-2); font-weight: 600; }
 
     .exp-controls { text-align: center; margin-top: 30px; }
@@ -98,9 +115,9 @@
     @media (max-width: 780px) {
       .exp-stage { grid-template-columns: 1fr; gap: 10px; }
       .exp-arrow { transform: rotate(90deg); padding: 4px 0; }
-      .fig-card, .ae-canvas { width: min(220px, 66%); }
-      .uf-panel { position: static; width: 100%; margin-top: 16px; }
-      .fig-canvas { padding: 22px 18px; }
+      .fig-card { width: 200px; top: 24px; }
+      .fig-canvas, .ae-body { min-height: 440px; }
+      .uf-panel-wrap { bottom: 24px; }
     }
   </style>
 </head>
@@ -149,20 +166,48 @@
           <div class="fig-canvas">
             <span class="fig-tag">DEMO</span>
             <img class="fig-card" src="/uiflow/assets/experience/ae-8.png" alt="Cheeseburger card designed in Figma" />
-            <!-- UI Flow plugin panel -->
-            <div class="uf-panel">
-              <div class="uf-head"><span class="uf-logo">&lt;/&gt;</span><span class="nm"><b>UI</b> Flow</span><span class="x">✕</span></div>
-              <div class="uf-lic"><span class="g"></span> LICENSED <span class="gear">⚙</span></div>
-              <div class="uf-label">OPTIONS</div>
-              <div class="uf-send-row">
-                <div class="uf-primary" id="sendBtn" onclick="runExperience()">
-                  <svg viewBox="0 0 24 24"><path d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z"/></svg>
-                  <span id="sendLabel">Send to Ae</span>
+            <!-- Exact UI Flow plugin panel -->
+            <div class="uf-panel-wrap">
+              <div class="ufp">
+                <div class="header">
+                  <div class="header-left">
+                    <div class="licensed-badge">
+                      <span>Licensed</span>
+                      <svg class="badge-caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    </div>
+                  </div>
+                  <div class="header-right">
+                    <div class="settings-btn" title="Settings">
+                      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94 0 .32.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg>
+                    </div>
+                  </div>
                 </div>
-                <div class="uf-magic">✨</div>
+                <div class="section">
+                  <div class="section-label">Options</div>
+                  <div class="btn-send-row">
+                    <div class="btn-primary" id="sendBtn" onclick="runExperience()">
+                      <svg viewBox="0 0 24 24"><path d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z"/></svg>
+                      <span id="sendLabel">Send to Ae</span>
+                    </div>
+                    <div class="btn-prep" title="Prep for After Effects">
+                      <svg viewBox="0 0 24 24"><path d="M7.5 5.6L10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7zm12 9.8L17 14l1.4 2.5L17 19l2.5-1.4L22 19l-1.4-2.5L22 14zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7l2.5-1.4L22 7l-1.4-2.5zm-7.63 5.29a1 1 0 00-1.41 0L1.29 18.96a1 1 0 000 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05a1 1 0 000-1.41l-2.33-2.35zm-1.03 5.49l-2.12-2.12 2.44-2.44 2.12 2.12-2.44 2.44z"/></svg>
+                    </div>
+                  </div>
+                  <div class="btn-grid">
+                    <div class="btn-secondary" title="Send with reference">
+                      <svg viewBox="0 0 24 24"><path d="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V5H19V19Z"/></svg>
+                    </div>
+                    <div class="btn-secondary" title="Send only reference">
+                      <svg viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,17H17V15H7V17M7,13H13V11H7V13M7,9H17V7H7V9Z"/></svg>
+                    </div>
+                    <div class="btn-secondary" title="Rasterize layer">
+                      <svg viewBox="0 0 24 24"><path d="M21 13H14.4L19.1 17.7L17.7 19.1L13 14.4V21H11V14.3L6.3 19L4.9 17.6L9.4 13H3V11H9.6L4.9 6.3L6.3 4.9L11 9.6V3H13V9.4L17.6 4.8L19 6.3L14.3 11H21V13Z"/></svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="version">v3.1.5</div>
+                <a class="made-by" href="https://aeflowtools.com" target="_blank" rel="noopener">by Ae Flow Tools</a>
               </div>
-              <div class="uf-grid"><div>◻</div><div>☰</div><div>✦</div></div>
-              <div class="uf-foot">by Ae Flow Tools</div>
             </div>
           </div>
         </div>
@@ -218,7 +263,7 @@
 
     var running = false;
     function runExperience() {
-      if (running) { reset(); }
+      if (running) return; // button is disabled (.thinking) while sending, just like the real plugin
       running = true;
       var stage = document.getElementById('stage');
       var btn = document.getElementById('sendBtn');
@@ -228,10 +273,10 @@
       var layerNames = ['Rectangle 58', 'Ellipse', 'Image', 'Text', 'Star', 'Rating 4.9', 'Heart', 'Finishing'];
 
       frames.forEach(function (f) { f.classList.remove('show'); });
-      btn.classList.remove('done');
       btn.classList.add('thinking');
       stage.classList.add('sending');
 
+      // btnMsg progression — mirrors the plugin's Send button while it works
       var msgs = ['Reading selection…', 'Exporting images…', 'Sending to Ae…', 'Building layers…'];
       var mi = 0;
       label.textContent = msgs[0];
@@ -239,7 +284,7 @@
 
       status.innerHTML = '<span class="bld">Receiving from Figma…</span>';
 
-      // after the "send", start rebuilding the comp layer by layer
+      // after the "send", rebuild the comp layer by layer
       setTimeout(function () {
         clearInterval(msgTimer);
         stage.classList.remove('sending');
@@ -252,22 +297,12 @@
           } else {
             clearInterval(buildTimer);
             btn.classList.remove('thinking');
-            btn.classList.add('done');
-            label.textContent = 'Sent ✓';
-            status.textContent = '✓ Rebuilt in After Effects — fully editable layers.';
+            label.textContent = 'Send to Ae';
+            status.textContent = '✓ Rebuilt in After Effects — fully editable layers. Click Send to Ae to replay.';
             running = false;
-            setTimeout(function () { if (!btn.classList.contains('thinking')) { btn.classList.remove('done'); label.textContent = 'Send again ↻'; } }, 1800);
           }
         }, 520);
       }, 1500);
-    }
-
-    function reset() {
-      document.querySelectorAll('#aeCanvas .ae-frame').forEach(function (f) { f.classList.remove('show'); });
-      var btn = document.getElementById('sendBtn');
-      btn.classList.remove('done', 'thinking');
-      document.getElementById('sendLabel').textContent = 'Send to Ae';
-      document.getElementById('aeStatus').textContent = 'Empty composition — waiting for a send…';
     }
   </script>
 </body>
