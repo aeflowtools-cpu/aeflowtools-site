@@ -124,6 +124,11 @@
     .fld.chk label { margin: 0; }
     .rowbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
     .note { color: var(--faint); font-size: 12px; }
+    .pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+    .pgbtn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 9px; cursor: pointer; transition: background .15s, border-color .15s; }
+    .pgbtn:hover:not(:disabled) { background: rgba(255,255,255,0.08); border-color: var(--accent); }
+    .pgbtn:disabled { opacity: .4; cursor: not-allowed; }
+    .pginfo { font-size: 12.5px; color: var(--muted); }
     .save-status { font-size: 13px; margin-left: 8px; }
     .save-status.ok { color: #4ade80; } .save-status.err { color: #f87171; }
     .subtabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -280,6 +285,34 @@
     function view(html) { document.getElementById('view').innerHTML = html; }
     function loading() { view('<div class="muted" style="padding:30px;text-align:center;">Loading…</div>'); }
 
+    // ---------- pagination (20 per page, everywhere) ----------
+    var PAGE_SIZE = 20;
+    var pager = {};                       // key -> current page (1-based)
+    function pgReset(key) { pager[key] = 1; }
+    function pgSlice(key, rows) {          // returns just this page's rows (also clamps the page)
+      var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      var p = pager[key] || 1; if (p > pages) p = pages; if (p < 1) p = 1; pager[key] = p;
+      var start = (p - 1) * PAGE_SIZE;
+      return rows.slice(start, start + PAGE_SIZE);
+    }
+    function pgBar(key, total, redraw) {   // redraw = name of the function to re-run on page change
+      var pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      if (pages <= 1) return '';
+      var p = pager[key] || 1; if (p > pages) p = pages;
+      var from = total ? (p - 1) * PAGE_SIZE + 1 : 0;
+      var to = Math.min(total, p * PAGE_SIZE);
+      return '<div class="pager">' +
+        '<button class="pgbtn"' + (p <= 1 ? ' disabled' : '') + ' onclick="goPage(\'' + key + '\',' + (p - 1) + ',\'' + redraw + '\')">‹ Prev</button>' +
+        '<span class="pginfo">' + from + '–' + to + ' of ' + total + ' · page ' + p + ' / ' + pages + '</span>' +
+        '<button class="pgbtn"' + (p >= pages ? ' disabled' : '') + ' onclick="goPage(\'' + key + '\',' + (p + 1) + ',\'' + redraw + '\')">Next ›</button>' +
+        '</div>';
+    }
+    function goPage(key, n, redraw) {
+      pager[key] = n;
+      if (typeof window[redraw] === 'function') window[redraw]();
+      var v = document.getElementById('view'); if (v) v.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+
     async function render() {
       try {
         if (cur === 'Overview') return renderOverview();
@@ -359,11 +392,11 @@
       var filters = ['All', 'VIP', 'Paid', 'BD Free', 'Free', 'Hottest leads'];
       var opensOpts = [1, 2, 3, 4, 5, 10];
       var html = '<div class="toolbar">' +
-        '<input class="search" id="uSearch" placeholder="Search name / user id / email / source / country…" oninput="renderUsersResults()">' +
+        '<input class="search" id="uSearch" placeholder="Search name / user id / email / source / country…" oninput="pgReset(\'users\');renderUsersResults()">' +
         '<span id="uChips" style="display:flex;gap:6px;flex-wrap:wrap;">' +
         filters.map(function (f) { return '<button class="chip' + (userFilter === f ? ' active' : '') + '" data-f="' + esc(f) + '" onclick="setUserFilter(\'' + f + '\')">' + f + '</button>'; }).join('') +
         '</span>' +
-        '<select id="uOpens" onchange="userOpens=parseInt(this.value,10);renderUsersResults()">' +
+        '<select id="uOpens" onchange="userOpens=parseInt(this.value,10);pgReset(\'users\');renderUsersResults()">' +
         opensOpts.map(function (n) { return '<option value="' + n + '"' + (userOpens === n ? ' selected' : '') + '>' + (n === 1 ? 'All opens' : n + '+ opens') + '</option>'; }).join('') +
         '</select>' +
         '<button class="chip" onclick="exportCSV(filteredUsers(),\'users\')">⬇ CSV</button></div>' +
@@ -375,6 +408,7 @@
       userFilter = f;
       var chips = document.querySelectorAll('#uChips .chip');
       Array.prototype.forEach.call(chips, function (c) { c.classList.toggle('active', c.getAttribute('data-f') === f); });
+      pgReset('users');
       renderUsersResults();
     }
     function filteredUsers() {
@@ -397,13 +431,13 @@
         dlStat(rows.filter(function (u) { return u._status === 'VIP'; }).length, 'VIPs') + '</div>';
       h += '<div class="dl-cols">' + dlBars('Top countries 🌍', byCty, rows.length, true) + dlBars('Top sources 📱', bySrc, rows.length, false) + '</div>';
       h += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th><th>Country</th><th>Source</th><th>Opens</th><th>Days maxed</th><th>Last seen</th></tr></thead><tbody>';
-      h += rows.slice(0, 1000).map(function (u) {
+      h += pgSlice('users', rows).map(function (u) {
         var nm = u._name || (u._email || '—');
         var cty = u.country ? esc(flagEmoji(u.country) + ' ' + countryName(u.country)) : '<span class="muted">—</span>';
         var src = u.source ? esc(u.source) : '<span class="muted">—</span>';
         return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + cty + '</td><td class="wrap-cell">' + src + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
       }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No users match.</td></tr>';
-      h += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown · click a row for the full profile' + (rows.length > 1000 ? ' · table capped at 1000 (stats & graphs count all)' : '') + '</div>';
+      h += '</tbody></table></div>' + pgBar('users', rows.length, 'renderUsersResults') + '<div class="note" style="margin-top:8px;">' + rows.length + ' match · click a row for the full profile</div>';
       document.getElementById('uResults').innerHTML = h;
     }
     function statusBadge(s) {
@@ -478,13 +512,13 @@
     function drawBd() {
       var q = (document.getElementById('bdSearch') ? document.getElementById('bdSearch').value : '');
       var rows = (cache.bd || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || (r.name + ' ' + r.email + ' ' + r.whatsapp + ' ' + r.license_key).toLowerCase().indexOf(s) >= 0; });
-      var html = '<div class="toolbar"><input class="search" id="bdSearch" placeholder="Search name / email / phone / key…" oninput="drawBd()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bd,\'bd_free_users\')">⬇ CSV</button></div>';
+      var html = '<div class="toolbar"><input class="search" id="bdSearch" placeholder="Search name / email / phone / key…" oninput="pgReset(\'bd\');drawBd()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bd,\'bd_free_users\')">⬇ CSV</button></div>';
       html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>License key</th><th>Activated</th><th>Signed up</th></tr></thead><tbody>';
-      html += rows.map(function (r) {
+      html += pgSlice('bd', rows).map(function (r) {
         var act = r.client_id ? '<span class="badge b-bd">Yes</span> <span class="muted">' + fmt(r.activated_at) + '</span>' : '<span class="badge b-free">No</span>';
         return '<tr><td>' + esc(r.name) + '</td><td class="wrap-cell">' + esc(r.email) + '</td><td>' + esc(r.whatsapp) + '</td><td class="wrap-cell">' + esc(r.license_key) + '</td><td>' + act + '</td><td>' + fmt(r.created_at) + '</td></tr>';
       }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px;">No signups.</td></tr>';
-      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      html += '</tbody></table></div>' + pgBar('bd', rows.length, 'drawBd') + '<div class="note" style="margin-top:8px;">' + rows.length + ' total</div>';
       view(html);
     }
 
@@ -507,9 +541,9 @@
         '<div class="fld"><label>Clicks remaining (clicks type)</label><input type="number" id="ck_rem" value="0"></div>' +
         '</div><div class="rowbar"><button class="btn btn-primary" onclick="createKey()">Create key</button><span class="save-status" id="ckStatus"></span></div></div>';
 
-      html += '<div class="toolbar"><input class="search" id="kSearch" placeholder="Search key / email / bound account…" oninput="drawKeys()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.keys,\'license_keys\')">⬇ CSV</button></div>';
+      html += '<div class="toolbar"><input class="search" id="kSearch" placeholder="Search key / email / bound account…" oninput="pgReset(\'keys\');drawKeys()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.keys,\'license_keys\')">⬇ CSV</button></div>';
       html += '<div class="tbl-wrap"><table><thead><tr><th>Key</th><th>Plan</th><th>Type</th><th>Email</th><th>Bound to</th><th>Clicks</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-      html += rows.map(function (r) {
+      html += pgSlice('keys', rows).map(function (r) {
         var st = r.is_revoked ? '<span class="badge b-rev">Revoked</span>' : (r.bound_client ? '<span class="badge b-paid">Active</span>' : '<span class="badge b-free">Available</span>');
         var clicks = r.license_type === 'clicks' ? ((r.clicks_remaining != null ? r.clicks_remaining : '?') + ' / ' + (r.total_clicks != null ? r.total_clicks : '?')) : '∞';
         var kEsc = encodeURIComponent(r.key);
@@ -520,7 +554,7 @@
         acts += '<button class="rowbtn danger" onclick="delKey(\'' + kEsc + '\')">Delete</button>';
         return '<tr><td class="wrap-cell">' + esc(r.key) + '</td><td>' + esc(r.plan) + '</td><td>' + esc(r.license_type) + '</td><td class="wrap-cell">' + esc(r.email || '') + '</td><td class="wrap-cell">' + esc(r.bound_client || '—') + '</td><td>' + clicks + '</td><td>' + st + '</td><td>' + acts + '</td></tr>';
       }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No keys.</td></tr>';
-      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      html += '</tbody></table></div>' + pgBar('keys', rows.length, 'drawKeys') + '<div class="note" style="margin-top:8px;">' + rows.length + ' total</div>';
       view(html);
     }
     async function createKey() {
@@ -557,14 +591,19 @@
     async function renderVips() {
       loading();
       var d = await api('vips'); cache.vips = d.rows || [];
+      pgReset('vips');
+      drawVips();
+    }
+    function drawVips() {
+      var rows = cache.vips || [];
       var html = '<div class="card"><h3>Add VIP</h3><div class="desc">Instantly grants unlimited exports to a client id (re-checked on next launch).</div>' +
         '<div class="rowbar"><input type="text" id="vipId" placeholder="user_12345 or uid_abc" style="flex:1;min-width:220px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:14px;">' +
         '<button class="btn btn-primary" onclick="addVip()">Add VIP</button><span class="save-status" id="vipStatus"></span></div></div>';
       html += '<div class="tbl-wrap"><table><thead><tr><th>Client ID</th><th></th></tr></thead><tbody>';
-      html += (cache.vips || []).map(function (v) {
+      html += pgSlice('vips', rows).map(function (v) {
         return '<tr><td class="wrap-cell">' + esc(v.client_id) + '</td><td style="text-align:right;"><button class="rowbtn danger" onclick="removeVip(\'' + encodeURIComponent(v.client_id) + '\')">Remove</button></td></tr>';
       }).join('') || '<tr><td colspan="2" class="muted" style="text-align:center;padding:24px;">No VIPs.</td></tr>';
-      html += '</tbody></table></div>';
+      html += '</tbody></table></div>' + pgBar('vips', rows.length, 'drawVips') + '<div class="note" style="margin-top:8px;">' + rows.length + ' total</div>';
       view(html);
     }
     async function addVip() {
@@ -583,13 +622,13 @@
     function drawBugs() {
       var q = (document.getElementById('bgSearch') ? document.getElementById('bgSearch').value : '');
       var rows = (cache.bugs || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || ((r.email || '') + ' ' + (r.description || '')).toLowerCase().indexOf(s) >= 0; });
-      var html = '<div class="toolbar"><input class="search" id="bgSearch" placeholder="Search email / text…" oninput="drawBugs()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bugs,\'bug_reports\')">⬇ CSV</button></div>';
+      var html = '<div class="toolbar"><input class="search" id="bgSearch" placeholder="Search email / text…" oninput="pgReset(\'bugs\');drawBugs()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bugs,\'bug_reports\')">⬇ CSV</button></div>';
       html += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Email</th><th>OS</th><th>AE</th><th>Description</th><th>Video</th><th></th></tr></thead><tbody>';
-      html += rows.map(function (r) {
+      html += pgSlice('bugs', rows).map(function (r) {
         var vid = r.video_link ? '<a href="' + esc(r.video_link) + '" target="_blank" style="color:var(--accent-2)">link</a>' : '—';
         return '<tr><td>' + fmt(r.created_at) + '</td><td class="wrap-cell">' + esc(r.email || '') + '</td><td>' + esc(r.os || '') + '</td><td>' + esc(r.ae_version || '') + '</td><td class="wrap-cell">' + esc(r.description || '') + '</td><td>' + vid + '</td><td><button class="rowbtn danger" onclick="delFeedback(\'bug_reports\',' + r.id + ')">Delete</button></td></tr>';
       }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px;">No bug reports.</td></tr>';
-      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      html += '</tbody></table></div>' + pgBar('bugs', rows.length, 'drawBugs') + '<div class="note" style="margin-top:8px;">' + rows.length + ' total</div>';
       view(html);
     }
 
@@ -598,13 +637,13 @@
     function drawReviews() {
       var q = (document.getElementById('rvSearch') ? document.getElementById('rvSearch').value : '');
       var rows = (cache.reviews || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || ((r.name || '') + ' ' + (r.review || '') + ' ' + (r.social_profile || '')).toLowerCase().indexOf(s) >= 0; });
-      var html = '<div class="toolbar"><input class="search" id="rvSearch" placeholder="Search name / text / social…" oninput="drawReviews()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.reviews,\'reviews\')">⬇ CSV</button></div>';
+      var html = '<div class="toolbar"><input class="search" id="rvSearch" placeholder="Search name / text / social…" oninput="pgReset(\'reviews\');drawReviews()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.reviews,\'reviews\')">⬇ CSV</button></div>';
       html += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Name</th><th>Role</th><th>Rating</th><th>Social</th><th>Review</th><th></th></tr></thead><tbody>';
-      html += rows.map(function (r) {
+      html += pgSlice('reviews', rows).map(function (r) {
         var soc = r.social_profile ? '<a href="' + esc(r.social_profile) + '" target="_blank" style="color:var(--accent-2)">profile</a>' : '—';
         return '<tr><td>' + fmt(r.created_at) + '</td><td>' + esc(r.name || '') + '</td><td>' + esc(r.role || '') + '</td><td>' + esc(r.rating || '') + '</td><td>' + soc + '</td><td class="wrap-cell">' + esc(r.review || '') + '</td><td><button class="rowbtn danger" onclick="delFeedback(\'reviews\',' + r.id + ')">Delete</button></td></tr>';
       }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px;">No reviews.</td></tr>';
-      html += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
+      html += '</tbody></table></div>' + pgBar('reviews', rows.length, 'drawReviews') + '<div class="note" style="margin-top:8px;">' + rows.length + ' total</div>';
       view(html);
     }
 
@@ -644,8 +683,8 @@
       if (!all.length) { view('<div class="muted" style="padding:30px;text-align:center;">No downloads recorded yet.</div>'); return; }
       var ctyOpts = ['All'].concat(uniqSorted(all.map(function (r) { return r.country || '—'; })));
       var html = '<div class="toolbar">' +
-        '<input class="search" id="dlSearch" placeholder="Search country / version…" oninput="renderDlResults()">' +
-        '<select id="dlCty" onchange="renderDlResults()">' + ctyOpts.map(function (o) {
+        '<input class="search" id="dlSearch" placeholder="Search country / version…" oninput="pgReset(\'downloads\');renderDlResults()">' +
+        '<select id="dlCty" onchange="pgReset(\'downloads\');renderDlResults()">' + ctyOpts.map(function (o) {
           return '<option value="' + esc(o) + '">' + (o === 'All' ? 'All countries' : (o === '—' ? '(not recorded)' : esc(flagEmoji(o) + ' ' + countryName(o)))) + '</option>';
         }).join('') + '</select>' +
         '<button class="chip" onclick="exportCSV(filteredDownloads(),\'download_clicks\')">⬇ CSV</button></div>' +
@@ -688,12 +727,11 @@
         dlStat(byCty.length, 'Countries') + '</div>';
       h += '<div class="dl-cols dl-cols-1">' + dlBars('Top countries 🌍', byCty, rows.length, true) + '</div>';
       h += '<div class="tbl-wrap"><table><thead><tr><th>When</th><th>Version</th><th>Country</th></tr></thead><tbody>';
-      h += rows.slice(0, 500).map(function (r) {
+      h += pgSlice('downloads', rows).map(function (r) {
         return '<tr><td>' + fmt(r.created_at) + '</td><td class="muted">' + esc(r.button || '') + '</td>' +
           '<td>' + (r.country ? esc(flagEmoji(r.country) + ' ' + countryName(r.country)) : '<span class="muted">—</span>') + '</td></tr>';
       }).join('') || '<tr><td colspan="3" class="muted" style="text-align:center;padding:24px;">No downloads match.</td></tr>';
-      h += '</tbody></table></div><div class="note" style="margin-top:8px;">' + rows.length + ' shown' +
-        (rows.length > 500 ? ' · table capped at 500 (breakdown counts all matches)' : '') + '</div>';
+      h += '</tbody></table></div>' + pgBar('downloads', rows.length, 'renderDlResults') + '<div class="note" style="margin-top:8px;">' + rows.length + ' match</div>';
       document.getElementById('dlResults').innerHTML = h;
     }
 
