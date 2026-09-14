@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AE Flow Tools — Plugin Library (Draft)</title>
+  <meta name="description" content="Plugins for a better After Effects motion workflow. UI Flow available now, Comp Flow coming soon." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    :root {
+      --ink:      #0a0b0e;
+      --ink-2:    #101217;
+      --ink-3:    #16181f;
+      --paper:    #f5f6f8;
+      --paper-2:  #ffffff;
+      --text:     #f4f6fb;
+      --text-dark:#0c0e13;
+      --muted:    #9aa4b6;
+      --muted-dark:#5b6472;
+      --line:     rgba(255,255,255,0.10);
+      --line-2:   rgba(255,255,255,0.16);
+      --line-dark:rgba(10,12,20,0.10);
+      --blue:     #3b82f6;
+      --blue-2:   #2563eb;
+      --radius:   18px;
+      --grad:     linear-gradient(100deg,#2563eb 0%,#06b6d4 26%,#7c3aed 54%,#ec4899 76%,#f59e0b 100%);
+      --maxw:     1120px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--ink); color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    .container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    .display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 700; letter-spacing: -0.02em; line-height: 1.02; }
+    .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    /* ===== buttons (pill) ===== */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-weight: 600; font-size: 15px;
+      padding: 15px 28px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease; white-space: nowrap; }
+    .btn .arw { transition: transform .18s ease; }
+    .btn:hover .arw { transform: translateX(3px); }
+    .btn-white { background: #fff; color: #0a0b0e; box-shadow: 0 10px 30px rgba(255,255,255,0.12); }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(255,255,255,0.2); }
+    .btn-ghost { background: rgba(255,255,255,0.04); color: #fff; border-color: var(--line-2); }
+    .btn-ghost:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.28); }
+    .btn-grad { background: var(--grad); color: #fff; background-size: 180% 100%; box-shadow: 0 12px 34px rgba(37,99,235,0.35); }
+    .btn-grad:hover { transform: translateY(-2px); background-position: 100% 0; box-shadow: 0 18px 44px rgba(124,58,237,0.4); }
+    .btn-dark { background: #0a0b0e; color: #fff; }
+    .btn-dark:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(10,12,20,0.25); }
+    .btn-sm { padding: 11px 20px; font-size: 14px; }
+
+    /* ===== nav ===== */
+    .nav { position: sticky; top: 0; z-index: 50; background: rgba(10,11,14,0.72); backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%); border-bottom: 1px solid var(--line); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 700; font-size: 16px; font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+    .brand img { width: 30px; height: 30px; border-radius: 8px; }
+    .nav-right { display: flex; align-items: center; gap: 6px; }
+    .nav-link { padding: 9px 14px; border-radius: 999px; font-size: 14.5px; font-weight: 500; color: var(--muted); transition: color .15s, background .15s; }
+    .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,0.06); }
+    .nav-dd { position: relative; }
+    .nav-dd-menu { position: absolute; top: calc(100% + 10px); right: 0; min-width: 230px; background: #12141a; border: 1px solid var(--line);
+      border-radius: 14px; padding: 7px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: all .16s ease; }
+    .nav-dd.open .nav-dd-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+    .nav-dd-menu a, .nav-dd-menu .dis { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 12px; border-radius: 10px; font-size: 14px; font-weight: 500; }
+    .nav-dd-menu a:hover { background: rgba(255,255,255,0.06); }
+    .nav-dd-menu .dis { color: var(--muted); cursor: default; }
+    .tag { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .tag.ok { color: #34d399; background: rgba(52,211,153,0.12); }
+    .tag.soon { color: #fbbf24; background: rgba(251,191,36,0.12); }
+    .menu-toggle { display: none; background: none; border: 1px solid var(--line-2); color: #fff; width: 40px; height: 40px; border-radius: 10px; font-size: 18px; cursor: pointer; }
+    .nav-mobile { display: none; }
+
+    /* ===== hero ===== */
+    .hero { position: relative; overflow: hidden; padding: 96px 0 120px; text-align: center; }
+    .hero-grad { position: absolute; left: 50%; bottom: -34%; transform: translateX(-50%); width: 130%; height: 88%;
+      background: var(--grad); filter: blur(80px); opacity: 0.72; z-index: 0; border-radius: 50%; animation: drift 14s ease-in-out infinite alternate; }
+    @keyframes drift { 0% { transform: translateX(-53%) scale(1); } 100% { transform: translateX(-47%) scale(1.09); } }
+    .hero-fade { position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(130% 74% at 50% 4%, rgba(10,11,14,0.05) 0%, rgba(10,11,14,0.42) 46%, rgba(10,11,14,0.86) 82%, var(--ink) 100%); }
+    .hero .container { position: relative; z-index: 2; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cdd6e6;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--line-2); padding: 8px 16px; border-radius: 999px; margin-bottom: 26px; }
+    .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
+    .hero h1 { font-size: clamp(40px, 7vw, 82px); margin-bottom: 22px; }
+    .hero p.lead { font-size: clamp(17px, 2.2vw, 21px); color: var(--muted); max-width: 620px; margin: 0 auto 38px; line-height: 1.5; }
+    .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-note { margin-top: 26px; font-size: 13.5px; color: #6b7488; display: flex; gap: 8px; align-items: center; justify-content: center; }
+
+    /* ===== section base ===== */
+    .section { padding: 92px 0; position: relative; }
+    .sec-head { text-align: center; max-width: 640px; margin: 0 auto 54px; }
+    .sec-kicker { font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; }
+    .sec-head h2 { font-size: clamp(30px, 4.4vw, 46px); margin-bottom: 16px; }
+    .sec-head p { color: var(--muted); font-size: 17px; line-height: 1.55; }
+
+    /* ===== plugin library cards ===== */
+    .lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .lib-card { position: relative; border-radius: 22px; padding: 1px; background: var(--line); overflow: hidden; transition: transform .2s ease; }
+    .lib-card.live { background: linear-gradient(140deg, rgba(59,130,246,0.5), rgba(124,58,237,0.35), rgba(255,255,255,0.06)); }
+    .lib-card:hover { transform: translateY(-4px); }
+    .lib-inner { background: var(--ink-2); border-radius: 21px; padding: 34px 32px; height: 100%; display: flex; flex-direction: column; }
+    .lib-icon { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; font-size: 26px; margin-bottom: 22px; }
+    .lib-icon.live { background: var(--grad); color: #fff; box-shadow: 0 12px 30px rgba(59,130,246,0.4); }
+    .lib-icon.soon { background: rgba(255,255,255,0.05); border: 1px solid var(--line-2); color: var(--muted); }
+    .lib-badge { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; margin-bottom: 16px; }
+    .lib-badge.ok { color: #34d399; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.28); }
+    .lib-badge.soon { color: #fbbf24; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); }
+    .lib-inner h3 { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .lib-inner p { color: var(--muted); font-size: 15.5px; line-height: 1.55; margin-bottom: 24px; flex-grow: 1; }
+    .lib-cta { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: #fff; font-size: 15px; }
+    .lib-cta .arw { transition: transform .18s ease; }
+    .lib-card:hover .lib-cta .arw { transform: translateX(4px); }
+    .lib-locked { color: var(--muted); font-weight: 600; font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
+    .more-soon { grid-column: 1 / -1; text-align: center; color: #626b7d; font-size: 14.5px; padding: 10px; border: 1px dashed var(--line-2); border-radius: 16px; }
+
+    /* ===== light spotlight band ===== */
+    .band-light { background: var(--paper); color: var(--text-dark); }
+    .band-light .sec-head h2 { color: var(--text-dark); }
+    .band-light .sec-head p { color: var(--muted-dark); }
+    .band-light .sec-kicker { color: var(--blue-2); }
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feat { background: var(--paper-2); border: 1px solid var(--line-dark); border-radius: 18px; padding: 28px 26px; transition: transform .2s ease, box-shadow .2s ease; }
+    .feat:hover { transform: translateY(-3px); box-shadow: 0 20px 44px rgba(10,12,20,0.08); }
+    .feat-ic { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; margin-bottom: 18px; background: linear-gradient(140deg,#eef2ff,#e0e7ff); color: var(--blue-2); }
+    .feat h4 { font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .feat p { color: var(--muted-dark); font-size: 14.5px; line-height: 1.55; }
+    .band-light .band-cta { text-align: center; margin-top: 48px; }
+
+    /* ===== stat strip ===== */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 760px; margin: 0 auto; }
+    .stat { text-align: center; padding: 26px 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--ink-2); }
+    .stat .n { font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
+    .stat .l { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+    /* ===== CTA band ===== */
+    .cta-band { position: relative; overflow: hidden; border-radius: 28px; padding: 72px 40px; text-align: center; margin: 0 24px;
+      background: radial-gradient(120% 140% at 50% -10%, rgba(124,58,237,0.35), transparent 60%), var(--ink-2); border: 1px solid var(--line); }
+    .cta-band::before { content: ""; position: absolute; left: 50%; bottom: -60%; transform: translateX(-50%); width: 120%; height: 90%;
+      background: var(--grad); filter: blur(110px); opacity: 0.35; z-index: 0; border-radius: 50%; }
+    .cta-band .inner { position: relative; z-index: 1; }
+    .cta-band h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(30px, 4.6vw, 48px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .cta-band p { color: var(--muted); font-size: 17px; max-width: 520px; margin: 0 auto 34px; line-height: 1.5; }
+    .cta-band .hero-cta { justify-content: center; }
+
+    /* ===== footer ===== */
+    .footer { border-top: 1px solid var(--line); padding: 46px 0 40px; margin-top: 92px; }
+    .footer-inner { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
+    .footer .copy { color: #626b7d; font-size: 13.5px; margin-top: 12px; }
+    .footer-cols { display: flex; gap: 60px; flex-wrap: wrap; }
+    .footer-col h5 { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #626b7d; margin-bottom: 14px; }
+    .footer-col a { display: block; color: var(--muted); font-size: 14.5px; margin-bottom: 10px; transition: color .15s; }
+    .footer-col a:hover { color: #fff; }
+    .socials { display: flex; gap: 10px; margin-top: 16px; }
+    .socials a { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--line-2); color: var(--muted); transition: all .15s; }
+    .socials a:hover { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
+
+    /* draft ribbon */
+    .draft-flag { position: fixed; left: 14px; bottom: 14px; z-index: 99; font-size: 12px; font-weight: 700; letter-spacing: .05em;
+      background: #fbbf24; color: #1a1200; padding: 7px 14px; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,0.4); }
+
+    @media (max-width: 860px) {
+      .lib-grid, .feat-grid, .stats { grid-template-columns: 1fr; }
+      .nav-right .nav-link, .nav-right .nav-dd { display: none; }
+      .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+      .nav-mobile { display: none; }
+      .nav-mobile.open { display: block; }
+    }
+    @media (max-width: 860px) {
+      .hero { padding: 64px 0 90px; }
+      .section { padding: 66px 0; }
+      .cta-band { padding: 54px 24px; margin: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top">
+        <img src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" />
+        AE Flow Tools
+      </a>
+      <div class="nav-right">
+        <a class="nav-link active" href="#top">Home</a>
+        <div class="nav-dd" id="dd">
+          <button class="nav-link" onclick="document.getElementById('dd').classList.toggle('open')" style="background:none;border:none;cursor:pointer;font:inherit;">Plugins ▾</button>
+          <div class="nav-dd-menu">
+            <a href="uiflow/">UI Flow <span class="tag ok">Available</span></a>
+            <span class="dis">Comp Flow <span class="tag soon">Soon</span></span>
+          </div>
+        </div>
+        <a class="btn btn-grad btn-sm" href="uiflow/tools" style="margin-left:8px;">Get UI Flow free</a>
+      </div>
+      <button class="menu-toggle" onclick="document.getElementById('navm').classList.toggle('open')">☰</button>
+    </div>
+    <div class="container nav-mobile" id="navm" style="padding-bottom:14px;">
+      <a class="nav-link" href="uiflow/" style="display:block;margin-bottom:6px;">UI Flow</a>
+      <a class="btn btn-grad btn-sm" href="uiflow/tools" style="display:inline-flex;">Get UI Flow free</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <div class="hero-grad"></div>
+    <div class="hero-fade"></div>
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> The home of better motion workflows</span>
+      <h1 class="display">Plugins that make<br />After Effects <span class="grad-text">flow.</span></h1>
+      <p class="lead">A growing library of tools for a faster After Effects workflow — starting with UI Flow, Figma to AE in one click.</p>
+      <div class="hero-cta">
+        <a class="btn btn-white" href="uiflow/">Explore UI Flow <span class="arw">→</span></a>
+        <a class="btn btn-ghost" href="uiflow/experience">▶ See it in action</a>
+      </div>
+      <div class="hero-note">✦ Free plan · No subscription · Lifetime license available</div>
+    </div>
+  </header>
+
+  <!-- PLUGIN LIBRARY -->
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-kicker">The Library</div>
+        <h2 class="display">One toolkit, more on the way</h2>
+        <p>Every plugin is built to remove the busywork between design and motion.</p>
+      </div>
+      <div class="lib-grid">
+
+        <a class="lib-card live" href="uiflow/">
+          <div class="lib-inner">
+            <div class="lib-icon live">✦</div>
+            <span class="lib-badge ok">Available now</span>
+            <h3>UI Flow</h3>
+            <p>Figma to After Effects in one click — fully editable, nothing flattened. Plus a workflow toolkit built right into AE.</p>
+            <span class="lib-cta">Open UI Flow <span class="arw">→</span></span>
+          </div>
+        </a>
+
+        <div class="lib-card">
+          <div class="lib-inner">
+            <div class="lib-icon soon">◈</div>
+            <span class="lib-badge soon">Coming soon</span>
+            <h3>Comp Flow</h3>
+            <p>The fastest way to store, organize, and share your After Effects comps across every project.</p>
+            <span class="lib-locked">🔒 Coming soon</span>
+          </div>
+        </div>
+
+        <div class="more-soon">More plugins coming soon.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIGHT SPOTLIGHT BAND -->
+  <section class="section band-light">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-kicker">Spotlight · UI Flow</div>
+        <h2 class="display">One click. Fully editable.</h2>
+        <p>Send any Figma frame straight into After Effects as real, editable layers — then keep animating.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="feat-ic">⚡</div>
+          <h4>One-click transfer</h4>
+          <p>Select a frame in Figma, hit Send to Ae, and watch it rebuild in After Effects — layer by layer.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-ic">🧩</div>
+          <h4>Nothing flattened</h4>
+          <p>Text stays text, shapes stay shapes. Every layer lands editable and ready to animate.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-ic">∞</div>
+          <h4>One-time license</h4>
+          <p>Start free with 10 exports a day. Go unlimited with a one-time lifetime license — no subscription.</p>
+        </div>
+      </div>
+      <div class="band-cta">
+        <a class="btn btn-dark" href="uiflow/experience">Try the live demo <span class="arw">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><div class="n grad-text">1-click</div><div class="l">Figma → After Effects</div></div>
+        <div class="stat"><div class="n grad-text">100%</div><div class="l">Editable layers</div></div>
+        <div class="stat"><div class="n grad-text">$0</div><div class="l">To get started</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section style="padding: 20px 0 0;">
+    <div class="cta-band">
+      <div class="inner">
+        <h2>Start with UI Flow — free.</h2>
+        <p>Install the Figma plugin and the After Effects panel in minutes. Upgrade to lifetime whenever you're ready.</p>
+        <div class="hero-cta">
+          <a class="btn btn-white" href="uiflow/tools">Download free <span class="arw">→</span></a>
+          <a class="btn btn-ghost" href="uiflow/pro">See Pro pricing</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="#top"><img src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
+        <p class="copy">© 2026 AE Flow Tools. All rights reserved.</p>
+        <div class="socials">
+          <a href="https://instagram.com/aeflowtools" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="mailto:contact@aeflowtools.com" aria-label="Email">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Plugins</h5>
+          <a href="uiflow/">UI Flow</a>
+          <a href="uiflow/experience">Live demo</a>
+          <a href="uiflow/vs">Compare</a>
+        </div>
+        <div class="footer-col">
+          <h5>UI Flow</h5>
+          <a href="uiflow/tools">Download</a>
+          <a href="uiflow/pro">Pro license</a>
+          <a href="uiflow/review">Leave a review</a>
+        </div>
+        <div class="footer-col">
+          <h5>Support</h5>
+          <a href="uiflow/bugs">Report a bug</a>
+          <a href="mailto:contact@aeflowtools.com">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="draft-flag">◆ DRAFT — not live</div>
+
+  <script>
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('dd');
+      if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+    });
+  </script>
+</body>
+</html>
