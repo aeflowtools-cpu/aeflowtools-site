@@ -23,7 +23,7 @@
   <link rel="apple-touch-icon" href="/favicon.png" />
   <style>
     /* ===== stage ===== */
-    .exp-stage { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; max-width: 1040px; margin: 0 auto; }
+    .exp-stage { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; max-width: 1040px; margin: 0 auto; }
     .win { border-radius: 18px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 30px 70px rgba(0,0,0,0.45);
       backdrop-filter: blur(10px); }
     .win-bar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; font-size: 12.5px; font-weight: 600; color: var(--muted);
@@ -35,14 +35,13 @@
 
     /* Figma window */
     .win-fig { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); }
-    .fig-canvas { position: relative; background: #1b1d22; min-height: 470px; overflow: hidden;
+    .fig-canvas { position: relative; background: #1b1d22; min-height: 470px; overflow: hidden; display: flex; align-items: center; justify-content: center;
       background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 22px 22px; }
-    .fig-card { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 230px; display: block; border-radius: 14px;
-      box-shadow: 0 20px 46px rgba(0,0,0,0.45); }
+    .fig-card { width: 230px; display: block; border-radius: 14px; box-shadow: 0 20px 46px rgba(0,0,0,0.45); }
     .fig-tag { position: absolute; top: 12px; left: 14px; font-size: 11px; font-weight: 700; color: #7aa5ff; z-index: 6; }
 
-    /* ===== Exact UI Flow plugin panel (from dist/ui.html) — centered ===== */
-    .uf-panel-wrap { position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); z-index: 5; }
+    /* ===== Exact UI Flow plugin panel (from dist/ui.html) — floats centered between the two windows ===== */
+    .uf-panel-wrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 10; }
     .ufp { --bg:#0f1623; --surface:#1a2540; --surface2:#1f2d4d; --border:#2a3d66; --accent:#3b82f6;
       --accent-glow:rgba(59,130,246,0.25); --text:#e2e8f0; --muted:#64748b; --radius:10px; --success:#3ecf8e;
       width: 300px; max-width: 84vw; background: var(--bg); color: var(--text); font-size: 11px; padding: 14px 14px 8px;
@@ -104,7 +103,7 @@
     .ae-canvas { position: relative; aspect-ratio: 456 / 552; width: 250px; max-width: 66%; margin: 0 auto; border-radius: 6px; overflow: hidden;
       background: repeating-conic-gradient(#26282d 0% 25%, #303338 0% 50%) 50% / 22px 22px; }
     .ae-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: top center; opacity: 0;
-      transition: opacity 0.35s ease; }
+      transition: opacity 0.18s ease; }
     .ae-frame.show { opacity: 1; }
     .ae-status { text-align: center; padding: 0 14px; margin-top: 18px; font-size: 12px; color: var(--muted); min-height: 20px; }
     .ae-status .bld { color: var(--accent-2); font-weight: 600; }
@@ -115,9 +114,10 @@
     @media (max-width: 780px) {
       .exp-stage { grid-template-columns: 1fr; gap: 10px; }
       .exp-arrow { transform: rotate(90deg); padding: 4px 0; }
-      .fig-card { width: 200px; top: 24px; }
-      .fig-canvas, .ae-body { min-height: 440px; }
-      .uf-panel-wrap { bottom: 24px; }
+      .fig-card { width: 200px; }
+      .fig-canvas, .ae-body { min-height: 380px; }
+      .uf-panel-wrap { position: static; transform: none; z-index: auto; }
+      .ufp { margin: 0 auto; }
     }
   </style>
 </head>
@@ -166,17 +166,15 @@
           <div class="fig-canvas">
             <span class="fig-tag">DEMO</span>
             <img class="fig-card" src="/uiflow/assets/experience/ae-8.png" alt="Cheeseburger card designed in Figma" />
-            <!-- Exact UI Flow plugin panel -->
-            <div class="uf-panel-wrap">
-              <div class="ufp">
-                <div class="header">
-                  <div class="header-left">
-                    <div class="licensed-badge">
-                      <span>Licensed</span>
-                      <svg class="badge-caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                    </div>
-                  </div>
-                  <div class="header-right">
+          </div>
+        </div>
+
+        <!-- Exact UI Flow plugin panel — floats centered between the two windows -->
+        <div class="uf-panel-wrap">
+          <div class="ufp">
+            <div class="header">
+              <div class="header-left"></div>
+              <div class="header-right">
                     <div class="settings-btn" title="Settings">
                       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94 0 .32.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg>
                     </div>
@@ -205,10 +203,8 @@
                     </div>
                   </div>
                 </div>
-                <div class="version">v3.1.5</div>
-                <a class="made-by" href="https://aeflowtools.com" target="_blank" rel="noopener">by Ae Flow Tools</a>
-              </div>
-            </div>
+            <div class="version">v3.1.5</div>
+            <a class="made-by" href="https://aeflowtools.com" target="_blank" rel="noopener">by Ae Flow Tools</a>
           </div>
         </div>
 
@@ -280,7 +276,7 @@
       var msgs = ['Reading selection…', 'Exporting images…', 'Sending to Ae…', 'Building layers…'];
       var mi = 0;
       label.textContent = msgs[0];
-      var msgTimer = setInterval(function () { mi = (mi + 1) % msgs.length; label.textContent = msgs[mi]; }, 420);
+      var msgTimer = setInterval(function () { mi = (mi + 1) % msgs.length; label.textContent = msgs[mi]; }, 240);
 
       status.innerHTML = '<span class="bld">Receiving from Figma…</span>';
 
@@ -301,8 +297,8 @@
             status.textContent = '✓ Rebuilt in After Effects — fully editable layers. Click Send to Ae to replay.';
             running = false;
           }
-        }, 520);
-      }, 1500);
+        }, 150);
+      }, 650);
     }
   </script>
 </body>
