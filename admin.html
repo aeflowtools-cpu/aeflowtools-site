@@ -241,7 +241,7 @@
     var userFilter = 'All';
     var contentTab = 'Popups';
 
-    function pw() { return sessionStorage.getItem('admin_pw') || ''; }
+    function pw() { return localStorage.getItem('admin_pw') || sessionStorage.getItem('admin_pw') || ''; }
     function esc(s) { var d = document.createElement('div'); d.textContent = (s === null || s === undefined) ? '' : String(s); return d.innerHTML; }
     function fmt(ts) { if (!ts) return '—'; try { return new Date(ts).toLocaleString('en-US', { timeZone: 'Asia/Dhaka', dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ts; } }
 
@@ -253,20 +253,27 @@
       return d;
     }
 
+    function showApp() {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      renderTabs(); go('Overview');
+    }
     async function unlock() {
       var val = document.getElementById('pw').value;
       var err = document.getElementById('gateErr');
       err.textContent = 'Checking…';
-      sessionStorage.setItem('admin_pw', val);
-      try {
-        await api('ping');
-        err.textContent = '';
-        document.getElementById('gate').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-        renderTabs(); go('Overview');
-      } catch (e) { sessionStorage.removeItem('admin_pw'); err.textContent = e.message; }
+      localStorage.setItem('admin_pw', val); sessionStorage.removeItem('admin_pw');
+      try { await api('ping'); err.textContent = ''; showApp(); }
+      catch (e) { localStorage.removeItem('admin_pw'); err.textContent = e.message; }
     }
-    function lock() { sessionStorage.removeItem('admin_pw'); location.reload(); }
+    // Stay signed in across reloads AND browser restarts until Lock is pressed.
+    async function boot() {
+      if (!pw()) return;                          // no saved session -> show the gate
+      var err = document.getElementById('gateErr'); if (err) err.textContent = 'Unlocking…';
+      try { await api('ping'); if (err) err.textContent = ''; showApp(); }
+      catch (e) { localStorage.removeItem('admin_pw'); sessionStorage.removeItem('admin_pw'); if (err) err.textContent = ''; }
+    }
+    function lock() { localStorage.removeItem('admin_pw'); sessionStorage.removeItem('admin_pw'); location.reload(); }
 
     var TAB_ICONS = { 'Overview': '📊', 'Users': '👥', 'BD Free': '🇧🇩', 'Keys': '🔑', 'VIPs': '⭐', 'Bugs': '🐞', 'Reviews': '💬', 'Downloads': '⬇️', 'Content': '⚙️' };
     function renderTabs() {
@@ -1012,7 +1019,7 @@
       }
     })();
 
-    if (pw()) { unlock(); }
+    boot();
   </script>
 </body>
 </html>
