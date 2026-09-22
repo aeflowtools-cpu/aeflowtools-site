@@ -39,6 +39,13 @@ async function count(table, filter) {
   return parseInt(cr.split('/')[1] || '0', 10);
 }
 
+// Bangladesh is UTC+6 all year (no daylight saving), so a fixed offset gives the Dhaka calendar day.
+function dhakaDay(offsetDays) { return new Date(Date.now() + 6 * 3600000 + (offsetDays || 0) * 86400000).toISOString().slice(0, 10); }
+
+// The export-history tables/views only exist once uiflow_export_history.sql has been run in Supabase.
+// Until then PostgREST answers "Could not find the table ... in the schema cache".
+function isMissing(e) { return /schema cache|does not exist|could not find/i.test((e && e.message) || ''); }
+
 async function readFile(name) {
   const r = await fetch(`${SB_URL}/storage/v1/object/public/${BUCKET}/${name}?t=${Date.now()}`, { headers: { apikey: svc(), Authorization: `Bearer ${svc()}` }, cache: 'no-store' });
   // File may not exist yet — treat any non-OK read as "empty", so the editor shows
@@ -117,14 +124,32 @@ export default async function handler(req, res) {
     }
     if (a === 'user_detail') {
       const id = encodeURIComponent(body.user_id || '');
-      const [au, bdu, keys, vip, usage] = await Promise.all([
+      const [au, bdu, keys, vip, usage, exStats, exDays] = await Promise.all([
         rest('app_users?select=*&user_id=eq.' + id),
         rest('bd_free_users?select=*&client_id=eq.' + id),
         rest('license_keys?select=*&bound_client=eq.' + id),
         rest('vip_users?select=*&client_id=eq.' + id),
         rest('usage_tracking?select=*&client_id=eq.' + id),
+        // export history is optional: if it is not installed yet the rest of the profile still loads
+        rest('export_user_stats?select=*&client_id=eq.' + id).catch(function () { return null; }),
+        rest('export_user_daily?select=day,exports&client_id=eq.' + id + '&day=gte.' + dhakaDay(-364) + '&order=day.asc').catch(function () { return null; }),
       ]);
-      return res.status(200).json({ app_user: au[0] || null, bd_user: bdu[0] || null, keys: keys || [], vip: vip[0] || null, usage: usage[0] || null });
+      return res.status(200).json({ app_user: au[0] || null, bd_user: bdu[0] || null, keys: keys || [], vip: vip[0] || null, usage: usage[0] || null,
+        export_stats: exStats ? (exStats[0] || null) : null, export_days: exDays, today: dhakaDay(0) });
+    }
+
+    if (a === 'exports') {
+      const from = dhakaDay(-29);
+      try {
+        const [rows, daily] = await Promise.all([
+          restAll('export_user_stats?select=*&order=client_id.asc'),
+          rest('export_stats_daily?select=*&day=gte.' + from + '&order=day.asc'),
+        ]);
+        return res.status(200).json({ rows: rows, daily: daily || [], from: from, today: dhakaDay(0) });
+      } catch (e) {
+        if (isMissing(e)) return res.status(200).json({ missing: true });
+        throw e;
+      }
     }
 
     if (a === 'bd_users') return res.status(200).json({ rows: await restAll('bd_free_users?select=*&order=created_at.desc') });

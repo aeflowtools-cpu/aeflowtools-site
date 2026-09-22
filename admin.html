@@ -189,6 +189,23 @@
     .dlbar-track { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
     .dlbar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
     .dlbar-n { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+    /* Exports dashboard */
+    .stat .sub { color: var(--faint); font-size: 12px; margin-top: 3px; }
+    .exchart { display: flex; align-items: flex-end; gap: 4px; height: 150px; padding-top: 18px; }
+    .exchart.sm { height: 64px; padding-top: 4px; gap: 3px; }
+    .exchart .col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+    .exchart .v { font-size: 10.5px; color: var(--muted); margin-bottom: 4px; line-height: 1; }
+    .exchart .bar { width: 100%; max-width: 26px; border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg, var(--accent-2), var(--accent)); }
+    .exchart .bar.zero { background: rgba(255,255,255,0.08); }
+    .exchart .col.today .bar { box-shadow: 0 0 0 1px rgba(255,255,255,0.45); }
+    .exaxis { display: flex; gap: 4px; margin-top: 7px; }
+    .exaxis.sm { gap: 3px; margin-top: 5px; }
+    .exaxis span { flex: 1; min-width: 0; text-align: center; font-size: 10.5px; color: var(--faint); white-space: nowrap; overflow: visible; }
+    th.num, td.num { text-align: right; }
+    th.hl, td.hl { background: rgba(37,99,235,0.12); color: #fff; }
+    .um-sub { font-size: 12px; color: var(--muted); font-weight: 600; margin: 14px 0 6px; }
+    @media (max-width: 640px) { .exchart .v { display: none; } .exaxis span.minor { visibility: hidden; } }
   </style>
 </head>
 <body>
@@ -235,7 +252,7 @@
   </div>
 
   <script>
-    var TABS = ['Overview', 'Users', 'BD Free', 'Keys', 'VIPs', 'Bugs', 'Reviews', 'Downloads', 'Content'];
+    var TABS = ['Overview', 'Users', 'Exports', 'BD Free', 'Keys', 'VIPs', 'Bugs', 'Reviews', 'Downloads', 'Content'];
     var cur = 'Overview';
     var cache = {};        // data cache per tab
     var userFilter = 'All';
@@ -275,7 +292,7 @@
     }
     function lock() { localStorage.removeItem('admin_pw'); sessionStorage.removeItem('admin_pw'); location.reload(); }
 
-    var TAB_ICONS = { 'Overview': '📊', 'Users': '👥', 'BD Free': '🇧🇩', 'Keys': '🔑', 'VIPs': '⭐', 'Bugs': '🐞', 'Reviews': '💬', 'Downloads': '⬇️', 'Content': '⚙️' };
+    var TAB_ICONS = { 'Overview': '📊', 'Users': '👥', 'Exports': '📈', 'BD Free': '🇧🇩', 'Keys': '🔑', 'VIPs': '⭐', 'Bugs': '🐞', 'Reviews': '💬', 'Downloads': '⬇️', 'Content': '⚙️' };
     function renderTabs() {
       document.getElementById('tabs').innerHTML = TABS.map(function (t) {
         return '<button class="side-item' + (t === cur ? ' active' : '') + '" onclick="go(\'' + t + '\')">' +
@@ -324,6 +341,7 @@
       try {
         if (cur === 'Overview') return renderOverview();
         if (cur === 'Users') return renderUsers();
+        if (cur === 'Exports') return renderExports();
         if (cur === 'BD Free') return renderBd();
         if (cur === 'Keys') return renderKeys();
         if (cur === 'VIPs') return renderVips();
@@ -485,6 +503,29 @@
       h += dl('Last seen', fmt(au.last_seen));
       if (au.last_completed_day) h += dl('Last maxed day', esc(au.last_completed_day));
       if (usage) { h += dl('Exports (current window)', (usage.click_count != null ? usage.click_count : '—')); h += dl('Window started', fmt(usage.window_start)); }
+
+      // export history (only once uiflow_export_history.sql has been run in Supabase)
+      var es = d.export_stats, edays = d.export_days || [];
+      if (es || edays.length) {
+        h += '<div class="sec-title">Exports</div>';
+        if (es) {
+          h += dl('Today', es.today) + dl('Last 7 days', es.last_7d) + dl('Last 30 days', es.last_30d) +
+            dl('This month', es.this_month) + dl('All time', es.all_time) +
+            dl('Active days (last 30)', es.active_days_30d + ' of 30') + dl('Last export', fmt(es.last_export));
+        }
+        if (edays.length && d.today) {
+          h += '<div class="um-sub">Last 30 days</div>' + exBars(exDaysSeries(edays, shiftDate(d.today, -29), d.today), false);
+          var months = {}, mmax = 0;
+          edays.forEach(function (r) { var mo = String(r.day).slice(0, 7); months[mo] = (months[mo] || 0) + (r.exports || 0); });
+          var mk = Object.keys(months).sort().reverse();
+          mk.forEach(function (mo) { if (months[mo] > mmax) mmax = months[mo]; });
+          h += '<div class="um-sub">By month</div>' + mk.map(function (mo) {
+            return '<div class="dlbar"><div class="dlbar-label">' + esc(monthLabel(mo)) + '</div>' +
+              '<div class="dlbar-track"><div class="dlbar-fill" style="width:' + Math.max(4, Math.round(months[mo] / mmax * 100)) + '%"></div></div>' +
+              '<div class="dlbar-n">' + months[mo] + '</div></div>';
+          }).join('') + '<div class="note" style="margin-top:6px;">Months count exports since export history was switched on.</div>';
+        }
+      }
 
       if (bd) {
         h += '<div class="sec-title">Bangladesh signup</div>';
@@ -741,6 +782,146 @@
       h += '</tbody></table></div>' + pgBar('downloads', rows.length, 'renderDlResults') + '<div class="note" style="margin-top:8px;">' + rows.length + ' match</div>';
       document.getElementById('dlResults').innerHTML = h;
     }
+
+    // ---------- EXPORTS ----------
+    // Needs uiflow_export_history.sql run once in Supabase. Counts successful FREE exports only -
+    // lifetime-license users never report usage, so they do not appear here.
+    var EX_COLS = [
+      { k: 'today', l: 'Today', tile: 'Exports today' },
+      { k: 'last_7d', l: '7 days', tile: 'Exports, last 7 days' },
+      { k: 'last_30d', l: '30 days', tile: 'Exports, last 30 days' },
+      { k: 'this_month', l: 'This month', tile: 'Exports this month' },
+      { k: 'all_time', l: 'All time', tile: 'Exports, all time' }
+    ];
+    var EX_SORTS = EX_COLS.concat([{ k: 'active_days_30d', l: 'Most active days' }]);
+    var exSort = 'last_30d';
+    async function renderExports() {
+      loading();
+      if (!cache.users) { try { cache.users = (await api('users')).rows || []; } catch (e) { cache.users = []; } }
+      var d = await api('exports');
+      if (d.missing) {
+        view('<div class="card"><h3>Export history is not switched on yet</h3>' +
+          '<div class="desc" style="margin:6px 0 0;">Run <code>uiflow_export_history.sql</code> once in Supabase → SQL Editor, then press ↻.</div></div>');
+        return;
+      }
+      var who = {};
+      (cache.users || []).forEach(function (u) { who[u.user_id] = u; });
+      cache.exports = {
+        today: d.today, from: d.from,
+        series: exDaysSeries(d.daily, d.from, d.today),
+        rows: (d.rows || []).map(function (r) {
+          var u = who[r.client_id] || {};
+          return Object.assign({ _name: u._name || '', _email: u._email || '', _status: u._status || 'Free' }, r);
+        })
+      };
+      drawExports();
+    }
+    // consecutive days from..to, days without exports filled in as 0
+    function exDaysSeries(rows, from, to) {
+      var m = {}, out = [], day = from;
+      (rows || []).forEach(function (r) { m[String(r.day).slice(0, 10)] = r; });
+      for (var i = 0; i < 400 && day <= to; i++) {
+        var r = m[day] || {};
+        out.push({ day: day, exports: r.exports || 0, users: r.users || 0 });
+        day = shiftDate(day, 1);
+      }
+      return out;
+    }
+    // one bar per day; big = dashboard chart with numbers on top, otherwise a compact strip
+    function exBars(series, big) {
+      var max = 0;
+      series.forEach(function (x) { if (x.exports > max) max = x.exports; });
+      var last = series.length - 1;
+      var cols = series.map(function (x, i) {
+        var h = max && x.exports ? Math.max(3, Math.round(x.exports / max * 100)) : 2;
+        var tip = prettyDate(x.day) + ': ' + x.exports + ' export' + (x.exports === 1 ? '' : 's') +
+          (big ? ' by ' + x.users + ' user' + (x.users === 1 ? '' : 's') : '');
+        return '<div class="col' + (i === last ? ' today' : '') + '" title="' + esc(tip) + '">' +
+          (big && x.exports ? '<span class="v">' + x.exports + '</span>' : '') +
+          '<div class="bar' + (x.exports ? '' : ' zero') + '" style="height:' + h + '%"></div></div>';
+      }).join('');
+      var axis = series.map(function (x, i) {
+        var dd = parseInt(x.day.slice(8, 10), 10);
+        var txt = dd === 1 ? new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short' }) : String(dd);
+        if (!big) return '<span>' + (i === 0 || i === last ? esc(prettyDate(x.day).replace(/, \d{4}$/, '')) : '') + '</span>';
+        return '<span class="' + ((last - i) % 5 === 0 ? '' : 'minor') + '">' + txt + '</span>';
+      }).join('');
+      return '<div class="exchart' + (big ? '' : ' sm') + '">' + cols + '</div><div class="exaxis' + (big ? '' : ' sm') + '">' + axis + '</div>';
+    }
+    function drawExports() {
+      var ex = cache.exports, rows = ex.rows;
+      var tiles = EX_COLS.map(function (c) {
+        var n = 0, u = 0;
+        rows.forEach(function (r) { var v = r[c.k] || 0; n += v; if (v > 0) u++; });
+        return '<div class="stat"><div class="n">' + n.toLocaleString() + '</div><div class="l">' + c.tile + '</div>' +
+          '<div class="sub">by ' + u.toLocaleString() + ' user' + (u === 1 ? '' : 's') + '</div></div>';
+      }).join('');
+      var total = 0, best = null;
+      ex.series.forEach(function (x) { total += x.exports; if (!best || x.exports > best.exports) best = x; });
+      var html = '<div class="stats" style="margin-bottom:18px;">' + tiles + '</div>' +
+        '<div class="card">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;">' +
+            '<h3>Exports per day</h3>' +
+            '<span class="note">' + esc(prettyDate(ex.from)) + ' – ' + esc(prettyDate(ex.today)) + ' · ' + total.toLocaleString() + ' total' +
+            (best && best.exports ? ' · busiest ' + esc(prettyDate(best.day)) + ' (' + best.exports + ')' : '') + '</span>' +
+          '</div>' + exBars(ex.series, true) +
+        '</div>' +
+        '<div class="toolbar">' +
+          '<input class="search" id="exSearch" placeholder="Search name / user id / email…" oninput="pgReset(\'exports\');renderExResults()">' +
+          '<span id="exChips" style="display:flex;gap:6px;flex-wrap:wrap;">' +
+          EX_SORTS.map(function (c) { return '<button class="chip' + (exSort === c.k ? ' active' : '') + '" data-k="' + c.k + '" onclick="setExSort(\'' + c.k + '\')">' + c.l + '</button>'; }).join('') +
+          '</span>' +
+          '<button class="chip" onclick="exportCSV(exCsvRows(),\'exports\')">⬇ CSV</button>' +
+        '</div>' +
+        '<div id="exResults"></div>';
+      view(html);
+      renderExResults();
+    }
+    function setExSort(k) {
+      exSort = k;
+      Array.prototype.forEach.call(document.querySelectorAll('#exChips .chip'), function (c) { c.classList.toggle('active', c.getAttribute('data-k') === k); });
+      pgReset('exports');
+      renderExResults();
+    }
+    // only users with at least one export in the chosen period, busiest first
+    function exFiltered() {
+      var q = (document.getElementById('exSearch') ? document.getElementById('exSearch').value : '').toLowerCase().trim();
+      var k = exSort;
+      return ((cache.exports && cache.exports.rows) || []).filter(function (r) {
+        if ((r[k] || 0) <= 0) return false;
+        if (q && (r.client_id + ' ' + r._name + ' ' + r._email).toLowerCase().indexOf(q) < 0) return false;
+        return true;
+      }).sort(function (a, b) {
+        return (b[k] || 0) - (a[k] || 0) || (b.all_time || 0) - (a.all_time || 0) ||
+          String(b.last_export || '').localeCompare(String(a.last_export || ''));
+      });
+    }
+    function renderExResults() {
+      var rows = exFiltered(), k = exSort;
+      var sortCol = EX_SORTS.filter(function (c) { return c.k === k; })[0] || EX_COLS[2];
+      var numCols = EX_COLS.concat([{ k: 'active_days_30d', l: 'Active days (30)' }]);
+      var h = '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>User ID</th><th>Status</th>' +
+        numCols.map(function (c) { return '<th class="num' + (c.k === k ? ' hl' : '') + '">' + c.l + '</th>'; }).join('') +
+        '<th>Last export</th></tr></thead><tbody>';
+      h += pgSlice('exports', rows).map(function (r) {
+        var nm = r._name || r._email || '—';
+        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(r.client_id).replace(/'/g, '%27') + '\')">' +
+          '<td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(r.client_id) + '</td><td>' + statusBadge(r._status) + '</td>' +
+          numCols.map(function (c) { return '<td class="num' + (c.k === k ? ' hl' : '') + '">' + (r[c.k] || 0) + '</td>'; }).join('') +
+          '<td>' + fmt(r.last_export) + '</td></tr>';
+      }).join('') || '<tr><td colspan="' + (numCols.length + 4) + '" class="muted" style="text-align:center;padding:24px;">No exports in this period.</td></tr>';
+      h += '</tbody></table></div>' + pgBar('exports', rows.length, 'renderExResults') +
+        '<div class="note" style="margin-top:8px;">' + rows.length + ' user' + (rows.length === 1 ? '' : 's') + ' with exports · sorted by ' + esc(sortCol.l.toLowerCase()) +
+        ' · click a row for the full profile · days are Dhaka calendar days · counts successful free exports (lifetime-license users are not tracked)</div>';
+      document.getElementById('exResults').innerHTML = h;
+    }
+    function exCsvRows() {
+      return exFiltered().map(function (r) {
+        return { name: r._name, email: r._email, status: r._status, user_id: r.client_id, today: r.today, last_7_days: r.last_7d,
+          last_30_days: r.last_30d, this_month: r.this_month, all_time: r.all_time, active_days_last_30: r.active_days_30d, last_export: r.last_export };
+      });
+    }
+    function monthLabel(ym) { try { return new Date(ym + '-15T12:00:00Z').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); } catch (e) { return ym; } }
 
     // ---------- CONTENT ----------
     function renderContent() {
