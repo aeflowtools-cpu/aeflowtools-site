@@ -206,6 +206,33 @@
     th.hl, td.hl { background: rgba(37,99,235,0.12); color: #fff; }
     .um-sub { font-size: 12px; color: var(--muted); font-weight: 600; margin: 14px 0 6px; }
     @media (max-width: 640px) { .exchart .v { display: none; } .exaxis span.minor { visibility: hidden; } }
+
+    /* notifications bell + panel */
+    .side-bell { width: 28px; height: 28px; flex-shrink: 0; border-radius: 9px; border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+      color: var(--muted); font-size: 14px; cursor: pointer; display: grid; place-items: center; position: relative; transition: color .15s, background .15s; }
+    .side-bell:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+    .side-bell.has { color: #fde68a; }
+    .bell-badge { position: absolute; top: -5px; right: -5px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: #ef4444;
+      color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(12,14,18,1); }
+    .notif-panel { position: fixed; top: 62px; left: 16px; width: 330px; max-width: calc(100vw - 32px); max-height: 74vh; overflow-y: auto; z-index: 300;
+      background: #12141a; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+    .notif-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--border);
+      font-weight: 700; font-size: 14px; position: sticky; top: 0; background: #12141a; z-index: 1; }
+    .notif-read { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+    .notif-read:hover { color: var(--text); border-color: var(--accent); }
+    .notif-sec { padding: 12px 16px 5px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .notif-item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+    .notif-item.new { background: rgba(37,99,235,0.10); }
+    .notif-item .ni-ic { font-size: 15px; flex-shrink: 0; line-height: 1.3; }
+    .notif-item .ni-main { flex: 1; min-width: 0; }
+    .notif-item .ni-sub { color: var(--muted); font-size: 11.5px; word-break: break-all; margin-top: 1px; }
+    .notif-item .ni-new { color: #93c5fd; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .notif-empty { padding: 16px; color: var(--muted); font-size: 13px; text-align: center; }
+    /* spammer badges */
+    .badge.b-spam { color: #fca5a5; background: rgba(239,68,68,0.16); border: 1px solid rgba(239,68,68,0.4); }
+    .badge.b-safe { color: #86efac; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.32); }
+    .rowbtn.warn { color: #fca5a5; border-color: rgba(239,68,68,0.35); }
+    .rowbtn.warn:hover { background: rgba(239,68,68,0.12); }
   </style>
 </head>
 <body>
@@ -228,12 +255,18 @@
   <div id="app" style="display:none;">
     <div class="side-backdrop" onclick="document.getElementById('app').classList.remove('side-open')"></div>
     <aside class="sidebar">
-      <div class="side-brand">🛠️ <span>UI Flow <span class="dim">Admin</span></span><button class="side-refresh" onclick="render()" title="Refresh" aria-label="Refresh">↻</button></div>
+      <div class="side-brand">🛠️ <span style="flex:1;">UI Flow <span class="dim">Admin</span></span>
+        <button class="side-bell" id="bellBtn" onclick="toggleNotifs(event)" title="Notifications" aria-label="Notifications">🔔<span class="bell-badge" id="bellBadge" hidden></span></button>
+        <button class="side-refresh" onclick="render()" title="Refresh" aria-label="Refresh">↻</button></div>
       <nav class="side-nav" id="tabs"></nav>
       <div class="side-foot">
         <button class="side-btn" onclick="lock()">🔒 Lock</button>
       </div>
     </aside>
+    <div class="notif-panel" id="notifPanel" hidden>
+      <div class="notif-head"><span>🔔 Notifications</span><button class="notif-read" onclick="markNotifsRead()">Mark all read</button></div>
+      <div class="notif-body" id="notifBody"></div>
+    </div>
     <main class="main">
       <button class="side-toggle" onclick="document.getElementById('app').classList.toggle('side-open')" aria-label="Menu">☰</button>
       <div class="main-inner">
@@ -274,6 +307,87 @@
       document.getElementById('gate').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       renderTabs(); go('Overview');
+      loadNotifs();
+      if (!window._notifTimer) window._notifTimer = setInterval(loadNotifs, 90000);
+    }
+
+    // ---------- notifications (new paid users + new spammers) ----------
+    var notifData = null;
+    function notifSeen() { try { return JSON.parse(localStorage.getItem('notif_seen') || '{}'); } catch (e) { return {}; } }
+    function notifNew() {
+      var s = notifSeen(); if (!notifData) return { paid: 0, spam: 0 };
+      return { paid: Math.max(0, (notifData.paidCount || 0) - (s.paid || 0)), spam: Math.max(0, (notifData.spamCount || 0) - (s.spam || 0)) };
+    }
+    async function loadNotifs() {
+      try {
+        notifData = await api('notifications');
+        var s = notifSeen();
+        // first run: baseline to current counts so we don't retro-alert on everything that already exists
+        if (s.paid == null || s.spam == null) localStorage.setItem('notif_seen', JSON.stringify({ paid: notifData.paidCount, spam: notifData.spamCount }));
+        updateBell();
+        var p = document.getElementById('notifPanel'); if (p && !p.hidden) renderNotifs();
+      } catch (e) { /* silent — bell just won't update */ }
+    }
+    function updateBell() {
+      var badge = document.getElementById('bellBadge'), btn = document.getElementById('bellBtn'); if (!badge) return;
+      var n = notifNew(); var total = n.paid + n.spam;
+      if (total > 0) { badge.textContent = total > 99 ? '99+' : total; badge.hidden = false; if (btn) btn.classList.add('has'); }
+      else { badge.hidden = true; if (btn) btn.classList.remove('has'); }
+    }
+    function toggleNotifs(e) {
+      if (e) e.stopPropagation();
+      var p = document.getElementById('notifPanel');
+      if (p.hidden) { renderNotifs(); p.hidden = false; } else { p.hidden = true; }
+    }
+    function renderNotifs() {
+      var body = document.getElementById('notifBody'); if (!body) return;
+      if (!notifData) { body.innerHTML = '<div class="notif-empty">Loading…</div>'; return; }
+      var n = notifNew();
+      var h = '';
+      h += '<div class="notif-sec">🚫 Spammers' + (n.spam ? ' · <span style="color:#93c5fd;">' + n.spam + ' new</span>' : '') + '</div>';
+      h += (notifData.spammers || []).length ? notifData.spammers.map(function (r, i) {
+        return '<div class="notif-item' + (i < n.spam ? ' new' : '') + '"><span class="ni-ic">🚫</span><div class="ni-main"><strong>' + esc(r.name || r.email || '—') + '</strong>' +
+          (i < n.spam ? ' <span class="ni-new">new</span>' : '') + '<div class="ni-sub">' + esc(r.email || '') + (r.client_id ? ' · ' + esc(r.client_id) : '') + '</div></div></div>';
+      }).join('') : '<div class="notif-empty">No spammers flagged.</div>';
+      h += '<div class="notif-sec">💳 New paid users' + (n.paid ? ' · <span style="color:#93c5fd;">' + n.paid + ' new</span>' : '') + '</div>';
+      h += (notifData.paid || []).length ? notifData.paid.map(function (r, i) {
+        return '<div class="notif-item' + (i < n.paid ? ' new' : '') + '"><span class="ni-ic">💳</span><div class="ni-main"><strong>' + esc(r.email || r.bound_client || '—') + '</strong>' +
+          (i < n.paid ? ' <span class="ni-new">new</span>' : '') + '<div class="ni-sub">' + esc(r.key || '') + ' · ' + fmt(r.activated_at) + '</div></div></div>';
+      }).join('') : '<div class="notif-empty">No paid users yet.</div>';
+      body.innerHTML = h;
+    }
+    function markNotifsRead() {
+      if (!notifData) return;
+      localStorage.setItem('notif_seen', JSON.stringify({ paid: notifData.paidCount, spam: notifData.spamCount }));
+      updateBell(); renderNotifs();
+    }
+    document.addEventListener('click', function (e) {
+      var p = document.getElementById('notifPanel'), b = document.getElementById('bellBtn');
+      if (p && !p.hidden && !p.contains(e.target) && b && !b.contains(e.target)) p.hidden = true;
+    });
+
+    // ---------- spammer flag (bd_free_users.spammer: true=spammer, false=never auto-flag, null=default) ----------
+    function spamBadge(v) {
+      if (v === true) return '<span class="badge b-spam">🚫 Spammer</span>';
+      if (v === false) return '<span class="badge b-safe">✓ Safe</span>';
+      return '<span class="muted">—</span>';
+    }
+    async function bdSetSpammer(emailEnc, value) {
+      var email = decodeURIComponent(emailEnc);
+      try {
+        await api('set_spammer', { by: 'email', id: email, value: value });
+        (cache.bd || []).forEach(function (r) { if (r.email === email) r.spammer = value; });
+        drawBd(); loadNotifs();
+      } catch (e) { alert(e.message); }
+    }
+    async function setSpammerProfile(idEnc, value) {
+      var id = decodeURIComponent(idEnc);
+      try {
+        await api('set_spammer', { by: 'client_id', id: id, value: value });
+        (cache.users || []).forEach(function (u) { if (u.user_id === id) u._spammer = value; });
+        if (cur === 'Users' && document.getElementById('uResults')) renderUsersResults();
+        openUserProfile(idEnc); loadNotifs();
+      } catch (e) { alert(e.message); }
     }
     async function unlock() {
       var val = document.getElementById('pw').value;
@@ -414,7 +528,7 @@
     }
     var userOpens = 1;   // minimum opens filter (1 = all users)
     function drawUsers() {
-      var filters = ['All', 'VIP', 'Paid', 'BD Free', 'Free', 'Hottest leads'];
+      var filters = ['All', 'VIP', 'Paid', 'BD Free', 'Free', 'Hottest leads', 'Spammer'];
       var opensOpts = [1, 2, 3, 4, 5, 10];
       var html = '<div class="toolbar">' +
         '<input class="search" id="uSearch" placeholder="Search name / user id / email / source / country…" oninput="pgReset(\'users\');renderUsersResults()">' +
@@ -442,6 +556,7 @@
         if (q && (String(u.user_id) + ' ' + (u._name || '') + ' ' + (u._email || '') + ' ' + (u.source || '') + ' ' + (u.country || '') + ' ' + countryName(u.country)).toLowerCase().indexOf(q) < 0) return false;
         if ((u.open_count || 0) < userOpens) return false;
         if (userFilter === 'Hottest leads') return u._status === 'Free' && (u.completed_usage || 0) >= 2;
+        if (userFilter === 'Spammer') return u._spammer === true;
         if (userFilter !== 'All' && u._status !== userFilter) return false;
         return true;
       });
@@ -460,7 +575,8 @@
         var nm = u._name || (u._email || '—');
         var cty = u.country ? esc(flagEmoji(u.country) + ' ' + countryName(u.country)) : '<span class="muted">—</span>';
         var src = u.source ? esc(u.source) : '<span class="muted">—</span>';
-        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong></td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + cty + '</td><td class="wrap-cell">' + src + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
+        var spamMark = u._spammer === true ? ' <span title="Flagged spammer">🚫</span>' : '';
+        return '<tr class="clickable" onclick="openUserProfile(\'' + encodeURIComponent(u.user_id) + '\')"><td><strong>' + esc(nm) + '</strong>' + spamMark + '</td><td class="wrap-cell muted">' + esc(u.user_id) + '</td><td>' + statusBadge(u._status) + '</td><td>' + cty + '</td><td class="wrap-cell">' + src + '</td><td>' + (u.open_count || 0) + '</td><td>' + (u.completed_usage || 0) + '</td><td>' + fmt(u.last_seen) + '</td></tr>';
       }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No users match.</td></tr>';
       h += '</tbody></table></div>' + pgBar('users', rows.length, 'renderUsersResults') + '<div class="note" style="margin-top:8px;">' + rows.length + ' match · click a row for the full profile</div>';
       document.getElementById('uResults').innerHTML = h;
@@ -537,6 +653,15 @@
         h += dl('Signed up', fmt(bd.created_at));
       }
 
+      if (bd) {
+        h += '<div class="sec-title">Spam control</div>';
+        h += dl('Status', spamBadge(bd.spammer));
+        h += '<div class="rowbar" style="margin-top:8px;gap:6px;flex-wrap:wrap;">' +
+          '<button class="rowbtn warn" onclick="setSpammerProfile(\'' + encodeURIComponent(id) + '\',true)">🚫 Mark spam</button>' +
+          '<button class="rowbtn" onclick="setSpammerProfile(\'' + encodeURIComponent(id) + '\',false)">✓ Unspam</button>' +
+          '<button class="rowbtn" onclick="setSpammerProfile(\'' + encodeURIComponent(id) + '\',null)">↺ Reset</button></div>';
+      }
+
       h += '<div class="sec-title">Licenses (' + keys.length + ')</div>';
       h += keys.length ? keys.map(function (k) {
         return '<div style="border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:8px;">' +
@@ -557,16 +682,34 @@
       var d = await api('bd_users'); cache.bd = d.rows || [];
       drawBd();
     }
+    var bdSpamFilter = 'All';
+    function setBdSpam(f) { bdSpamFilter = f; pgReset('bd'); drawBd(); }
     function drawBd() {
       var q = (document.getElementById('bdSearch') ? document.getElementById('bdSearch').value : '');
-      var rows = (cache.bd || []).filter(function (r) { var s = (q || '').toLowerCase().trim(); return !s || (r.name + ' ' + r.email + ' ' + r.whatsapp + ' ' + r.license_key).toLowerCase().indexOf(s) >= 0; });
-      var html = '<div class="toolbar"><input class="search" id="bdSearch" placeholder="Search name / email / phone / key…" oninput="pgReset(\'bd\');drawBd()" value="' + esc(q) + '"><button class="chip" onclick="exportCSV(cache.bd,\'bd_free_users\')">⬇ CSV</button></div>';
-      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>License key</th><th>Activated</th><th>Signed up</th></tr></thead><tbody>';
+      var s = (q || '').toLowerCase().trim();
+      var all = cache.bd || [];
+      var rows = all.filter(function (r) {
+        if (s && (r.name + ' ' + r.email + ' ' + r.whatsapp + ' ' + r.license_key).toLowerCase().indexOf(s) < 0) return false;
+        if (bdSpamFilter === 'Spammers') return r.spammer === true;
+        if (bdSpamFilter === 'Safe') return r.spammer === false;
+        if (bdSpamFilter === 'Normal') return r.spammer == null;
+        return true;
+      });
+      var sf = [['All', all.length], ['Spammers', all.filter(function (r) { return r.spammer === true; }).length],
+        ['Safe', all.filter(function (r) { return r.spammer === false; }).length], ['Normal', all.filter(function (r) { return r.spammer == null; }).length]];
+      var html = '<div class="toolbar"><input class="search" id="bdSearch" placeholder="Search name / email / phone / key…" oninput="pgReset(\'bd\');drawBd()" value="' + esc(q) + '">' +
+        '<span style="display:flex;gap:6px;flex-wrap:wrap;">' + sf.map(function (x) { return '<button class="chip' + (bdSpamFilter === x[0] ? ' active' : '') + '" onclick="setBdSpam(\'' + x[0] + '\')">' + x[0] + ' <span class="muted">' + x[1] + '</span></button>'; }).join('') + '</span>' +
+        '<button class="chip" onclick="exportCSV(cache.bd,\'bd_free_users\')">⬇ CSV</button></div>';
+      html += '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>License key</th><th>Spammer</th><th>Activated</th><th>Signed up</th><th>Action</th></tr></thead><tbody>';
       html += pgSlice('bd', rows).map(function (r) {
         var act = r.client_id ? '<span class="badge b-bd">Yes</span> <span class="muted">' + fmt(r.activated_at) + '</span>' : '<span class="badge b-free">No</span>';
-        return '<tr><td>' + esc(r.name) + '</td><td class="wrap-cell">' + esc(r.email) + '</td><td>' + esc(r.whatsapp) + '</td><td class="wrap-cell">' + esc(r.license_key) + '</td><td>' + act + '</td><td>' + fmt(r.created_at) + '</td></tr>';
-      }).join('') || '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px;">No signups.</td></tr>';
-      html += '</tbody></table></div>' + pgBar('bd', rows.length, 'drawBd') + '<div class="note" style="margin-top:8px;">' + rows.length + ' total</div>';
+        var e = encodeURIComponent(r.email);
+        var actions = '<button class="rowbtn warn" onclick="bdSetSpammer(\'' + e + '\',true)">🚫 Spam</button>' +
+          '<button class="rowbtn" onclick="bdSetSpammer(\'' + e + '\',false)">✓ Unspam</button>' +
+          '<button class="rowbtn" title="Reset to default" onclick="bdSetSpammer(\'' + e + '\',null)">↺</button>';
+        return '<tr><td>' + esc(r.name) + '</td><td class="wrap-cell">' + esc(r.email) + '</td><td>' + esc(r.whatsapp) + '</td><td class="wrap-cell">' + esc(r.license_key) + '</td><td>' + spamBadge(r.spammer) + '</td><td>' + act + '</td><td>' + fmt(r.created_at) + '</td><td>' + actions + '</td></tr>';
+      }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px;">No signups.</td></tr>';
+      html += '</tbody></table></div>' + pgBar('bd', rows.length, 'drawBd') + '<div class="note" style="margin-top:8px;">' + rows.length + ' shown</div>';
       view(html);
     }
 

@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         restAll('app_users?select=*&order=last_seen.desc.nullslast'),
         restAll('vip_users?select=client_id'),
         restAll('license_keys?select=bound_client,plan,is_revoked,email&bound_client=not.is.null'),
-        restAll('bd_free_users?select=client_id,name,email,whatsapp&client_id=not.is.null'),
+        restAll('bd_free_users?select=client_id,name,email,whatsapp,spammer&client_id=not.is.null'),
       ]);
       const vipSet = new Set(vips.map(function (v) { return v.client_id; }));
       const paid = new Set(), bdset = new Set(), emailMap = {};
@@ -118,7 +118,9 @@ export default async function handler(req, res) {
         else if (paid.has(u.user_id)) status = 'Paid';
         else if (bdset.has(u.user_id)) status = 'BD Free';
         var info = bdMap[u.user_id] || {};
-        return Object.assign({ _status: status, _name: info.name || '', _email: info.email || emailMap[u.user_id] || '', _whatsapp: info.whatsapp || '' }, u);
+        var hasBd = !!bdMap[u.user_id];
+        return Object.assign({ _status: status, _name: info.name || '', _email: info.email || emailMap[u.user_id] || '', _whatsapp: info.whatsapp || '',
+          _spammer: hasBd ? (info.spammer === undefined ? null : info.spammer) : null, _canSpam: hasBd }, u);
       });
       return res.status(200).json({ rows: rows });
     }
@@ -185,6 +187,31 @@ export default async function handler(req, res) {
     if (a === 'remove_vip') {
       await rest('vip_users?client_id=eq.' + encodeURIComponent(body.client_id), { method: 'DELETE' });
       return res.status(200).json({ ok: true });
+    }
+
+    // Flag / unflag a bd_free_users person as a spammer. value is true (spammer),
+    // false (never auto-flag again), or null (back to default). Matched by email or client_id.
+    if (a === 'set_spammer') {
+      const by = body.by === 'client_id' ? 'client_id' : 'email';
+      const id = (body.id || '').trim();
+      if (!id) return res.status(400).json({ error: 'Missing id.' });
+      var val = body.value;
+      if (val !== true && val !== false && val !== null) return res.status(400).json({ error: 'value must be true, false, or null.' });
+      const row = await rest('bd_free_users?' + by + '=eq.' + encodeURIComponent(id), {
+        method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ spammer: val }),
+      });
+      return res.status(200).json({ rows: row, updated: Array.isArray(row) ? row.length : 0 });
+    }
+
+    // Notification feed: counts + recent items for new paid users and new spammers.
+    if (a === 'notifications') {
+      const [paidCount, spamCount, paidRecent, spamRecent] = await Promise.all([
+        count('license_keys', 'plan=eq.pro&is_revoked=eq.false&bound_client=not.is.null'),
+        count('bd_free_users', 'spammer=is.true'),
+        rest('license_keys?select=key,email,bound_client,activated_at&plan=eq.pro&is_revoked=eq.false&bound_client=not.is.null&order=activated_at.desc.nullslast&limit=20'),
+        rest('bd_free_users?select=name,email,client_id,whatsapp,created_at&spammer=is.true&order=created_at.desc&limit=20'),
+      ]);
+      return res.status(200).json({ paidCount: paidCount, spamCount: spamCount, paid: paidRecent || [], spammers: spamRecent || [] });
     }
 
     if (a === 'issue_bd_key') {
