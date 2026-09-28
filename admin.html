@@ -1094,8 +1094,14 @@
       var c = (await api('get_content', { file: 'config.json' })).content || {};
       window._cfgLoaded = c;
       var t = c.tutorial || {};
-      cbody('<div class="card"><h3>Free-export limit</h3><div class="desc">How many free exports per 30 days before a free user is blocked.</div>' +
-        '<div class="fld" style="max-width:220px;"><label>freeLimit</label><input type="number" id="cfg_limit" value="' + esc(c.freeLimit != null ? c.freeLimit : 25) + '"></div></div>' +
+      var mode = c.limitMode || 'monthly';
+      var modes = [['monthly', 'monthly — N per window of days'], ['daily', 'daily — N per 24h'], ['total', 'total — N lifetime'], ['off', 'off — unlimited free']];
+      cbody('<div class="card"><h3>Free-export limit</h3><div class="desc">How many free exports a free user gets before a license key is required.</div>' +
+        '<div class="grid2">' +
+        '<div class="fld"><label>freeLimit</label><input type="number" id="cfg_limit" min="0" value="' + esc(c.freeLimit != null ? c.freeLimit : 25) + '"></div>' +
+        '<div class="fld"><label>limitMode</label><select id="cfg_mode">' + modes.map(function (m) { return '<option value="' + m[0] + '"' + (mode === m[0] ? ' selected' : '') + '>' + m[1] + '</option>'; }).join('') + '</select></div>' +
+        '<div class="fld"><label>windowDays (monthly mode)</label><input type="number" id="cfg_days" min="1" value="' + esc(c.windowDays != null ? c.windowDays : 30) + '"></div>' +
+        '</div></div>' +
         '<div class="card"><h3>Tutorial button</h3><div class="desc">The “Watch Tutorial” link shown in the plugin.</div>' +
         '<div class="fld chk"><input type="checkbox" id="cfg_tut_enabled" ' + (t.enabled ? 'checked' : '') + '><label>Enabled</label></div>' +
         '<div class="fld"><label>URL</label><input type="url" id="cfg_tut_url" value="' + esc(t.url || '') + '" placeholder="https://www.youtube.com/@uiflow.plugin"></div>' +
@@ -1105,6 +1111,8 @@
     async function saveConfig() {
       await saveFile('config.json', Object.assign({}, window._cfgLoaded || {}, {
         freeLimit: parseInt(document.getElementById('cfg_limit').value || '25', 10),
+        limitMode: document.getElementById('cfg_mode').value,
+        windowDays: parseInt(document.getElementById('cfg_days').value || '30', 10),
         tutorial: {
           enabled: document.getElementById('cfg_tut_enabled').checked,
           url: document.getElementById('cfg_tut_url').value.trim(),
