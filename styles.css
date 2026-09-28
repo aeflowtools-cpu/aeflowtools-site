@@ -327,6 +327,85 @@ a.lib-card:hover .card-cta .arrow { transform: translateX(3px); }
 }
 @media (max-width: 400px) { .container { padding: 0 18px; } }
 
+/* ---------- UI Flow vs AEUX visual comparison (filled by /uiflow/compare.js) ---------- */
+.vs { max-width: 1040px; margin: 0 auto; }
+.vs-cases { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+.vs-case {
+  padding: 8px 15px; border-radius: 999px; border: 1px solid var(--border); background: var(--card);
+  color: var(--muted); font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.vs-case:hover { color: var(--text); border-color: #33333a; }
+.vs-case.active { background: #fafafa; color: #09090b; border-color: #fafafa; }
+.vs-stage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.vs-panel { margin: 0; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.vs-panel.good { border-color: rgba(74,222,128,0.45); box-shadow: 0 0 0 1px rgba(74,222,128,0.12), 0 24px 60px -30px rgba(74,222,128,0.35); }
+.vs-panel.bad { border-color: rgba(248,113,113,0.3); }
+.vs-head { display: flex; align-items: center; gap: 9px; padding: 11px 14px; font-size: 14px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.vs-ic { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+.vs-ic svg { width: 11px; height: 16px; }
+.vs-ic.src { background: var(--surface); border: 1px solid #27272a; }
+.vs-ic.good { background: rgba(74,222,128,0.14); color: var(--good); }
+.vs-ic.bad { background: rgba(248,113,113,0.14); color: #f87171; }
+/* images are square with a caption bar baked into the bottom ~6% — crop it off */
+.vs-img { display: block; width: 100%; aspect-ratio: 1 / 0.94; overflow: hidden; background: #fff; border: 0; padding: 0; cursor: zoom-in; }
+.vs-img img { display: block; width: 100%; height: auto; }
+.vs-img:focus-visible { outline: 2px solid var(--accent-2); outline-offset: -2px; }
+.vs-note { padding: 11px 14px; font-size: 13px; font-weight: 500; border-top: 1px solid var(--border); color: var(--faint); min-height: 42px; }
+.vs-panel.good .vs-note { color: var(--good); }
+.vs-panel.bad .vs-note { color: #f87171; }
+.vs-foot { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 20px; }
+.vs-nav {
+  width: 40px; height: 40px; border-radius: 10px; background: var(--surface); border: 1px solid #27272a; color: var(--text);
+  font-size: 20px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.vs-nav:hover { background: #1f1f23; border-color: #3f3f46; }
+.vs-count { min-width: 56px; text-align: center; font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.vs-hint { text-align: center; font-size: 12.5px; color: var(--faint); margin-top: 10px; }
+.vs-hint-mob { display: none; }
+@media (max-width: 720px) {
+  .vs-cases { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 0 2px 4px; scrollbar-width: none; }
+  .vs-cases::-webkit-scrollbar { display: none; }
+  .vs-stage { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 80%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 2px; }
+  .vs-stage::-webkit-scrollbar { display: none; }
+  .vs-panel { scroll-snap-align: center; }
+  .vs-hint-desk { display: none; } .vs-hint-mob { display: inline; }
+}
+
+/* ---------- Image lightbox (driven by /uiflow/compare.js) ---------- */
+.lb-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+.lb-overlay.open { opacity: 1; pointer-events: auto; }
+.lb-img {
+  max-width: 90vw; max-height: 82vh; border-radius: 14px; background: #fff;
+  user-select: none; -webkit-user-drag: none; touch-action: pan-y;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+.lb-close {
+  position: absolute; top: 18px; right: 18px; width: 42px; height: 42px; border-radius: 10px;
+  background: #18181b; border: 1px solid #2a2a30; color: #fafafa; font-size: 22px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 10px;
+  background: #18181b; border: 1px solid #2a2a30; color: #fafafa; font-size: 24px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.lb-prev { left: 18px; } .lb-next { right: 18px; }
+.lb-close:hover, .lb-nav:hover { background: #222226; border-color: #3f3f46; }
+.lb-cap { position: absolute; bottom: 22px; left: 0; right: 0; text-align: center; color: #cbd5e1; font-size: 13.5px; }
+@media (max-width: 680px) {
+  .lb-nav { width: 42px; height: 42px; font-size: 22px; }
+  .lb-prev { left: 6px; } .lb-next { right: 6px; }
+  .lb-close { top: 10px; right: 10px; }
+  .lb-img { max-width: 94vw; max-height: 78vh; }
+}
+
 /* ---------- Comparison accordion (How does UI Flow compare?) ---------- */
 .cmp-acc { max-width: 860px; margin: 0 auto; display: grid; gap: 10px; }
 .cmp-acc details { border: 1px solid var(--border); border-radius: 14px; background: var(--card); overflow: hidden; transition: border-color 0.2s ease; }
