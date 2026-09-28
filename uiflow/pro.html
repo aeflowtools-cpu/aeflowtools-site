@@ -33,6 +33,20 @@
       border: 1px solid var(--border); box-shadow: 0 30px 70px rgba(0,0,0,0.5); background: #000; transition: transform 0.18s ease, box-shadow 0.18s ease; }
     .pro-video:hover { transform: translateY(-3px); box-shadow: 0 36px 80px rgba(37,99,235,0.35); }
     .pro-video video { width: 100%; height: auto; display: block; pointer-events: none; }
+    /* early-bird countdown */
+    .eb { max-width: 900px; margin: 22px auto 0; text-align: center; }
+    .eb-label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      color: #fbbf24; margin-bottom: 14px; }
+    .eb-label .pulse { width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 10px #fbbf24; animation: ebp 1.4s ease-in-out infinite; }
+    @keyframes ebp { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    .eb-clock { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .eb-unit { min-width: 86px; padding: 14px 10px 12px; border-radius: 16px; border: 1px solid rgba(251,191,36,0.28);
+      background: linear-gradient(180deg, rgba(251,191,36,0.10), rgba(251,191,36,0.03)); }
+    .eb-num { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; color: #fff; }
+    .eb-cap { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 7px; text-transform: uppercase; letter-spacing: .08em; }
+    .eb-sep { font-size: 32px; font-weight: 800; color: rgba(251,191,36,0.5); align-self: center; padding-bottom: 18px; }
+    .eb-ended { color: var(--muted); font-size: 15px; font-weight: 600; }
+    @media (max-width: 520px) { .eb-unit { min-width: 64px; padding: 11px 6px 10px; } .eb-num { font-size: 28px; } .eb-sep { display: none; } .eb-clock { gap: 8px; } }
   </style>
 </head>
 <body>
@@ -67,6 +81,18 @@
         <video src="https://zomjnvryqmotggdkseag.supabase.co/storage/v1/object/public/UI%20Flow%20AE%20Updates/Early%20bird%20offer%20horizontal.mp4"
                autoplay muted loop playsinline preload="auto"></video>
       </a>
+      <div class="eb" id="eb">
+        <div class="eb-label"><span class="pulse"></span> Early bird offer ends Oct 31</div>
+        <div class="eb-clock" id="ebClock">
+          <div class="eb-unit"><div class="eb-num" id="ebD">--</div><div class="eb-cap">Days</div></div>
+          <div class="eb-sep">:</div>
+          <div class="eb-unit"><div class="eb-num" id="ebH">--</div><div class="eb-cap">Hours</div></div>
+          <div class="eb-sep">:</div>
+          <div class="eb-unit"><div class="eb-num" id="ebM">--</div><div class="eb-cap">Minutes</div></div>
+          <div class="eb-sep">:</div>
+          <div class="eb-unit"><div class="eb-num" id="ebS">--</div><div class="eb-cap">Seconds</div></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -135,6 +161,26 @@
         if (!d.contains(e.target)) d.classList.remove('open');
       });
     });
+    // Early-bird countdown — ends Oct 31, 2026, 11:59:59 PM Dhaka time (UTC+6)
+    (function () {
+      var END = new Date('2026-10-31T23:59:59+06:00').getTime();
+      var clock = document.getElementById('ebClock');
+      function pad(n) { return (n < 10 ? '0' : '') + n; }
+      function tick() {
+        var ms = END - Date.now();
+        if (ms <= 0) {
+          clock.innerHTML = '<div class="eb-ended">The early bird offer has ended.</div>';
+          document.querySelector('#eb .eb-label').style.display = 'none';
+          clearInterval(t); return;
+        }
+        var s = Math.floor(ms / 1000);
+        document.getElementById('ebD').textContent = Math.floor(s / 86400);
+        document.getElementById('ebH').textContent = pad(Math.floor(s % 86400 / 3600));
+        document.getElementById('ebM').textContent = pad(Math.floor(s % 3600 / 60));
+        document.getElementById('ebS').textContent = pad(s % 60);
+      }
+      var t = setInterval(tick, 1000); tick();
+    })();
     // Meta Pixel: this is the pricing/offer page
     try { window.fbq && fbq('track', 'ViewContent', { content_name: 'UI Flow Pro' }); } catch (e) {}
   </script>
