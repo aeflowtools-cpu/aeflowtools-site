@@ -166,9 +166,9 @@ h1.display {
 
 /* split hero: copy on the left, media on the right */
 .hero-split { text-align: left; }
-.hero-split .hero-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 56px; align-items: center; }
+.hero-split .hero-grid { display: grid; grid-template-columns: 0.72fr 1.28fr; gap: 48px; align-items: center; max-width: 1360px; }
 .hero-split p.lead { margin-left: 0; margin-right: 0; }
-.hero-split h1.display { font-size: clamp(34px, 4.1vw, 50px); }
+.hero-split h1.display { font-size: clamp(32px, 3.5vw, 48px); }
 .hero-split .hero-actions { justify-content: flex-start; }
 .hero-media {
   border-radius: 16px; overflow: hidden; background: var(--card);
