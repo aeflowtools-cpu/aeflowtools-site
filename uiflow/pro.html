@@ -11,27 +11,21 @@
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
   <style>
-    .pro-card { max-width: 460px; margin: 0 auto; text-align: center; border-radius: 24px; padding: 1px;
-      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(37,99,235,0.4)); }
-    .pro-inner {
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      backdrop-filter: blur(22px) saturate(150%); -webkit-backdrop-filter: blur(22px) saturate(150%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-      border-radius: 23px; padding: 44px 36px;
-    }
-    .pro-badge { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      color: #fbbf24; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3);
-      padding: 5px 12px; border-radius: 999px; margin-bottom: 18px; }
-    .pro-title { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
-    .pro-sub { color: var(--muted); margin-bottom: 26px; }
-    .pro-list { text-align: left; margin: 0 auto 28px; max-width: 320px; display: grid; gap: 12px; }
-    .pro-list li { list-style: none; display: flex; align-items: center; gap: 10px; color: var(--text); font-size: 15px; }
-    .pro-list .ck { width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; background: rgba(34,197,94,0.15);
-      border: 1px solid rgba(34,197,94,0.4); display: flex; align-items: center; justify-content: center; color: #4ade80; font-size: 12px; }
-    .pro-note { margin-top: 18px; font-size: 13px; color: var(--faint); }
-    .pro-video { display: block; cursor: pointer; max-width: 900px; margin: 0 auto; border-radius: 20px; overflow: hidden; line-height: 0;
-      border: 1px solid var(--border); box-shadow: 0 30px 70px rgba(0,0,0,0.5); background: #000; transition: transform 0.18s ease, box-shadow 0.18s ease; }
-    .pro-video:hover { transform: translateY(-3px); box-shadow: 0 36px 80px rgba(37,99,235,0.35); }
+    .pro-card { max-width: 440px; margin: 0 auto; text-align: center; border-radius: 18px; background: var(--card);
+      border: 1px solid rgba(59,130,246,0.55); box-shadow: 0 0 0 1px rgba(59,130,246,0.2), 0 30px 70px -30px rgba(59,130,246,0.45); }
+    .pro-inner { border-radius: 18px; padding: 38px 32px 32px; }
+    .pro-badge { display: inline-block; font-size: 12px; font-weight: 600;
+      color: #fbbf24; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.28);
+      padding: 4px 11px; border-radius: 999px; margin-bottom: 16px; }
+    .pro-title { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .pro-sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
+    .pro-list { text-align: left; margin: 0 auto 28px; max-width: 300px; display: grid; gap: 11px; }
+    .pro-list li { list-style: none; display: flex; align-items: center; gap: 10px; color: #d4d4d8; font-size: 15px; }
+    .pro-list .ck { width: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--accent-2); font-size: 14px; font-weight: 700; }
+    .pro-note { margin-top: 16px; font-size: 13px; color: var(--faint); }
+    .pro-video { display: block; cursor: pointer; max-width: 900px; margin: 0 auto; border-radius: 16px; overflow: hidden; line-height: 0;
+      border: 1px solid #27272a; box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9); background: #000; transition: border-color 0.18s ease; }
+    .pro-video:hover { border-color: #3f3f46; }
     .pro-video video { width: 100%; height: auto; display: block; pointer-events: none; }
     /* early-bird countdown */
     .eb { max-width: 900px; margin: 22px auto 0; text-align: center; }
@@ -70,6 +64,8 @@
             <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
           </div>
         </div>
+        <a href="/uiflow/experience">Live demo</a>
+        <a class="nav-cta" href="/uiflow/tools">Download free</a>
       </div>
     </div>
   </nav>
@@ -124,7 +120,7 @@
             <li><span class="ck">✓</span> One-time payment — no subscription</li>
           </ul>
 
-          <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/uiflowkey" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
+          <a class="btn btn-accent" href="https://aeflowtools.gumroad.com/l/uiflowkey" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
             Buy Lifetime License <span class="arrow">→</span>
           </a>
           <div class="pro-note">Secure checkout via Gumroad · You'll get a license key to activate in the Figma plugin.</div>

@@ -27,24 +27,21 @@
       background: var(--accent-2); box-shadow: 0 0 12px var(--accent-glow); }
     .kf i:nth-child(even) { width: 8px; height: 8px; opacity: 0.8; }
 
-    .flag { position: relative; border-radius: 22px; padding: 34px; overflow: hidden;
-      background: linear-gradient(160deg, rgba(37,99,235,0.14), rgba(37,99,235,0.04)); border: 1px solid var(--border);
-      backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
-    .flag .ic { width: 54px; height: 54px; border-radius: 15px; display: grid; place-items: center; font-size: 26px;
-      background: linear-gradient(150deg, rgba(37,99,235,0.30), rgba(59,130,246,0.14)); border: 1px solid rgba(255,255,255,0.14); }
-    .flag h3 { font-size: clamp(22px, 3.2vw, 32px); font-weight: 800; letter-spacing: -0.02em; margin: 18px 0 0; }
+    .flag { position: relative; border-radius: 18px; padding: 32px; overflow: hidden;
+      background: radial-gradient(70% 120% at 100% 0%, rgba(59,130,246,0.12), transparent 60%), var(--card); border: 1px solid var(--border); }
+    .flag .ic { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; font-size: 22px;
+      background: var(--surface); border: 1px solid #27272a; }
+    .flag h3 { font-size: clamp(22px, 3vw, 30px); font-weight: 700; letter-spacing: -0.03em; margin: 18px 0 0; }
     .flag p { margin: 12px 0 0; color: var(--muted); font-size: 16px; max-width: 64ch; }
-    .beta { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: #06210f; background: linear-gradient(180deg, #86efac, #22c55e);
-      padding: 4px 9px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
-    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
-    .chip { font-size: 12.5px; font-weight: 600; color: #93c5fd; background: rgba(37,99,235,0.10);
-      border: 1px solid rgba(37,99,235,0.30); padding: 6px 13px; border-radius: 999px; }
+    .beta { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600;
+      color: var(--good); background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.28);
+      padding: 2px 8px; border-radius: 999px; margin-left: 10px; vertical-align: middle; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .chip { font-size: 12.5px; font-weight: 500; color: #d4d4d8; background: var(--surface);
+      border: 1px solid #27272a; padding: 5px 12px; border-radius: 999px; }
 
     .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .step { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 22px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+    .step { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
     .step .n { font-size: 12.5px; font-weight: 700; color: var(--accent-2); letter-spacing: 0.03em; }
     .step h4 { font-size: 17px; font-weight: 700; margin: 8px 0 0; letter-spacing: -0.01em; }
     .step p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
@@ -75,6 +72,8 @@
             <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
           </div>
         </div>
+        <a href="/uiflow/experience">Live demo</a>
+        <a class="nav-cta" href="/uiflow/tools">Download free</a>
       </div>
     </div>
   </nav>
