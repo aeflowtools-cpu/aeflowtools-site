@@ -82,7 +82,7 @@
                autoplay muted loop playsinline preload="auto"></video>
       </a>
       <div class="eb" id="eb">
-        <div class="eb-label"><span class="pulse"></span> Early bird offer ends Oct 31</div>
+        <div class="eb-label"><span class="pulse"></span> Early bird ends Oct 31 · 11:59 PM ET</div>
         <div class="eb-clock" id="ebClock">
           <div class="eb-unit"><div class="eb-num" id="ebD">--</div><div class="eb-cap">Days</div></div>
           <div class="eb-sep">:</div>
@@ -161,9 +161,10 @@
         if (!d.contains(e.target)) d.classList.remove('open');
       });
     });
-    // Early-bird countdown — ends Oct 31, 2026, 11:59:59 PM Dhaka time (UTC+6)
+    // Early-bird countdown — ends Oct 31, 2026, 11:59:59 PM US Eastern (EDT, UTC-4)
+    // = Nov 1, 9:59 AM Bangladesh time. Keep Gumroad's "Valid until" matched to this.
     (function () {
-      var END = new Date('2026-10-31T23:59:59+06:00').getTime();
+      var END = new Date('2026-10-31T23:59:59-04:00').getTime();
       var clock = document.getElementById('ebClock');
       function pad(n) { return (n < 10 ? '0' : '') + n; }
       function tick() {
