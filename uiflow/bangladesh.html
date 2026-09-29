@@ -13,17 +13,17 @@
   <style>
     .bd-single { max-width: 480px; margin: 0 auto; }
     .bd-card { position: relative; border-radius: 18px; background: var(--card); border: 1px solid var(--border);
-      box-shadow: 0 40px 100px -40px rgba(0,0,0,0.9); }
+      box-shadow: 0 24px 60px -28px rgba(16,24,40,0.22); }
     .bd-card-inner { border-radius: 18px; padding: 30px; }
     .bd-card h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
     .bd-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
 
     .bd-form .field { margin-bottom: 16px; text-align: left; }
     .bd-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
-    .bd-form label span { color: #f87171; }
+    .bd-form label span { color: var(--bad); }
     .bd-form input {
       width: 100%; padding: 11px 13px; border-radius: 10px;
-      background: #0c0c0e; border: 1px solid #27272a;
+      background: var(--field); border: 1px solid var(--border-2);
       color: var(--text); font-family: inherit; font-size: 15px; outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
@@ -31,8 +31,8 @@
     .bd-form .btn { margin-top: 6px; width: 100%; justify-content: center; }
     .hp-field { position: absolute; left: -9999px; }
     .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; line-height: 1.5; }
-    .form-status.ok { color: #4ade80; }
-    .form-status.err { color: #f87171; }
+    .form-status.ok { color: var(--good); }
+    .form-status.err { color: var(--bad); }
 
     /* result message (no key shown — it's emailed) */
     .bd-result { display: none; text-align: center; }

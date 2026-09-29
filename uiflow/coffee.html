@@ -15,17 +15,17 @@
     .coffee-card-wrap {
       width: 100%; max-width: 440px; border-radius: 18px;
       background: var(--card); border: 1px solid var(--border);
-      box-shadow: 0 40px 100px -40px rgba(0,0,0,0.9);
+      box-shadow: 0 24px 60px -28px rgba(16,24,40,0.22);
     }
     .coffee-card { border-radius: 18px; padding: 44px 34px 34px; text-align: center; position: relative; overflow: hidden; }
     .cup {
       position: relative; width: 72px; height: 72px; margin: 0 auto 24px; border-radius: 18px;
       display: flex; align-items: center; justify-content: center; font-size: 34px;
-      background: var(--surface); border: 1px solid #27272a;
+      background: var(--surface); border: 1px solid var(--border-2);
     }
     .cup .steam {
       position: absolute; top: 6px; width: 4px; height: 18px;
-      background: linear-gradient(to top, rgba(255,255,255,0.5), transparent);
+      background: linear-gradient(to top, rgba(10,10,10,0.22), transparent);
       border-radius: 4px; opacity: 0; animation: steam 3s ease-in-out infinite;
     }
     .cup .steam:nth-child(1) { left: 34px; animation-delay: 0s; }

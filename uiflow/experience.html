@@ -34,7 +34,9 @@
     .win-bar .who b { color: var(--text); font-weight: 700; }
 
     /* Figma window */
-    .win-fig { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); }
+    .win-fig { background: #141417; }
+    /* app windows stay dark on the light site: give them their own dark palette */
+    .win { --text: #fafafa; --muted: #a1a1aa; --faint: #71717a; --border: #26262b; color: var(--text); box-shadow: 0 24px 60px -24px rgba(16,24,40,0.35); }
     .fig-canvas { position: relative; background: #1b1d22; min-height: 470px; overflow: hidden; display: flex; align-items: center; justify-content: center;
       background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 22px 22px; }
     .fig-card { width: 230px; display: block; border-radius: 14px; box-shadow: 0 20px 46px rgba(0,0,0,0.45); }

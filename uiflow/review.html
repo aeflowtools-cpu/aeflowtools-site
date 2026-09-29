@@ -15,12 +15,12 @@
     .bug-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .bug-form .field { margin-bottom: 16px; text-align: left; }
     .bug-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
-    .bug-form label span { color: #f87171; }
+    .bug-form label span { color: var(--bad); }
     .bug-form label .opt { color: var(--faint); font-weight: 500; }
     .bug-form .field-hint { margin-top: 7px; font-size: 12.5px; color: var(--faint); }
     .bug-form input, .bug-form select, .bug-form textarea {
       width: 100%; padding: 12px 14px; border-radius: 12px;
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      background: var(--field); border: 1px solid var(--border);
       color: var(--text); font-family: inherit; font-size: 15px; outline: none;
       transition: border-color 0.15s ease, background 0.15s ease;
     }
@@ -30,13 +30,13 @@
     .bug-form textarea { resize: vertical; min-height: 120px; }
     .bug-form .btn { margin-top: 6px; }
     .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; line-height: 1.5; }
-    .form-status.ok { color: #4ade80; }
-    .form-status.err { color: #f87171; }
+    .form-status.ok { color: var(--good); }
+    .form-status.err { color: var(--bad); }
     .hp-field { position: absolute; left: -9999px; }
     /* Star rating */
     .stars { display: inline-flex; flex-direction: row-reverse; justify-content: flex-start; gap: 6px; }
     .stars input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .stars label { font-size: 30px; line-height: 1; color: #3a3f4a; cursor: pointer; transition: color 0.15s ease, transform 0.1s ease; }
+    .stars label { font-size: 30px; line-height: 1; color: #d4d4d8; cursor: pointer; transition: color 0.15s ease, transform 0.1s ease; }
     .stars label::before { content: "\2605"; }
     .stars input:checked ~ label,
     .stars label:hover,

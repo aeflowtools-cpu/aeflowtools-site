@@ -92,17 +92,17 @@
     .compare-card.before { background: linear-gradient(180deg, rgba(239,68,68,0.05), transparent 55%), var(--card); }
     .compare-card.after  { background: linear-gradient(180deg, rgba(74,222,128,0.06), transparent 55%), var(--card); }
     .compare-card .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
-    .compare-card.before .tag { color: #f87171; }
-    .compare-card.after .tag { color: #4ade80; }
+    .compare-card.before .tag { color: var(--bad); }
+    .compare-card.after .tag { color: var(--good); }
     .compare-card h4 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
     .compare-card p { color: var(--muted); font-size: 14.5px; }
 
-    .demo-frame { position: relative; border-radius: 16px; padding: 6px; background: var(--card); border: 1px solid #27272a; box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9); }
+    .demo-frame { position: relative; border-radius: 16px; padding: 6px; background: var(--card); border: 1px solid var(--border-2); box-shadow: 0 24px 60px -28px rgba(16,24,40,0.22); }
     .demo-frame wistia-player { border-radius: 11px !important; }
     .video-frame { max-width: 1040px; margin: 0 auto; }
 
     /* coded HTML demos (they draw their own 1px border + 16px radius) */
-    .demo-embed { border-radius: 16px; overflow: hidden; background: #09090b; box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9); }
+    .demo-embed { border-radius: 16px; overflow: hidden; background: #09090b; box-shadow: 0 24px 60px -28px rgba(16,24,40,0.22); }
     .demo-embed iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
     .demo-embed-lg { max-width: 1040px; margin: 0 auto; }
 
@@ -114,7 +114,7 @@
       transition: background 0.16s ease, color 0.16s ease; }
     .mode-tab svg { width: 17px; height: 17px; flex-shrink: 0; }
     .mode-tab:hover { color: var(--text); }
-    .mode-tab.active { background: #fafafa; color: #09090b; }
+    .mode-tab.active { background: var(--btn-bg); color: var(--btn-fg); }
     .mode-beta { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(74,222,128,0.12); color: var(--good); }
     .mode-tab.active .mode-beta { background: #dcfce7; color: #15803d; }
     .mode-desc { max-width: 600px; margin: 0 auto 26px; text-align: center; min-height: 3.2em; }
@@ -142,21 +142,21 @@
 
     .check-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
     .check-item { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; background: var(--card); font-size: 15px; font-weight: 500; }
-    .check-item .ck { width: 24px; height: 24px; flex-shrink: 0; border-radius: 7px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); display: flex; align-items: center; justify-content: center; color: #4ade80; font-size: 13px; }
+    .check-item .ck { width: 24px; height: 24px; flex-shrink: 0; border-radius: 7px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); display: flex; align-items: center; justify-content: center; color: var(--good); font-size: 13px; }
 
     .info-box { border: 1px solid var(--border); border-radius: 16px; padding: 28px; background: var(--card); }
     .info-box h4 { font-size: 18px; margin-bottom: 14px; }
     .info-box ol, .info-box ul { margin: 0 0 0 18px; color: var(--muted); font-size: 15px; }
     .info-box li { margin-bottom: 9px; }
-    .note-line { margin-top: 18px; padding: 14px 16px; border-radius: 12px; font-size: 13.5px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #cbd5e1; }
+    .note-line { margin-top: 18px; padding: 14px 16px; border-radius: 12px; font-size: 13.5px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: var(--text-2); }
 
     /* Toolkit cards (numbered power tools) */
     .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
     .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; position: relative; transition: border-color 0.2s ease; }
-    .tool-card:hover { border-color: #2e2e33; }
+    .tool-card:hover { border-color: var(--line-hover); }
     .tool-card .tnum {
       width: 34px; height: 34px; border-radius: 9px; margin-bottom: 16px;
-      background: var(--surface); border: 1px solid #27272a;
+      background: var(--surface); border: 1px solid var(--border-2);
       display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--accent-2);
     }
     .tool-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
@@ -170,7 +170,7 @@
 
     .faq { max-width: 760px; margin: 0 auto; }
     .faq details { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; background: var(--card); overflow: hidden; transition: border-color 0.2s ease; }
-    .faq details[open] { border-color: #2a2a30; }
+    .faq details[open] { border-color: var(--border-2); }
     .faq summary { list-style: none; cursor: pointer; padding: 18px 22px; font-weight: 600; font-size: 15.5px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
     .faq summary::-webkit-details-marker { display: none; }
     .faq summary::after { content: "+"; font-size: 20px; font-weight: 400; color: var(--muted); transition: transform 0.2s ease; }
@@ -182,7 +182,7 @@
     .bug-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .bug-form .field { margin-bottom: 16px; text-align: left; }
     .bug-form label { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
-    .bug-form label span { color: #f87171; }
+    .bug-form label span { color: var(--bad); }
     .bug-form label .opt { color: var(--faint); font-weight: 500; }
     .bug-form .field-hint { margin-top: 7px; font-size: 12.5px; color: var(--faint); }
     /* Support buttons hidden by default; revealed only for Bangladesh visitors via JS */
@@ -202,15 +202,15 @@
     .pc-price .was { font-size: 20px; font-weight: 500; color: var(--faint); text-decoration: line-through; }
     .pc-tag { color: var(--faint); font-size: 13.5px; margin-bottom: 22px; }
     .pc-feats { list-style: none; display: grid; gap: 11px; margin: 0 0 26px; }
-    .pc-feats li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: #d4d4d8; }
+    .pc-feats li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--text-2); }
     .pc-feats .ck { width: 18px; height: 18px; flex-shrink: 0; border-radius: 0; background: none; border: 0;
       display: flex; align-items: center; justify-content: center; color: var(--accent-2); font-size: 14px; font-weight: 700; }
-    .price-card2.featured .pc-name { color: #93c5fd; }
+    .price-card2.featured .pc-name { color: var(--accent-ink); }
     .pc-inner .btn { margin-top: auto; }
     @media (max-width: 720px) { .price-grid { grid-template-columns: 1fr; } }
     .bug-form input, .bug-form select, .bug-form textarea {
       width: 100%; padding: 11px 13px; border-radius: 10px;
-      background: #0c0c0e; border: 1px solid #27272a;
+      background: var(--field); border: 1px solid var(--border-2);
       color: var(--text); font-family: inherit; font-size: 15px; outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
@@ -220,14 +220,14 @@
     .bug-form textarea { resize: vertical; min-height: 120px; }
     .bug-form .btn { margin-top: 6px; }
     .form-status { margin-top: 14px; font-size: 14px; text-align: center; min-height: 20px; }
-    .form-status.ok { color: #4ade80; }
-    .form-status.err { color: #f87171; }
+    .form-status.ok { color: var(--good); }
+    .form-status.err { color: var(--bad); }
     .hp-field { position: absolute; left: -9999px; }
 
     /* Star rating */
     .stars { display: inline-flex; flex-direction: row-reverse; justify-content: flex-start; gap: 6px; }
     .stars input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .stars label { font-size: 30px; line-height: 1; color: #3a3f4a; cursor: pointer; transition: color 0.15s ease, transform 0.1s ease; }
+    .stars label { font-size: 30px; line-height: 1; color: #d4d4d8; cursor: pointer; transition: color 0.15s ease, transform 0.1s ease; }
     .stars label::before { content: "\2605"; }
     .stars input:checked ~ label,
     .stars label:hover,
@@ -623,7 +623,7 @@
       <div class="bd-only">
         <div class="price-card2" style="max-width:460px; margin:0 auto;">
           <div class="pc-inner" style="text-align:center;">
-            <div class="pc-name" style="color:#4ade80;">Free for Bangladesh 🇧🇩</div>
+            <div class="pc-name" style="color:var(--good);">Free for Bangladesh 🇧🇩</div>
             <div class="pc-price" style="justify-content:center;"><span class="amt">Free</span></div>
             <div class="pc-tag">Unlimited exports · No limits · No license needed</div>
             <ul class="pc-feats" style="max-width:300px; margin-left:auto; margin-right:auto;">

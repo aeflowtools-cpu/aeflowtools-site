@@ -15,30 +15,30 @@
       border: 1px solid rgba(59,130,246,0.55); box-shadow: 0 0 0 1px rgba(59,130,246,0.2), 0 30px 70px -30px rgba(59,130,246,0.45); }
     .pro-inner { border-radius: 18px; padding: 38px 32px 32px; }
     .pro-badge { display: inline-block; font-size: 12px; font-weight: 600;
-      color: #fbbf24; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.28);
+      color: #d97706; background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.28);
       padding: 4px 11px; border-radius: 999px; margin-bottom: 16px; }
     .pro-title { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; }
     .pro-sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
     .pro-list { text-align: left; margin: 0 auto 28px; max-width: 300px; display: grid; gap: 11px; }
-    .pro-list li { list-style: none; display: flex; align-items: center; gap: 10px; color: #d4d4d8; font-size: 15px; }
+    .pro-list li { list-style: none; display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 15px; }
     .pro-list .ck { width: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--accent-2); font-size: 14px; font-weight: 700; }
     .pro-note { margin-top: 16px; font-size: 13px; color: var(--faint); }
     .pro-video { display: block; cursor: pointer; max-width: 900px; margin: 0 auto; border-radius: 16px; overflow: hidden; line-height: 0;
-      border: 1px solid #27272a; box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9); background: #000; transition: border-color 0.18s ease; }
-    .pro-video:hover { border-color: #3f3f46; }
+      border: 1px solid var(--border-2); box-shadow: 0 24px 60px -28px rgba(16,24,40,0.22); background: #000; transition: border-color 0.18s ease; }
+    .pro-video:hover { border-color: var(--line-hover); }
     .pro-video video { width: 100%; height: auto; display: block; pointer-events: none; }
     /* early-bird countdown */
     .eb { max-width: 900px; margin: 22px auto 0; text-align: center; }
     .eb-label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-      color: #fbbf24; margin-bottom: 14px; }
-    .eb-label .pulse { width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 10px #fbbf24; animation: ebp 1.4s ease-in-out infinite; }
+      color: #d97706; margin-bottom: 14px; }
+    .eb-label .pulse { width: 8px; height: 8px; border-radius: 50%; background: #d97706; box-shadow: 0 0 10px #d97706; animation: ebp 1.4s ease-in-out infinite; }
     @keyframes ebp { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
     .eb-clock { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-    .eb-unit { min-width: 86px; padding: 14px 10px 12px; border-radius: 16px; border: 1px solid rgba(251,191,36,0.28);
-      background: linear-gradient(180deg, rgba(251,191,36,0.10), rgba(251,191,36,0.03)); }
-    .eb-num { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; color: #fff; }
+    .eb-unit { min-width: 86px; padding: 14px 10px 12px; border-radius: 16px; border: 1px solid rgba(217,119,6,0.28);
+      background: linear-gradient(180deg, rgba(217,119,6,0.10), rgba(217,119,6,0.03)); }
+    .eb-num { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text); }
     .eb-cap { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 7px; text-transform: uppercase; letter-spacing: .08em; }
-    .eb-sep { font-size: 32px; font-weight: 800; color: rgba(251,191,36,0.5); align-self: center; padding-bottom: 18px; }
+    .eb-sep { font-size: 32px; font-weight: 800; color: rgba(217,119,6,0.5); align-self: center; padding-bottom: 18px; }
     .eb-ended { color: var(--muted); font-size: 15px; font-weight: 600; }
     @media (max-width: 520px) { .eb-unit { min-width: 64px; padding: 11px 6px 10px; } .eb-num { font-size: 28px; } .eb-sep { display: none; } .eb-clock { gap: 8px; } }
   </style>
@@ -94,7 +94,7 @@
   <!-- HERO -->
   <header class="hero hero-sm">
     <div class="container">
-      <span class="eyebrow"><span class="dot" style="background:#fbbf24; box-shadow:0 0 8px #fbbf24;"></span> UI Flow Pro</span>
+      <span class="eyebrow"><span class="dot" style="background:#d97706; box-shadow:0 0 8px #d97706;"></span> UI Flow Pro</span>
       <h1 class="display">Unlock unlimited exports.</h1>
       <p class="lead">
         The free plan lets you send <strong>25 exports every 30 days</strong>. Need more?
