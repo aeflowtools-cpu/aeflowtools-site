@@ -8,13 +8,14 @@
   <title>Download UI Flow | AE Flow Tools</title>
   <meta name="description" content="Download UI Flow — the After Effects plugin and the Figma plugin." />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
   <style>
     .dl-wrap { position: relative; z-index: 1; min-height: auto; display: flex; align-items: center; justify-content: center; padding: 64px 24px 24px; }
     .dl-card-wrap {
       width: 100%; max-width: 460px; border-radius: 28px; padding: 1px;
-      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 40%, rgba(37,99,235,0.4));
+      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 40%, rgba(47, 91, 255,0.4));
       box-shadow: 0 40px 100px rgba(0,0,0,0.6);
     }
     .dl-card {
@@ -57,7 +58,7 @@
       display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
     .sg-overlay.open { opacity: 1; pointer-events: auto; }
     .sg-modal { width: 100%; max-width: 440px; border-radius: 24px; padding: 1px;
-      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(37,99,235,0.4)); box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
+      background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(47, 91, 255,0.4)); box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
     .sg-inner { background: linear-gradient(180deg, rgba(20,22,28,0.98), rgba(13,14,18,0.99)); border-radius: 23px; padding: 32px 28px; }
     .sg-inner h2 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
     .sg-inner .sg-sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
@@ -66,7 +67,7 @@
       padding: 13px 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03);
       color: var(--text); font-family: inherit; font-size: 15px; font-weight: 600; transition: border-color 0.15s ease, background 0.15s ease; }
     .sg-opt:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
-    .sg-opt.sel { border-color: var(--accent-2); background: rgba(37,99,235,0.12); }
+    .sg-opt.sel { border-color: var(--accent-2); background: rgba(47, 91, 255,0.12); }
     .sg-opt .ic { font-size: 17px; width: 20px; text-align: center; }
     .sg-opt .tick { margin-left: auto; opacity: 0; color: var(--accent-2); font-weight: 800; }
     .sg-opt.sel .tick { opacity: 1; }
@@ -87,14 +88,14 @@
     .vh-head { text-align: center; margin-bottom: 44px; }
     .vh-eyebrow { color: var(--accent-2); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
     .vh-head h2 { font-size: clamp(28px, 5vw, 44px); font-weight: 900; letter-spacing: -0.02em; margin: 10px 0 0; }
-    .vh-head h2 .grad { background: linear-gradient(100deg, #60a5fa, #2563eb); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .vh-head h2 .grad { background: linear-gradient(100deg, #7c9bff, #2f5bff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     .vh-head p { color: var(--muted); max-width: 470px; margin: 12px auto 0; font-size: 15.5px; }
     .timeline { position: relative; padding-left: 34px; }
     .timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px;
-      background: linear-gradient(180deg, var(--accent-2), rgba(59,130,246,0.12)); }
+      background: linear-gradient(180deg, var(--accent-2), rgba(91, 127, 255,0.12)); }
     .rel { position: relative; margin-bottom: 20px; }
     .rel::before { content: ""; position: absolute; left: -34px; top: 24px; width: 16px; height: 16px; border-radius: 50%;
-      background: var(--bg); border: 2px solid var(--accent-2); box-shadow: 0 0 0 4px rgba(59,130,246,0.18); }
+      background: var(--bg); border: 2px solid var(--accent-2); box-shadow: 0 0 0 4px rgba(91, 127, 255,0.18); }
     .rel-card { border-radius: 18px; padding: 22px 24px; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
       backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
     .rel-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
