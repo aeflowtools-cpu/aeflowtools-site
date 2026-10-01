@@ -5,7 +5,7 @@
 //     everyone else is sent to the home page. To launch, delete the CodeFlow block below and its matcher entries.
 
 export const config = {
-  matcher: ['/uiflow/bangladesh', '/uiflow/bangladesh.html', '/codeflow', '/codeflow/', '/codeflow/index.html'],
+  matcher: ['/uiflow/bangladesh', '/uiflow/bangladesh.html', '/codeflow', '/codeflow/', '/codeflow/index.html', '/codeflow/download/:path*'],
 };
 
 const CODEFLOW_PREVIEW = 'eab6ed1780239548fa93382b';

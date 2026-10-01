@@ -6,13 +6,13 @@
   <!-- Meta Pixel -->
   <script src="/meta-pixel.js"></script>
   <title>CodeFlow — Claude Videos to Editable After Effects | AE Flow Tools</title>
-  <meta name="description" content="CodeFlow turns motion videos made with Claude into native, editable After Effects comps: real text, real keyframes, real layers. $20 one-time." />
+  <meta name="description" content="CodeFlow turns motion videos made with Claude into native, editable After Effects comps: real text, real keyframes, real layers. Free to try, $20 to unlock." />
   <meta name="robots" content="noindex, nofollow" />   <!-- hidden until launch (see middleware.js); remove at launch -->
   <link rel="canonical" href="https://www.aeflowtools.com/codeflow" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="AE Flow Tools" />
   <meta property="og:title" content="CodeFlow — Claude videos to editable After Effects" />
-  <meta property="og:description" content="Made a motion video with Claude? CodeFlow builds it in After Effects as real, editable comps: live text, bezier keyframes, native layers." />
+  <meta property="og:description" content="Made a motion video with Claude? CodeFlow builds it in After Effects as real, editable comps: live text, bezier keyframes, native layers. Free to try." />
   <meta property="og:url" content="https://www.aeflowtools.com/codeflow" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
@@ -28,7 +28,11 @@
     "softwareRequirements": "Adobe After Effects 2022 or newer",
     "url": "https://www.aeflowtools.com/codeflow",
     "publisher": { "@type": "Organization", "name": "AE Flow Tools", "url": "https://www.aeflowtools.com" },
-    "offers": { "@type": "Offer", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
+    "downloadUrl": "https://www.aeflowtools.com/codeflow/download/CodeFlow-1.0.0.zxp",
+    "offers": [
+      { "@type": "Offer", "name": "Free trial (3 builds)", "price": "0", "priceCurrency": "USD", "url": "https://www.aeflowtools.com/codeflow" },
+      { "@type": "Offer", "name": "CodeFlow licence", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
+    ]
   }
   </script>
   <style>
@@ -100,6 +104,25 @@
     .cf-after h3 { text-align: center; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 22px; }
     .cf-after .cf-steps { gap: 20px; }
 
+    /* free download card */
+    .cf-dl { max-width: 760px; margin: 0 auto; padding: 26px; border-radius: 20px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+    .cf-dl-main { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .cf-dl-main > div { flex: 1; min-width: 210px; }
+    .cf-dl-main b { display: block; font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 3px; }
+    .cf-dl-main small { color: var(--muted); font-size: 13.5px; }
+    .cf-dl-steps { margin: 22px 0 0; padding: 20px 0 0 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 15px; display: grid; gap: 9px; }
+    .cf-dl-steps strong { color: var(--text); font-weight: 600; }
+
+    /* free vs licence */
+    .cf-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 920px; margin: 0 auto; align-items: stretch; }
+    .cf-plans .pro-card { max-width: none; margin: 0; display: flex; }
+    .cf-plans .pro-inner { flex: 1; display: flex; flex-direction: column; padding: 44px 32px; }
+    .cf-plan { border-radius: 24px; border: 1px solid var(--border); padding: 44px 32px; text-align: center; display: flex; flex-direction: column;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+    .cf-plan .pro-badge, .cf-plans .pro-inner .pro-badge { align-self: center; }
+    .cf-plans .pro-list { flex-grow: 1; width: 100%; align-content: start; }
+
     .cf-faq { padding-top: 8px; }
 
     @media (max-width: 520px) {
@@ -110,6 +133,8 @@
       .cf-arrow { transform: rotate(90deg); justify-self: center; }
       .cf-split { grid-template-columns: 1fr; gap: 40px; }
       .cf-two { grid-template-columns: 1fr; }
+      .cf-plans { grid-template-columns: 1fr; }
+      .cf-plans .pro-inner, .cf-plan { padding: 36px 24px; }
       .pro-inner { padding: 36px 24px; }
     }
   </style>
@@ -150,10 +175,10 @@
         real text, real keyframes, real layers. Nothing flattened, nothing to rebuild.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/gygsdc" onclick="window.fbq&&fbq('track','InitiateCheckout')">Buy CodeFlow · $20 <span class="arrow">→</span></a>
+        <a class="btn btn-primary" href="/codeflow/download/CodeFlow-1.0.0.zxp" download onclick="window.fbq&&fbq('track','Lead')">Download free <span class="arrow">↓</span></a>
         <a class="btn btn-ghost" href="#how">See how it works</a>
       </div>
-      <div class="cf-note">One-time payment · Works on 2 computers · After Effects 2022 or newer</div>
+      <div class="cf-note">Free to try: 3 builds on us, then <a href="#buy" style="text-decoration:underline">$20 one-time</a> · After Effects 2022 or newer</div>
 
       <div class="cf-flow" aria-label="From a Claude prompt to editable After Effects comps">
         <div class="cf-node">
@@ -258,11 +283,36 @@
     </div>
   </section>
 
+  <!-- DOWNLOAD (free) -->
+  <section class="section" id="download">
+    <div class="container">
+      <div class="section-head">
+        <h2>Step 1: install the extension</h2>
+        <p>It's free to download, with 3 free builds on every computer so you can try it properly.</p>
+      </div>
+      <div class="cf-dl">
+        <div class="cf-dl-main">
+          <img src="/codeflow/codeflow-icon.svg" alt="" width="64" height="64" style="border-radius:16px; flex:none;" />
+          <div>
+            <b>CodeFlow for After Effects</b>
+            <small>Version <span data-ver>1.0.0</span> · After Effects 2022 or newer · Free to download</small>
+          </div>
+          <a class="btn btn-primary" href="/codeflow/download/CodeFlow-1.0.0.zxp" download onclick="window.fbq&&fbq('track','Lead')">Download .zxp <span class="arrow">↓</span></a>
+        </div>
+        <ol class="cf-dl-steps">
+          <li>Open the downloaded file with a free ZXP installer, such as the <a class="cf-link" style="margin:0" href="https://aescripts.com/learn/post/zxp-installer" target="_blank" rel="noopener">aescripts ZXP Installer</a>.</li>
+          <li>Restart After Effects.</li>
+          <li>Open <strong>Window → Extensions → CodeFlow</strong>. You're ready: you have 3 free builds.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
   <!-- THE SKILL -->
   <section class="section" id="skill">
     <div class="container">
       <div class="section-head">
-        <h2>Add the free skill to Claude</h2>
+        <h2>Step 2: add the free skill to Claude</h2>
         <p>The CodeFlow skill teaches Claude how to make files that open in After Effects. It's free and open on GitHub.</p>
       </div>
       <div class="cf-two">
@@ -292,56 +342,69 @@
     </div>
   </section>
 
-  <!-- BUY -->
+  <!-- PRICING -->
   <section class="section" id="buy">
     <div class="container">
       <div class="section-head">
-        <h2>One price. No subscription.</h2>
+        <h2>Free to try. $20 to keep going.</h2>
+        <p>Use your 3 free builds to see it work on your own videos. Then unlock unlimited builds with one payment.</p>
       </div>
-      <div class="pro-card">
-        <div class="pro-inner">
-          <span class="pro-badge">CodeFlow for After Effects</span>
-          <div class="pro-title">CodeFlow</div>
-          <div class="pro-price">$20</div>
-          <div class="pro-sub">One-time payment</div>
+      <div class="cf-plans">
+        <div class="cf-plan">
+          <span class="pro-badge" style="color:#9fb6ff; background:rgba(91,127,255,0.12); border-color:rgba(91,127,255,0.35);">Free trial</span>
+          <div class="pro-title">Try it</div>
+          <div class="pro-price">$0</div>
+          <div class="pro-sub">3 builds on each computer</div>
 
           <ul class="pro-list">
-            <li><span class="ck">✓</span> Unlimited builds</li>
-            <li><span class="ck">✓</span> Works on 2 computers</li>
-            <li><span class="ck">✓</span> Real text, keyframes and footage</li>
-            <li><span class="ck">✓</span> Fonts included in every file</li>
-            <li><span class="ck">✓</span> No subscription</li>
+            <li><span class="ck">✓</span> Every feature included</li>
+            <li><span class="ck">✓</span> No card, no sign-up</li>
+            <li><span class="ck">✓</span> Real After Effects comps, yours to keep</li>
           </ul>
 
-          <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/gygsdc" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
-            Buy CodeFlow <span class="arrow">→</span>
+          <a class="btn btn-ghost" href="/codeflow/download/CodeFlow-1.0.0.zxp" download style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','Lead')">
+            Download free <span class="arrow">↓</span>
           </a>
-          <div class="pro-note">Secure checkout via Gumroad · You get the installer and your licence key right after checkout.</div>
+          <div class="pro-note">Install it, then ask Claude for your first file.</div>
+        </div>
+
+        <div class="pro-card">
+          <div class="pro-inner">
+            <span class="pro-badge">Licence</span>
+            <div class="pro-title">CodeFlow</div>
+            <div class="pro-price">$20</div>
+            <div class="pro-sub">One-time payment</div>
+
+            <ul class="pro-list">
+              <li><span class="ck">✓</span> Unlimited builds</li>
+              <li><span class="ck">✓</span> Works on 2 computers</li>
+              <li><span class="ck">✓</span> Fonts included in every file</li>
+              <li><span class="ck">✓</span> No subscription</li>
+            </ul>
+
+            <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/gygsdc" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
+              Buy a licence <span class="arrow">→</span>
+            </a>
+            <div class="pro-note">Secure checkout via Gumroad · Your licence key arrives right after checkout.</div>
+          </div>
         </div>
       </div>
 
       <div class="cf-after">
-        <h3>After you buy</h3>
+        <h3>Ready to unlock? Two steps</h3>
         <div class="cf-steps">
           <div class="cf-step">
             <div class="n">1</div>
             <div>
-              <h4>Install the extension</h4>
-              <p>Open the downloaded <code>.zxp</code> file with a free ZXP installer, such as the <a class="cf-link" style="margin:0" href="https://aescripts.com/learn/post/zxp-installer" target="_blank" rel="noopener">aescripts ZXP Installer</a>. Then restart After Effects.</p>
+              <h4>Buy your licence</h4>
+              <p>Check out on Gumroad. Your licence key arrives right away.</p>
             </div>
           </div>
           <div class="cf-step">
             <div class="n">2</div>
             <div>
-              <h4>Activate your licence</h4>
-              <p>Open <strong>Window → Extensions → CodeFlow</strong>, paste the licence key from your receipt, and click Activate.</p>
-            </div>
-          </div>
-          <div class="cf-step">
-            <div class="n">3</div>
-            <div>
-              <h4>Build your first video</h4>
-              <p>Ask Claude to <code>make it for CodeFlow</code>, drop the file into the panel, and click Build.</p>
+              <h4>Paste it into CodeFlow</h4>
+              <p>In After Effects open <strong>Window → Extensions → CodeFlow</strong>, click <strong>Enter key</strong>, paste your key and click Activate. Unlimited builds from then on.</p>
             </div>
           </div>
         </div>
@@ -356,6 +419,18 @@
         <h2>Questions</h2>
       </div>
       <div class="cmp-acc cf-faq">
+        <details>
+          <summary>What's free and what costs money?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">The extension and the Claude skill are both free to download, and you get 3 free builds on every computer. After that CodeFlow needs a licence key: $20, one time, for everyone.</p>
+          </div>
+        </details>
+        <details>
+          <summary>What happens after the 3 free builds?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">CodeFlow asks for a licence key before it builds more. Everything you've already built stays in your After Effects project and keeps working, with or without CodeFlow.</p>
+          </div>
+        </details>
         <details>
           <summary>Do I need Claude?</summary>
           <div class="cmp-body">
@@ -389,13 +464,13 @@
         <details>
           <summary>Does it need internet?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">Yes. CodeFlow checks your licence online when it opens and before each build. Your projects and files never leave your computer: only your licence and computer details are checked.</p>
+            <p style="color:var(--muted)">Yes. CodeFlow checks your licence (or your free builds) online when it opens and before each build. Your projects and files never leave your computer: only your licence and computer details are checked.</p>
           </div>
         </details>
         <details>
           <summary>How do I get updates?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">When a new version is out, CodeFlow shows an update message in the panel. Download the latest installer from your Gumroad receipt email or your Gumroad Library, and install it over the old one. Your licence keeps working.</p>
+            <p style="color:var(--muted)">When a new version is out, CodeFlow shows an update message in the panel. Download the newest installer from the top of this page and install it over the old one. Your licence keeps working.</p>
           </div>
         </details>
         <details>
