@@ -44,6 +44,12 @@ async function config() {
     sessionHours: +(c.session_hours || 12),
     deactivationsPer30d: +(c.deactivations_per_30d || 3),
     buyUrl: c.buy_url || 'https://aeflowtools.gumroad.com',
+    // SupportKori (Bangladesh shop). The product token is public by design (it ships inside software, like a Gumroad product id).
+    supportkoriId: c.supportkori_product_id || 'e7yi8EbgiU7WSR74BHN-Fb0X',
+    // prices shown to users: Bangladesh visitors see price_bd and buy at buy_url_bd (only once buy_url_bd is set)
+    priceIntl: c.price_intl || '$20',
+    priceBd: c.price_bd || '৳999',
+    buyUrlBd: c.buy_url_bd || '',
     update: {
       latest: c.latest_version || '',
       url: c.download_url || 'https://aeflowtools.com/codeflow',
@@ -99,6 +105,47 @@ async function gumroadVerify(cfg, key) {
 }
 const badPurchase = (p) => !!(p.refunded || p.chargebacked || p.disputed || p.subscription_cancelled_at || p.subscription_failed_at);
 
+// SupportKori: POST {product_id, license_key} -> { valid, reason?, test? }. A plain check never uses a seat (we keep our own seats).
+async function supportkoriVerify(cfg, key) {
+  const r = await fetch('https://supportkori.com/api/licenses/verify', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ product_id: cfg.supportkoriId, license_key: key }),
+  });
+  return await r.json().catch(() => null);
+}
+const SK_RE = /^[A-Z0-9]{5}(-[A-Z0-9]{5}){3}$/;           // SupportKori keys look like FE3Z8-667GV-WNZ3G-8K34Y
+
+// Asks the stores whether a key is a genuine, still-valid purchase. `only` = just that store (used when re-checking a known licence).
+//   -> { source, email, saleId } | { error: 'refunded' | 'revoked' | 'invalid_key' | 'verify_unavailable' }
+async function verifyKey(cfg, key, only) {
+  const order = only ? [only] : (SK_RE.test(key) ? ['supportkori', 'gumroad'] : ['gumroad', 'supportkori']);
+  let definite = null, unreachable = 0;
+  for (const src of order) {
+    try {
+      if (src === 'gumroad') {
+        const p = await gumroadVerify(cfg, key);
+        if (p) return badPurchase(p) ? { error: 'refunded' } : { source: 'gumroad', email: p.email, saleId: p.sale_id };
+      } else {
+        const j = await supportkoriVerify(cfg, key);
+        if (j && j.valid && !j.test) return { source: 'supportkori', email: j.email || '', saleId: j.order_id || '' };   // the dashboard test key is not a sale
+        if (j && j.reason === 'refunded') definite = { error: 'refunded' };
+        else if (j && j.reason === 'disabled') definite = { error: 'revoked' };
+        else if (!j) unreachable++;
+      }
+    } catch (e) { unreachable++; }
+  }
+  if (definite) return definite;
+  return unreachable === order.length ? { error: 'verify_unavailable' } : { error: 'invalid_key' };
+}
+
+// Bangladesh visitors (Vercel's geo header) see the BD price and the SupportKori shop, once buy_url_bd is configured
+const isBD = (req) => String(req.headers['x-vercel-ip-country'] || '').toUpperCase() === 'BD';
+function buyInfo(cfg, req) {
+  return isBD(req) && cfg.buyUrlBd
+    ? { region: 'BD', buyUrl: cfg.buyUrlBd, price: cfg.priceBd }
+    : { region: 'INT', buyUrl: cfg.buyUrl, price: cfg.priceIntl };
+}
+
 async function log(kind, ip, extra) {
   try { await db('cf_events', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: Object.assign({ kind, ip }, extra) }); } catch (e) {}
 }
@@ -116,17 +163,18 @@ async function telegram(text) {
 async function checkLicense(cfg, key, machine, info, ip, { register }) {
   let lic = (await rows(`cf_licenses?key=eq.${enc(key)}&select=*`))[0];
   if (!lic) {
-    const p = await gumroadVerify(cfg, key);
-    if (!p) return { error: 'invalid_key' };
-    if (badPurchase(p)) return { error: 'refunded' };
+    const v = await verifyKey(cfg, key);                 // Gumroad (international) or SupportKori (Bangladesh)
+    if (v.error) return { error: v.error };
     lic = (await db('cf_licenses', { method: 'POST', headers: { Prefer: 'return=representation' }, body: {
-      key, source: 'gumroad', email: clean(p.email, 120), sale_id: clean(p.sale_id, 60), seats: cfg.seats, last_checked: new Date().toISOString(),
+      key, source: v.source, email: clean(v.email, 120), sale_id: clean(v.saleId, 60), seats: cfg.seats, last_checked: new Date().toISOString(),
     } })).data[0];
-    telegram(`🎬 New CodeFlow licence activated\nKey: ${mask(key)}\nEmail: ${lic.email || '-'}\nPC: ${info.name || '-'}`);
-  } else if (lic.source === 'gumroad' && (!lic.last_checked || Date.now() - Date.parse(lic.last_checked) > 6 * 3600e3)) {
-    const p = await gumroadVerify(cfg, key);
+    telegram(`🎬 New CodeFlow licence activated (${v.source})\nKey: ${mask(key)}\nEmail: ${lic.email || '-'}\nPC: ${info.name || '-'}`);
+  } else if ((lic.source === 'gumroad' || lic.source === 'supportkori') && lic.status === 'active' && (!lic.last_checked || Date.now() - Date.parse(lic.last_checked) > 6 * 3600e3)) {
+    // re-check with the store every 6 h: a refund / disabled key stops working; a store that is down never locks anyone out
+    const v = await verifyKey(cfg, key, lic.source);
     const patch = { last_checked: new Date().toISOString() };
-    if (p && badPurchase(p)) patch.status = 'refunded';
+    if (v.error === 'refunded') patch.status = 'refunded';
+    else if (v.error === 'revoked') patch.status = 'revoked';
     await db(`cf_licenses?key=eq.${enc(key)}`, { method: 'PATCH', body: patch });
     if (patch.status) lic.status = patch.status;
   }
@@ -171,6 +219,13 @@ export default async function handler(req, res) {
   if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }
   const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   const action = String(b.action || '');
+  // public: which price + shop this visitor should see (the website and the panel ask; no computer id needed)
+  if (action === 'info') {
+    try {
+      const cfg = await config(), bi = buyInfo(cfg, req);
+      return res.status(200).json({ ok: true, region: bi.region, price: bi.price, buyUrl: bi.buyUrl, intlPrice: cfg.priceIntl, bdPrice: cfg.priceBd });
+    } catch (e) { return res.status(500).json({ ok: false, error: 'server_error' }); }
+  }
   const machine = String(b.machine || '').toLowerCase(), nonce = String(b.nonce || '');
   const info = { name: clean(b.name, 60), ae: clean(b.ae, 20), ext: clean(b.ext, 20) };
   if (!MACHINE_RE.test(machine) || !NONCE_RE.test(nonce) || !VERSION_RE.test(info.ext)) return res.status(400).json({ ok: false, error: 'bad_request' });
@@ -180,8 +235,9 @@ export default async function handler(req, res) {
     const cfg = await config();
     const key = normKey(b.key);
     const now = Math.floor(Date.now() / 1000);
+    const bi = buyInfo(cfg, req);                         // price + shop for this visitor's country
     const reply = (payload) => res.status(200).json({ ok: true, token: sign(cfg, Object.assign({ v: 1, machine, nonce, iat: now, ext: info.ext }, payload)) });
-    const fail = (error, extra) => res.status(200).json(Object.assign({ ok: false, error, buyUrl: cfg.buyUrl, token: sign(cfg, { v: 1, machine, nonce, iat: now, ext: info.ext, error }) }, extra || {}));
+    const fail = (error, extra) => res.status(200).json(Object.assign({ ok: false, error, buyUrl: bi.buyUrl, price: bi.price, token: sign(cfg, { v: 1, machine, nonce, iat: now, ext: info.ext, error }) }, extra || {}));
 
     // start of a panel / bridge session: licence (or trial) check, gives the builder's content key
     if (action === 'session') {
@@ -190,11 +246,11 @@ export default async function handler(req, res) {
       if (key) {
         const c = await checkLicense(cfg, key, machine, info, ip, { register: true });
         if (c.error) return fail(c.error, c.seats ? { seats: c.seats } : null);
-        return reply({ mode: 'licensed', key: mask(key), exp: now + cfg.sessionHours * 3600, ck: contentKey(cfg, info.ext), buyUrl: cfg.buyUrl, update });
+        return reply({ mode: 'licensed', key: mask(key), exp: now + cfg.sessionHours * 3600, ck: contentKey(cfg, info.ext), buyUrl: bi.buyUrl, price: bi.price, update });
       }
       const t = await trialState(cfg, machine, info, ip);
       const remaining = Math.max(0, cfg.trialBuilds - t.used);
-      return reply({ mode: 'trial', remaining, limit: cfg.trialBuilds, exp: now + cfg.sessionHours * 3600, ck: remaining > 0 ? contentKey(cfg, info.ext) : null, buyUrl: cfg.buyUrl, update });
+      return reply({ mode: 'trial', remaining, limit: cfg.trialBuilds, exp: now + cfg.sessionHours * 3600, ck: remaining > 0 ? contentKey(cfg, info.ext) : null, buyUrl: bi.buyUrl, price: bi.price, update });
     }
 
     // before every build: licensed -> still valid on this computer; trial -> uses one free build
