@@ -84,6 +84,10 @@
     .cf-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent-2); font-weight: 600; font-size: 14.5px; margin-top: 14px; }
     .cf-link:hover { text-decoration: underline; }
     .cf-need { max-width: 960px; margin: 22px auto 0; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .cf-tip { max-width: 960px; margin: 18px auto 0; padding: 14px 18px; border-radius: 14px; display: flex; gap: 14px; align-items: flex-start;
+      border: 1px solid rgba(91,127,255,0.32); background: rgba(47,91,255,0.09); color: #cfd9ff; font-size: 14px; line-height: 1.55; }
+    .cf-tip > b { flex: none; padding: 2px 10px; border-radius: 999px; background: rgba(91,127,255,0.22); color: #fff; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+    .cf-tip span b { color: #fff; font-weight: 600; }
     .cf-need span { font-size: 13px; color: var(--muted); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); }
 
     /* buy card (same look as the UI Flow Pro card) */
@@ -336,10 +340,11 @@
         </div>
       </div>
       <div class="cf-need">
-        <span>Claude Code or the Claude desktop app</span>
+        <span>Claude desktop app (Code tab) or Claude Code</span>
         <span>Node.js 18 or newer</span>
         <span>Google Chrome or Edge (for previews)</span>
       </div>
+      <div class="cf-tip"><b>Tip</b><span>For the best speed, run Claude <b>on your own computer</b>: open the Claude desktop app, go to the <b>Code</b> tab and choose <b>Local</b> (or use Claude Code in a terminal). The Code tab on claude.ai in a browser runs in the cloud, so it can't see your files and is much slower.</span></div>
     </div>
   </section>
 
@@ -435,7 +440,7 @@
         <details>
           <summary>Do I need Claude?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">Yes. CodeFlow opens the files that Claude makes with the free CodeFlow skill. For the best results use Claude Code or the Code tab of the Claude desktop app, because Claude can then preview and check its work on your computer. CodeFlow adds no AI cost of its own.</p>
+            <p style="color:var(--muted)">Yes. CodeFlow opens the files that Claude makes with the free CodeFlow skill. For the best results use the <b>Code tab of the Claude desktop app with Local selected</b>, or Claude Code in a terminal, because Claude can then preview and check its work on your own computer. The Code tab in a web browser runs in the cloud, so it is much slower, and normal Claude chat can't run the tools at all. CodeFlow adds no AI cost of its own.</p>
           </div>
         </details>
         <details>
