@@ -30,8 +30,9 @@ const rows = async (path) => (await db(path)).data || [];
 const enc = encodeURIComponent;
 
 let CFG = null, CFG_AT = 0;
+const CFG_TTL = +(process.env.CODEFLOW_CONFIG_TTL || 60000);   // how long config (incl. the update popup) is cached
 async function config() {
-  if (CFG && Date.now() - CFG_AT < 60000) return CFG;
+  if (CFG && Date.now() - CFG_AT < CFG_TTL) return CFG;
   const list = await rows('cf_config?select=k,v');
   const c = {}; for (const r of list) c[r.k] = r.v;
   CFG = {
@@ -43,9 +44,28 @@ async function config() {
     sessionHours: +(c.session_hours || 12),
     deactivationsPer30d: +(c.deactivations_per_30d || 3),
     buyUrl: c.buy_url || 'https://aeflowtools.gumroad.com',
+    update: {
+      latest: c.latest_version || '',
+      url: c.download_url || 'https://aeflowtools.com/codeflow',
+      required: String(c.update_required) === 'true',
+      title: c.update_title || 'Update available',
+      message: c.update_message || '',
+    },
   };
   CFG_AT = Date.now();
   return CFG;
+}
+
+// is the running extension older than the latest released version? (semver compare, missing = no update)
+function updateInfo(cfg, extVersion) {
+  const u = cfg.update;
+  if (!u.latest) return null;
+  const parse = (v) => String(v).split('.').map(n => parseInt(n, 10) || 0);
+  const [a, b] = [parse(u.latest), parse(extVersion)];
+  let older = false;
+  for (let i = 0; i < 3; i++) { if ((b[i] || 0) < (a[i] || 0)) { older = true; break; } if ((b[i] || 0) > (a[i] || 0)) break; }
+  if (!older) return null;
+  return { latest: u.latest, url: u.url, required: u.required, title: u.title, message: u.message };
 }
 
 // signed token: base64url(JSON) + '.' + base64url(Ed25519 signature)
@@ -166,20 +186,23 @@ export default async function handler(req, res) {
     // start of a panel / bridge session: licence (or trial) check, gives the builder's content key
     if (action === 'session') {
       await log('session', ip, { license_key: key || null, machine, detail: info });
+      const update = updateInfo(cfg, info.ext);
       if (key) {
         const c = await checkLicense(cfg, key, machine, info, ip, { register: true });
         if (c.error) return fail(c.error, c.seats ? { seats: c.seats } : null);
-        return reply({ mode: 'licensed', key: mask(key), exp: now + cfg.sessionHours * 3600, ck: contentKey(cfg, info.ext), buyUrl: cfg.buyUrl });
+        return reply({ mode: 'licensed', key: mask(key), exp: now + cfg.sessionHours * 3600, ck: contentKey(cfg, info.ext), buyUrl: cfg.buyUrl, update });
       }
       const t = await trialState(cfg, machine, info, ip);
       const remaining = Math.max(0, cfg.trialBuilds - t.used);
-      return reply({ mode: 'trial', remaining, limit: cfg.trialBuilds, exp: now + cfg.sessionHours * 3600, ck: remaining > 0 ? contentKey(cfg, info.ext) : null, buyUrl: cfg.buyUrl });
+      return reply({ mode: 'trial', remaining, limit: cfg.trialBuilds, exp: now + cfg.sessionHours * 3600, ck: remaining > 0 ? contentKey(cfg, info.ext) : null, buyUrl: cfg.buyUrl, update });
     }
 
     // before every build: licensed -> still valid on this computer; trial -> uses one free build
     if (action === 'build') {
       const s = readToken(cfg, b.session);
       if (!s || s.machine !== machine || !s.exp || s.exp < now || s.error) return fail('session_expired');
+      const up = updateInfo(cfg, info.ext);               // a REQUIRED update blocks building on the old version
+      if (up && up.required) return fail('update_required', { update: up });
       if (s.mode === 'licensed') {
         if (!key || mask(key) !== s.key) return fail('session_expired');
         const c = await checkLicense(cfg, key, machine, info, ip, { register: false });
