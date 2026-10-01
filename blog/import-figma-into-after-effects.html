@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Meta Pixel -->
+  <script src="/meta-pixel.js"></script>
+  <title>How to Import Figma into After Effects (2026 Guide) | AE Flow Tools</title>
+  <meta name="description" content="4 ways to get Figma designs into After Effects — SVG/PNG export, rebuilding by hand, AEUX and UI Flow — compared, plus a step-by-step guide to importing Figma as fully editable AE layers." />
+  <link rel="canonical" href="https://www.aeflowtools.com/blog/import-figma-into-after-effects" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="author" content="Arafat Miraz" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="AE Flow Tools" />
+  <meta property="og:title" content="How to Import Figma into After Effects (2026 Guide)" />
+  <meta property="og:description" content="Every way to move Figma designs into After Effects, compared — and how to bring them in as fully editable layers in one click." />
+  <meta property="og:url" content="https://www.aeflowtools.com/blog/import-figma-into-after-effects" />
+  <meta property="og:image" content="https://www.aeflowtools.com/uiflow/assets/uiflow-1.png" />
+  <meta property="article:published_time" content="2026-10-01" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How to Import Figma into After Effects (2026 Guide)" />
+  <meta name="twitter:description" content="Every way to move Figma designs into After Effects, compared — plus a one-click method that keeps every layer editable." />
+  <meta name="twitter:image" content="https://www.aeflowtools.com/uiflow/assets/uiflow-1.png" />
+
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "How to Import Figma into After Effects (2026 Guide)",
+    "description": "4 ways to get Figma designs into After Effects compared, plus a step-by-step guide to importing Figma as fully editable AE layers.",
+    "image": "https://www.aeflowtools.com/uiflow/assets/uiflow-1.png",
+    "datePublished": "2026-10-01",
+    "dateModified": "2026-10-01",
+    "author": { "@type": "Person", "name": "Arafat Miraz", "url": "https://www.aeflowtools.com/" },
+    "publisher": { "@type": "Organization", "name": "AE Flow Tools", "url": "https://www.aeflowtools.com", "logo": { "@type": "ImageObject", "url": "https://www.aeflowtools.com/favicon.png" } },
+    "mainEntityOfPage": "https://www.aeflowtools.com/blog/import-figma-into-after-effects"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.aeflowtools.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.aeflowtools.com/blog" },
+      { "@type": "ListItem", "position": 3, "name": "How to Import Figma into After Effects", "item": "https://www.aeflowtools.com/blog/import-figma-into-after-effects" }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Can you import Figma files directly into After Effects?", "acceptedAnswer": { "@type": "Answer", "text": "Not natively. After Effects can't open .fig files. You either export images or SVGs from Figma (which arrive flat), or use a plugin such as UI Flow or AEUX that rebuilds the design as After Effects layers." } },
+      { "@type": "Question", "name": "Does text stay editable when you move Figma to After Effects?", "acceptedAnswer": { "@type": "Answer", "text": "Only with a plugin that rebuilds layers. PNG and SVG exports turn text into pixels or outlines. UI Flow brings text across as live After Effects text layers, including mixed styles and gradient text." } },
+      { "@type": "Question", "name": "Why does my text look different in After Effects?", "acceptedAnswer": { "@type": "Answer", "text": "After Effects uses the fonts installed on your computer. If a font from your Figma file isn't installed, AE swaps in a fallback. Install the same fonts locally and send the design again." } },
+      { "@type": "Question", "name": "Do I need to remove Auto Layout before exporting?", "acceptedAnswer": { "@type": "Answer", "text": "It's recommended. In UI Flow, run Prep for AE on the frame first; it removes Auto Layout, detaches components and styles, and deletes hidden layers so the export lands cleanly." } },
+      { "@type": "Question", "name": "Can I bring Figma animations into After Effects?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. UI Flow's Motion transfer (beta) sends animation made in Figma into After Effects as real keyframes you can keep editing on the timeline." } }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="glow g1"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <img class="logo-lockup" src="/brand/aeflowtools-lockup-dark.svg" alt="AE Flow Tools" width="151" height="28" />
+      </a>
+      <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+      <div class="nav-links" id="navlinks">
+        <a href="/">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
+          <div class="dropdown-menu">
+            <a href="/uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
+          </div>
+        </div>
+        <a href="/blog" class="active">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="wrap">
+      <div class="crumbs"><a href="/">Home</a> / <a href="/blog">Blog</a> / Guide</div>
+      <h1>How to Import Figma into After Effects (2026 Guide)</h1>
+      <p class="dek">You've designed the screens in Figma. Now you need them moving in After Effects, without spending half a day rebuilding every layer. Here are the four ways to do it, what each one keeps and breaks, and the fastest way to get fully editable layers.</p>
+      <div class="byline">
+        <div class="av">AM</div>
+        <div><strong>Arafat Miraz</strong> · Motion designer, creator of UI Flow<br />Updated Oct 1, 2026 · 8 min read</div>
+      </div>
+    </div>
+
+    <div class="wrap prose">
+      <div class="callout">
+        <span class="lbl">Quick answer</span>
+        After Effects can't open Figma files on its own. Exporting PNG or SVG works, but everything arrives flat: no editable text, broken gradients and masks. To get <strong>real, editable AE layers</strong>, use a Figma-to-After-Effects plugin. With <a href="/uiflow">UI Flow</a>, you select a frame in Figma, click <strong>Send to Ae</strong>, and it's rebuilt as native shape, text and image layers in one click.
+      </div>
+
+      <nav class="toc" aria-label="Contents">
+        <span class="lbl">In this guide</span>
+        <ol>
+          <li><a href="#why">Why Figma to After Effects is harder than it should be</a></li>
+          <li><a href="#methods">The 4 ways to do it, compared</a></li>
+          <li><a href="#step-by-step">Step by step: Figma to editable AE layers with UI Flow</a></li>
+          <li><a href="#motion">Bonus: bring your Figma animation across too</a></li>
+          <li><a href="#problems">Common problems (and fixes)</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="why">Why Figma to After Effects is harder than it should be</h2>
+      <p>Figma and After Effects describe a design in completely different ways. Figma thinks in frames, Auto Layout, components, and fills stacked on a single layer. After Effects thinks in compositions, shape layers, text layers, masks, and effects.</p>
+      <p>There's no "open .fig" option in After Effects, and Adobe doesn't ship a bridge. So every route is really a translation, and how much survives depends on who's doing the translating:</p>
+      <ul>
+        <li><strong>Text</strong>: does it stay live and editable, or turn into pixels and outlines?</li>
+        <li><strong>Shapes</strong>: do rectangles stay rectangles with real corner radius, or become a flat image?</li>
+        <li><strong>Styling</strong>: do gradients, per-side strokes, shadows, blurs and masks look the same?</li>
+        <li><strong>Structure</strong>: are the layers named and grouped so you can actually animate them?</li>
+      </ul>
+      <p>If any of those break, you end up fixing or rebuilding by hand, and that's the time you were trying to save.</p>
+
+      <h2 id="methods">The 4 ways to get Figma into After Effects</h2>
+
+      <h3>1. Export PNG or SVG and import it</h3>
+      <p>The built-in route: select a frame in Figma, export it as PNG or SVG, then drag the file into After Effects. It's free and takes seconds.</p>
+      <p>The catch: it arrives as <strong>one flat footage layer</strong>. Text isn't editable, you can't animate individual buttons or cards, and complex fills often don't survive. You can export every element separately, but then you're lining up dozens of files by hand. Fine for a static background, painful for UI animation.</p>
+
+      <h3>2. Rebuild the design by hand in After Effects</h3>
+      <p>Many motion designers still do this: keep the Figma file open on a second screen and redraw every shape, text box and shadow in AE. The result is clean and fully editable, because you built it.</p>
+      <p>The catch: <strong>it's slow</strong>. A single app screen can take one to three hours, and every design revision from the client means doing part of it again.</p>
+
+      <h3>3. AEUX</h3>
+      <p>AEUX is a free, open-source plugin pair (Figma + After Effects) that has helped a lot of designers move UI into AE. For simple layouts with basic shapes and text, it does a good job.</p>
+      <p>The catch: on real-world designs, more complex styling often doesn't come across as designed. In our side-by-side tests, mixed text doubled up and shifted, image masks were ignored, image strokes drifted, drop shadows landed in the wrong place, and soft blurs turned into hard squares. You can see the exact results in the comparison below.</p>
+
+      <h3>4. UI Flow</h3>
+      <p><a href="/uiflow">UI Flow</a> is a Figma plugin plus an After Effects extension built for one job: rebuild the Figma design inside AE as <strong>native, editable layers that match the original</strong>. Shapes become shape layers, text stays live text (including mixed styles and gradient text), and shadows, blurs, masks and blend modes are rebuilt as real AE effects. Nothing gets flattened unless you ask for it.</p>
+      <p>The catch: it's a two-part install (Figma plugin + AE extension)<span class="intl-only">, and the free plan includes 25 exports every 30 days. After that it's a one-time <a href="/uiflow/pro">lifetime license</a>, not a subscription</span><span class="bd-only">. The good news: it's completely free for everyone in Bangladesh, with no limits</span>.</p>
+
+      <h3>Side by side</h3>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>Method</th><th>Editable text</th><th>Editable shapes</th><th>Effects &amp; masks</th><th>Speed</th><th>Cost</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>PNG / SVG export</td><td class="n">No</td><td class="n">No</td><td class="n">Flattened</td><td class="y">Fast</td><td>Free</td></tr>
+            <tr><td>Rebuild by hand</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="n">Hours</td><td>Your time</td></tr>
+            <tr><td>AEUX</td><td class="m">Basic text</td><td class="y">Yes</td><td class="m">Often off</td><td class="y">Fast</td><td>Free</td></tr>
+            <tr class="hl"><td>UI Flow</td><td class="y">Yes, incl. mixed &amp; gradient</td><td class="y">Yes</td><td class="y">Rebuilt as AE effects</td><td class="y">One click</td><td>Free tier · one-time Pro</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- real comparison: same frames exported both ways -->
+    <div class="wide" style="margin-top:34px;">
+      <div class="vs" data-vs></div>
+    </div>
+
+    <div class="wrap prose" style="margin-top:34px;">
+      <p>Same Figma frames, exported with UI Flow and with AEUX. Pick a case to compare, and click any image to zoom in.</p>
+
+      <div class="post-cta">
+        <div>
+          <h4>Try it on your own design</h4>
+          <p>Free to start · Windows &amp; macOS · AE 2019 to 2026</p>
+        </div>
+        <a class="btn btn-primary" href="/uiflow/tools">Download UI Flow free <span class="arrow">→</span></a>
+      </div>
+
+      <h2 id="step-by-step">Step by step: import Figma into After Effects with UI Flow</h2>
+      <p>Here's the full workflow, from install to editable layers. Setup takes about five minutes the first time. After that, every export is one click.</p>
+
+      <ol class="steps">
+        <li><strong>Download the After Effects extension</strong>Grab the latest version from the <a href="/uiflow/tools">download page</a>. It's a ZIP containing a <code>.zxp</code> file, the standard format for AE extensions.</li>
+        <li><strong>Install the ZXP</strong>Use a ZXP installer (for example the free aescripts ZXP Installer). Open it, drag in the <code>.zxp</code> file, and restart After Effects.</li>
+        <li><strong>Add the Figma plugin</strong>Open the <a href="https://www.figma.com/community/plugin/1605150908629430996/ui-flow" target="_blank" rel="noopener">UI Flow plugin on Figma Community</a> and click <strong>Open in…</strong> / <strong>Save</strong>. It then shows up under <strong>Plugins</strong> in any file.</li>
+        <li><strong>Allow scripts in After Effects</strong>One-time setting: in AE go to <kbd>Edit → Preferences → Scripting &amp; Expressions</kbd> (on Mac, <kbd>After Effects → Settings</kbd>) and turn on <strong>Allow Scripts to Write Files and Access Network</strong>.</li>
+        <li><strong>Open the UI Flow panel in AE</strong>Go to <kbd>Window → Extensions → UI Flow</kbd>. Keep the panel open: it's what receives your design.</li>
+        <li><strong>Prep your frame in Figma</strong>Run the plugin, select your frame and click <strong>Prep for AE</strong>. It removes Auto Layout, detaches components and styles, and deletes hidden layers. It's optional for simple frames, but it prevents most surprises.</li>
+        <li><strong>Click "Send to Ae"</strong>With the frame selected, click <strong>Send to Ae</strong>. Switch to After Effects and your design is there as a composition, with every shape, text box and image on its own named layer.</li>
+      </ol>
+
+      <figure class="figure">
+        <div class="frame"><iframe src="/uiflow/transfer-demo.html" title="UI Flow: Figma to After Effects transfer demo" loading="lazy"></iframe></div>
+        <figcaption>What Send to Ae does: the Figma frame rebuilt layer by layer in After Effects.</figcaption>
+      </figure>
+
+      <h3>Handy extras in the Figma panel</h3>
+      <ul>
+        <li><strong>Reference guide</strong>: adds a 50% opacity snapshot of the frame on top, so you can check your animation lines up with the original.</li>
+        <li><strong>Flag as PNG</strong>: mark any layer (a complex illustration, a 3D render) to come across as a flat image while everything else stays editable.</li>
+        <li><strong>Guide image only</strong>: sends just a picture of the frame when you don't need the layers.</li>
+      </ul>
+
+      <h2 id="motion">Bonus: bring your Figma animation across too</h2>
+      <p>If you've started animating in Figma, you don't have to redo it. UI Flow's <strong>Motion transfer</strong> (beta) sends the animation as <strong>real After Effects keyframes</strong>, not a baked video. Position, scale, opacity and the rest land on the timeline, ready to refine with proper easing, motion blur and everything else AE does better.</p>
+      <p>You can watch both modes, static and motion, in the <a href="/uiflow#demo">interactive demo on the UI Flow page</a>.</p>
+
+      <h2 id="problems">Common problems (and how to fix them)</h2>
+
+      <h3>Text shows up in the wrong font</h3>
+      <p>After Effects uses fonts installed on <em>your computer</em>, while Figma can use web fonts. If the font isn't installed locally, AE swaps in a fallback. Install the same fonts (Google Fonts are free to download), then send again. UI Flow shows a missing-font alert after each transfer so you know which ones to grab.</p>
+
+      <h3>Nothing arrives in After Effects</h3>
+      <ul>
+        <li>Check the UI Flow panel is <strong>open</strong> in AE when you click Send. It has to be running to receive the design.</li>
+        <li>Check that <strong>Allow Scripts to Write Files and Access Network</strong> is turned on (step 4).</li>
+      </ul>
+
+      <h3>Layout shifts or extra layers</h3>
+      <p>Usually caused by Auto Layout, component instances, or hidden layers. Run <strong>Prep for AE</strong> on a duplicate of the frame, then send that copy, and your original stays untouched.</p>
+
+      <h3>Rotated images with strokes look slightly off</h3>
+      <p>Images that are rotated <em>in Figma</em> and also have a stroke can come across slightly larger. The cleanest fix: keep the card unrotated in Figma and rotate it in After Effects, where you'll probably animate it anyway.</p>
+
+      <div class="callout warn">
+        <span class="lbl">Tip</span>
+        Name your layers in Figma before you send. "Button / Primary" is far easier to find on an AE timeline than "Rectangle 214".
+      </div>
+
+      <h2 id="faq">FAQ</h2>
+      <details class="faq-q" open>
+        <summary>Can you import Figma files directly into After Effects?</summary>
+        <div>Not natively. After Effects can't open .fig files. You either export images or SVGs from Figma (which arrive flat), or use a plugin like UI Flow or AEUX that rebuilds the design as After Effects layers.</div>
+      </details>
+      <details class="faq-q">
+        <summary>Does text stay editable?</summary>
+        <div>Only with a plugin that rebuilds layers. PNG and SVG exports turn text into pixels or outlines. UI Flow brings text across as live AE text layers, including mixed styles and gradient text.</div>
+      </details>
+      <details class="faq-q">
+        <summary>Which After Effects versions does UI Flow support?</summary>
+        <div>After Effects CC 2019 (16.x) through AE 2026 and newer, on both Windows and macOS.</div>
+      </details>
+      <details class="faq-q">
+        <summary>Do I need to remove Auto Layout first?</summary>
+        <div>It's recommended. Run <strong>Prep for AE</strong> on the frame; it removes Auto Layout, detaches components and styles, and deletes hidden layers so the export lands cleanly.</div>
+      </details>
+      <details class="faq-q">
+        <summary>Can I bring Figma animations into After Effects?</summary>
+        <div>Yes. UI Flow's Motion transfer (beta) sends animation made in Figma into After Effects as real keyframes you can keep editing.</div>
+      </details>
+
+      <h2>The bottom line</h2>
+      <p>For a quick static background, a PNG export is fine. For anything you actually want to animate, like UI screens, product demos, or app promos, you want real layers. Rebuilding by hand gets you there slowly. A plugin gets you there in one click, and the one you pick decides how much cleanup you do afterwards.</p>
+      <p>UI Flow was built because I was tired of fixing broken exports before I could even start animating. Try it free on your next project and see what comes across.</p>
+
+      <div class="post-cta">
+        <div>
+          <h4>Send your first Figma frame to After Effects</h4>
+          <p>Try it for free</p>
+        </div>
+        <a class="btn btn-primary" href="/uiflow/tools">Download UI Flow free <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="/"><img class="logo-lockup" src="/brand/aeflowtools-lockup-dark.svg" alt="AE Flow Tools" width="151" height="28" /></a>
+        <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/uiflow/">UI Flow</a>
+        <a href="/blog">Blog</a>
+        <a href="/uiflow/tools">Download</a>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/uiflow.ae" target="_blank" rel="noopener" aria-label="Instagram" title="@uiflow.ae">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="mailto:contact@aeflowtools.com" aria-label="Email" title="contact@aeflowtools.com">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox (comparison image preview) -->
+  <div class="lb-overlay" id="lbOverlay">
+    <button class="lb-close" id="lbClose" aria-label="Close">×</button>
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image">‹</button>
+    <img class="lb-img" id="lbImg" src="" alt="" />
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Next image">›</button>
+    <div class="lb-cap" id="lbCap"></div>
+  </div>
+
+  <script src="/uiflow/compare.js" defer></script>
+  <script>
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('.dropdown').forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove('open');
+      });
+    });
+    // Meta Pixel: track which article sends people to the download page
+    document.querySelectorAll('a[href="/uiflow/tools"]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        try { window.fbq && fbq('trackCustom', 'BlogToDownload', { post: 'import-figma-into-after-effects' }); } catch (e) {}
+      });
+    });
+    // Bangladesh visitors: UI Flow is fully free there, so swap the pricing lines
+    fetch('/api/geo').then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.country === 'BD') {
+        document.querySelectorAll('.bd-only').forEach(function (el) { el.classList.remove('bd-only'); });
+        document.querySelectorAll('.intl-only').forEach(function (el) { el.style.display = 'none'; });
+      }
+    }).catch(function () {});
+  </script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>UI Flow Transfer Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!--
+  UI Flow — Figma → After Effects transfer demo (looping, fully coded).
+  Embed on the site with:
+    <iframe src="/uiflow/transfer-demo.html" style="width:100%;aspect-ratio:16/9;border:0" loading="lazy" title="UI Flow demo"></iframe>
+  URL options:  ?bg=none      transparent background, no border (blend into your own card)
+                ?captions=0   hide the step captions
+-->
+<style>
+:root{
+  --bg:#09090b; --border:#1f1f23; --accent:#3b82f6;
+  --fig-ui:#2c2c2c; --fig-line:#383838; --fig-canvas:#1e1e1e; --fig-blue:#0d99ff;
+  --ae-bg:#161616; --ae-panel:#232323; --ae-head:#2a2a2a; --ae-blue:#2d8ceb;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);height:100%}
+body{display:flex;align-items:center;justify-content:center;font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+body.bare,body.bare .uf-demo{background:transparent;border:0}
+
+.uf-demo{position:relative;width:min(100vw,177.78vh);aspect-ratio:16/9;overflow:hidden;background:radial-gradient(60% 55% at 50% 0%,rgba(59,130,246,.14),transparent 70%),var(--bg);border:1px solid var(--border);border-radius:16px}
+@supports not (aspect-ratio:16/9){.uf-demo{height:56.25vw}}
+.stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;color:#e6e6e6;user-select:none;pointer-events:none}
+.abs{position:absolute}
+svg{display:block}
+
+/* ---------- captions ---------- */
+.cap{position:absolute;left:50%;top:20px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;height:36px;padding:0 16px 0 6px;border-radius:999px;background:#111113;border:1px solid #2a2a30;font-size:15px;font-weight:600;color:#fafafa;white-space:nowrap;opacity:0}
+.cap b{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700}
+.cap span{color:#a1a1aa;font-weight:500}
+.wlabel{position:absolute;top:138px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:1.4px;color:#a1a1aa;opacity:0}
+.aebadge{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:#00005b;color:#9999ff;font-size:11px;font-weight:800;letter-spacing:0;border:1px solid #9999ff55}
+
+/* ---------- windows ---------- */
+.win{position:absolute;left:0;top:0;width:900px;height:620px;border-radius:12px;overflow:hidden;transform-origin:0 0;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.07)}
+
+/* Figma */
+.fwin{background:var(--fig-canvas)}
+.f-top{position:absolute;left:0;top:0;right:0;height:40px;background:var(--fig-ui);border-bottom:1px solid var(--fig-line);display:flex;align-items:center;padding:0 10px;gap:4px}
+.f-tool{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#cfcfcf}
+.f-tool.on{background:var(--fig-blue);color:#fff}
+.f-file{position:absolute;left:50%;transform:translateX(-50%);font-size:12px;color:#bdbdbd;font-weight:500}
+.f-file i{font-style:normal;color:#fff}
+.f-share{margin-left:auto;background:var(--fig-blue);color:#fff;font-size:11px;font-weight:600;border-radius:6px;padding:6px 12px}
+.f-left{position:absolute;left:0;top:40px;width:210px;bottom:0;background:var(--fig-ui);border-right:1px solid var(--fig-line)}
+.f-right{position:absolute;right:0;top:40px;width:200px;bottom:0;background:var(--fig-ui);border-left:1px solid var(--fig-line)}
+.f-tabs{display:flex;gap:14px;padding:12px 14px;font-size:11px;font-weight:600;color:#8c8c8c;border-bottom:1px solid var(--fig-line)}
+.f-tabs .on{color:#fff}
+.f-sec{padding:10px 14px 4px;font-size:11px;font-weight:600;color:#fff}
+.f-row{display:flex;align-items:center;gap:7px;height:26px;padding:0 10px 0 14px;font-size:11px;color:#e3e3e3;white-space:nowrap}
+.f-row .ic{width:12px;color:#9a9a9a;display:flex;justify-content:center}
+.f-row.child{padding-left:34px}
+.f-row.page{color:#fff;background:#383838;margin:0 8px;border-radius:5px;padding-left:10px}
+.f-props{padding:4px 14px;font-size:11px;color:#bbb}
+.f-props .grp{padding:10px 0;border-bottom:1px solid var(--fig-line)}
+.f-props .ttl{color:#fff;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between}
+.f-props .ttl i{font-style:normal;color:#8c8c8c;font-weight:400}
+.f-in{display:inline-flex;align-items:center;gap:6px;width:78px;height:26px;padding:0 8px;border-radius:5px;background:#383838;color:#eee;margin:0 4px 6px 0}
+.f-in em{font-style:normal;color:#8c8c8c}
+.sw{width:14px;height:14px;border-radius:3px;border:1px solid #555}
+.f-lbl{position:absolute;font-size:11px;font-weight:500;color:#9a9a9a;white-space:nowrap}
+.sel{position:absolute;border:1.5px solid var(--fig-blue);opacity:0}
+.sel i{position:absolute;width:7px;height:7px;background:#fff;border:1.5px solid var(--fig-blue)}
+.sel .dim{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);background:var(--fig-blue);color:#fff;font-size:10px;font-weight:600;padding:3px 6px;border-radius:3px;white-space:nowrap}
+
+/* UI Flow Figma plugin (matches dist/ui.html) */
+.plug{position:absolute;width:300px;border-radius:10px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.1)}
+.plug-h{height:40px;background:var(--fig-ui);display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:600;color:#fff;gap:8px;border-bottom:1px solid var(--fig-line)}
+.plug-h .x{margin-left:auto;color:#9a9a9a;font-size:14px}
+.plug-b{background:#0f1623;padding:12px 14px 14px;font-family:"Roboto Mono",Inter,sans-serif}
+.lic{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:9px;font-weight:700;letter-spacing:.6px;color:#34d399}
+.lic b{display:inline-block;width:6px;height:6px;border-radius:50%;background:#34d399;margin-right:5px;vertical-align:1px}
+.send-row{display:flex;gap:8px;height:46px}
+.btn-primary{position:relative;flex:1;display:flex;align-items:center;gap:10px;padding:0 16px;border-radius:10px;background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%);border:1px solid rgba(99,179,254,.3);box-shadow:0 4px 16px rgba(59,130,246,.3);color:#fff;font-size:12px;font-weight:600;overflow:hidden}
+.btn-primary svg{width:16px;height:16px;fill:#fff;flex:none}
+.btn-primary .glow{position:absolute;inset:0;background:rgba(255,255,255,.18);opacity:0}
+.btn-primary .bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:#bfdbfe}
+.btn-prep,.btn-sec{display:flex;align-items:center;justify-content:center;border-radius:10px;background:#1a2540;border:1px solid #2a3d66}
+.btn-prep{width:72px}
+.btn-prep svg,.btn-sec svg{width:16px;height:16px;fill:#3b82f6}
+.btn-grid{display:flex;gap:6px;margin-top:8px;height:39px}
+.btn-sec{flex:1}
+.plug-f{text-align:center;margin-top:14px;font-size:9px;font-weight:600;color:#475569}
+
+/* After Effects */
+.awin{background:#0f0f0f}
+.a-top{position:absolute;left:0;top:0;right:0;height:28px;background:var(--ae-panel);display:flex;align-items:center;gap:14px;padding:0 10px;font-size:11px;color:#b5b5b5;border-bottom:1px solid #0f0f0f}
+.a-top .aebadge{width:18px;height:18px;font-size:9px;border-radius:4px}
+.pnl{position:absolute;background:var(--ae-panel);border-radius:4px;overflow:hidden}
+.pnl-h{height:24px;background:var(--ae-head);display:flex;align-items:center;padding:0 10px;font-size:11px;color:#d4d4d4;gap:6px;border-bottom:1px solid #1a1a1a}
+.pnl-h .blueline{position:absolute;left:0;top:0;height:2px;width:100%;background:var(--ae-blue)}
+.pnl-h em{font-style:normal;color:#8a8a8a}
+.pitem{display:flex;align-items:center;gap:7px;height:20px;padding:0 10px;font-size:11px;color:#cfcfcf;white-space:nowrap}
+.pitem .ico{width:14px;height:11px;border-radius:2px}
+.viewer{position:absolute;left:0;right:0;top:24px;bottom:20px;background:#1a1a1a;overflow:hidden}
+.vbar{position:absolute;left:0;right:0;bottom:0;height:20px;background:var(--ae-panel);display:flex;align-items:center;gap:12px;padding:0 10px;font-size:10px;color:#9a9a9a;border-top:1px solid #151515}
+.vbar .tc{color:var(--ae-blue);font-variant-numeric:tabular-nums}
+.compbox{position:absolute;box-shadow:0 0 0 1px #000}
+
+/* UI Flow AE panel (matches AE dist/index.html) */
+.ufp{position:absolute;left:0;right:0;top:24px;bottom:0;background:#18181f;font-family:"Open Sans",Inter,sans-serif;color:#e2e2ea}
+.ufp-top{display:flex;align-items:center;padding:8px 10px 6px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ufp-logo{font-size:13px;font-weight:800;letter-spacing:.5px;color:#fff}
+.ufp-logo span{color:#3b82f6}
+.ufp-fig{margin-left:auto;height:22px;padding:0 8px;border-radius:11px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center}
+.ufp-tabs{display:flex;padding:0 8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ufp-tab{padding:7px 8px;font-size:9px;font-weight:600;letter-spacing:.4px;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;margin-bottom:-1px}
+.ufp-tab.on{color:#93c5fd;border-bottom-color:#3b82f6}
+.ufp-beta{font-size:7px;font-weight:800;color:#f0b429;background:rgba(240,180,41,.12);border:1px solid rgba(240,180,41,.45);border-radius:3px;padding:0 3px;margin-left:4px}
+.ufp-body{padding:8px}
+.ufp-modes{display:flex;gap:4px;margin-bottom:8px}
+.ufp-mode{flex:1;height:26px;display:flex;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-size:9px;font-weight:600;border:1px solid rgba(255,255,255,.1);border-radius:6px}
+.ufp-mode.on{background:rgba(59,130,246,.2);border-color:rgba(59,130,246,.5);color:#bfdbfe}
+.ufp-sec{border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 8px;background:rgba(255,255,255,.02);margin-bottom:8px}
+.ufp-lab{font-size:8px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:6px}
+.ufp-row{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:9px;color:rgba(255,255,255,.4)}
+.ufp-row .v{margin-left:auto;color:rgba(255,255,255,.7);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:1px 6px;min-width:30px;text-align:center}
+.ufp-chk{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:9px;color:rgba(255,255,255,.6)}
+.ufp-chk i{width:11px;height:11px;border-radius:3px;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-style:normal;font-weight:700}
+.ufp-chk i.off{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.2)}
+.ufp-status{display:flex;align-items:center;gap:7px;border-radius:6px;padding:8px;font-size:9px;font-weight:600;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:rgba(255,255,255,.35)}
+.ufp-status .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);flex:none}
+.ufp-status.recv{color:#93c5fd;border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.1)}
+.ufp-status.recv .dot{background:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+.ufp-status.done{color:#86efac;border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.08)}
+.ufp-status.done .dot{background:#4ade80}
+
+/* timeline */
+.tl-ctrl{height:26px;display:flex;align-items:center;gap:14px;padding:0 10px;border-bottom:1px solid #1a1a1a}
+.tl-ctrl .tc{font-size:15px;color:var(--ae-blue);font-variant-numeric:tabular-nums;font-weight:500;letter-spacing:.3px}
+.tl-ctrl .srch{width:120px;height:16px;border-radius:8px;background:#1b1b1b;border:1px solid #333}
+.tl-head{position:absolute;left:0;right:0;top:50px;height:20px;border-bottom:1px solid #1a1a1a;font-size:10px;color:#8a8a8a}
+.tl-head .cols{position:absolute;left:0;top:0;width:290px;height:20px;display:flex;align-items:center;gap:10px;padding-left:10px;border-right:1px solid #1a1a1a}
+.tick{position:absolute;top:4px;font-size:9px;color:#8a8a8a;transform:translateX(-50%)}
+.rows{position:absolute;left:0;right:0;top:70px;bottom:0;overflow:hidden}
+.row{position:absolute;left:0;right:0;height:17px;border-bottom:1px solid #1d1d1d;opacity:0}
+.row .l{position:absolute;left:0;top:0;width:290px;height:17px;display:flex;align-items:center;gap:8px;padding-left:10px;font-size:10px;color:#d0d0d0;border-right:1px solid #1a1a1a;white-space:nowrap}
+.row .flash{position:absolute;inset:0;background:rgba(45,140,235,.35);opacity:0}
+.row .eye{width:10px;height:6px;border-radius:50%;border:1.5px solid #9a9a9a}
+.row .chip{width:9px;height:9px;border-radius:2px}
+.row .n{width:14px;color:#8a8a8a;text-align:right}
+.row .t{width:12px;color:#bdbdbd;font-weight:700;font-size:10px;text-align:center}
+.row .bar{position:absolute;top:3px;height:11px;border-radius:2px;opacity:.38}
+.dia{position:absolute;top:4.5px;width:8px;height:8px;background:#9a9a9a;transform:rotate(45deg) scale(0);margin-left:-4px;border:1px solid #111}
+.cti{position:absolute;top:50px;bottom:0;width:1px;background:var(--ae-blue)}
+.cti::before{content:"";position:absolute;left:-5px;top:2px;width:11px;height:14px;background:var(--ae-blue);clip-path:polygon(0 0,100% 0,100% 60%,50% 100%,0 60%)}
+
+/* ---------- the shared design (390x844) ---------- */
+.dz{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0;overflow:hidden;font-family:Inter,sans-serif;color:#0f172a}
+.dz .L{position:absolute}
+.card-g{background:linear-gradient(135deg,#2563eb 0%,#4f46e5 55%,#7c3aed 100%);border-radius:28px;overflow:hidden;color:#fff}
+.qa{display:flex;justify-content:space-between}
+.qa div{width:74px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:12px;font-weight:600;color:#475569}
+.qa i{width:58px;height:58px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(15,23,42,.06)}
+.tx{width:350px;height:62px;border-radius:18px;background:#fff;display:flex;align-items:center;gap:12px;padding:0 16px 0 10px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+.tx .ti{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.tx .tn{flex:1;font-size:15px;font-weight:600}
+.tx .tn small{display:block;font-size:12px;font-weight:500;color:#8a8fa3;margin-top:2px}
+.tx .ta{font-size:15px;font-weight:700}
+
+/* Figma Motion timeline */
+.fm{position:absolute;left:210px;top:458px;width:490px;height:162px;background:var(--fig-ui);border-top:1px solid var(--fig-line);display:none;overflow:hidden}
+.fm-h{height:26px;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:11px;font-weight:600;color:#fff;border-bottom:1px solid var(--fig-line)}
+.fm-h .play{width:18px;height:18px;border-radius:4px;background:#383838;display:flex;align-items:center;justify-content:center}
+.fm-h .tm{margin-left:auto;color:#bdbdbd;font-weight:500;font-variant-numeric:tabular-nums}
+.fm-ruler{position:absolute;left:0;right:0;top:26px;height:18px;border-bottom:1px solid var(--fig-line)}
+.fm-rows{position:absolute;left:0;right:0;top:44px;bottom:0;overflow:hidden}
+.fm-row{position:absolute;left:0;right:0;height:17px;font-size:10px;color:#ddd}
+.fm-row .nm{position:absolute;left:0;top:0;width:124px;height:17px;display:flex;align-items:center;gap:6px;padding-left:12px;border-right:1px solid var(--fig-line);white-space:nowrap}
+.fm-row .nm i{font-style:normal;color:#8c8c8c;width:10px;text-align:center}
+.fm-row .seg{position:absolute;top:7.5px;height:2px;background:rgba(13,153,255,.55)}
+.fm-row .kd{position:absolute;top:4.5px;width:8px;height:8px;margin-left:-4px;background:#0d99ff;transform:rotate(45deg);border:1px solid #1e1e1e}
+.fm-ph{position:absolute;top:26px;bottom:0;width:1px;background:#0d99ff}
+.fm-ph::before{content:"";position:absolute;left:-4px;top:2px;width:9px;height:12px;border-radius:2px;background:#0d99ff}
+.motion .fm{display:block}
+
+/* match overlay */
+.scan{position:absolute;overflow:hidden;opacity:0;border-radius:2px}
+.scan i{position:absolute;left:0;right:0;height:40px;background:linear-gradient(to bottom,transparent,rgba(59,130,246,.35));border-bottom:2px solid #60a5fa}
+.scan b{position:absolute;inset:0;border:2px solid #4ade80;border-radius:2px;opacity:0}
+.pill{position:absolute;left:50%;top:620px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;height:40px;padding:0 18px 0 8px;border-radius:999px;background:#0e1a12;border:1px solid rgba(74,222,128,.4);color:#dcfce7;font-size:14px;font-weight:600;white-space:nowrap;opacity:0}
+.pill b{width:26px;height:26px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center}
+.pill span{color:#86efac;font-weight:500}
+.ghost{position:absolute;left:0;top:0;opacity:0;box-shadow:0 0 0 3px rgba(59,130,246,.9),0 0 50px 10px rgba(59,130,246,.45);border-radius:2px}
+.cursor{position:absolute;left:0;top:0;width:24px;height:24px;opacity:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+.ripple{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:2px solid #60a5fa;opacity:0}
+</style>
+</head>
+<body>
+<div class="uf-demo" id="demo" role="img" aria-label="Animation: a Figma frame is sent with the UI Flow plugin and rebuilt identically as editable layers in After Effects">
+<div class="stage" id="stage">
+
+  <div id="caps"></div>
+
+  <div class="wlabel" id="labF" style="left:14px">
+    <svg width="11" height="16" viewBox="0 0 38 57"><path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fill="#1ABCFE"/><path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z" fill="#0ACF83"/><path d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z" fill="#FF7262"/><path d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fill="#F24E1E"/><path d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fill="#A259FF"/></svg>FIGMA</div>
+  <div class="wlabel" id="labA" style="left:649px"><div class="aebadge">Ae</div>AFTER EFFECTS</div>
+
+  <!-- ================= FIGMA WINDOW ================= -->
+  <div class="win fwin" id="fwin">
+    <div class="f-top">
+      <div class="f-tool"><svg width="15" height="22" viewBox="0 0 38 57"><path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fill="#1ABCFE"/><path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z" fill="#0ACF83"/><path d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z" fill="#FF7262"/><path d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fill="#F24E1E"/><path d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fill="#A259FF"/></svg></div>
+      <div class="f-tool on"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 2l16 10-7 1.5L9.5 21z"/></svg></div>
+      <div class="f-tool"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v18M17 3v18M3 7h18M3 17h18"/></svg></div>
+      <div class="f-tool"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="1"/></svg></div>
+      <div class="f-tool"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7-4-4-7 7-2 6z"/><path d="M15 8l3-3 3 3-3 3"/></svg></div>
+      <div class="f-tool"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 5h14M12 5v15"/></svg></div>
+      <div class="f-file">Wallet App / <i>Home</i></div>
+      <div class="f-share">Share</div>
+    </div>
+
+    <div class="f-left">
+      <div class="f-tabs"><span class="on">File</span><span>Assets</span></div>
+      <div class="f-sec">Pages</div>
+      <div class="f-row page">Mobile — v2</div>
+      <div class="f-sec" style="margin-top:6px">Layers</div>
+      <div id="fLayers"></div>
+    </div>
+
+    <div class="f-right">
+      <div class="f-tabs"><span class="on">Design</span><span>Prototype</span></div>
+      <div class="f-props">
+        <div class="grp"><div class="ttl">Frame <i>iPhone 16</i></div>
+          <span class="f-in"><em>X</em>0</span><span class="f-in"><em>Y</em>0</span>
+          <span class="f-in"><em>W</em>390</span><span class="f-in"><em>H</em>844</span></div>
+        <div class="grp"><div class="ttl">Auto layout <i>+</i></div></div>
+        <div class="grp"><div class="ttl">Fill <i>+</i></div>
+          <span class="f-in" style="width:160px"><span class="sw" style="background:#F3F4F8"></span>F3F4F8 <em style="margin-left:auto">100%</em></span></div>
+        <div class="grp"><div class="ttl">Stroke <i>+</i></div></div>
+        <div class="grp"><div class="ttl">Effects <i>+</i></div></div>
+        <div class="grp" style="border:0"><div class="ttl">Export <i>+</i></div></div>
+      </div>
+    </div>
+
+    <div class="f-lbl" id="fLbl" style="left:250px;top:84px">Home</div>
+    <div class="abs" id="fDesignHost"></div>
+    <div class="sel" id="fSel"><i style="left:-4px;top:-4px"></i><i style="right:-4px;top:-4px"></i><i style="left:-4px;bottom:-4px"></i><i style="right:-4px;bottom:-4px"></i><div class="dim">390 × 844</div></div>
+    <div class="fm" id="fm"><div class="fm-h"><span class="play" id="fmPlay"></span>Motion<span class="tm" id="fmTime">0:00.00</span></div>
+      <div class="fm-ruler" id="fmRuler"></div><div class="fm-rows" id="fmRows"></div><div class="fm-ph" id="fmPh"></div></div>
+
+    <!-- UI Flow plugin window -->
+    <div class="plug" id="plug">
+      <div class="plug-h">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#3b82f6"><path d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z"/></svg>
+        UI Flow<span class="x">✕</span></div>
+      <div class="plug-b">
+        <div class="lic"><span></span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#64748b"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.03 7.03 0 00-1.62-.94l-.36-2.54A.48.48 0 0013.93 2h-3.84a.48.48 0 00-.48.41l-.36 2.54a7.4 7.4 0 00-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.73 8.47a.48.48 0 00.12.61l2.03 1.58a7.4 7.4 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.25.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54a7.4 7.4 0 001.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6a3.6 3.6 0 110-7.2 3.6 3.6 0 010 7.2z"/></svg></div>
+        <div class="send-row">
+          <div class="btn-primary" id="sendBtn"><div class="glow" id="sendGlow"></div>
+            <svg viewBox="0 0 24 24"><path d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z"/></svg>
+            <span id="sendTxt">Send to Ae</span><div class="bar" id="sendBar"></div></div>
+          <div class="btn-prep"><svg viewBox="0 0 24 24"><path d="M7.5 5.6L10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7zm12 9.8L17 14l1.4 2.5L17 19l2.5-1.4L22 19l-1.4-2.5L22 14zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7l2.5-1.4L22 7l-1.4-2.5zm-7.63 5.29a1 1 0 00-1.41 0L1.29 18.96a1 1 0 000 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05a1 1 0 000-1.41l-2.33-2.35zm-1.03 5.49l-2.12-2.12 2.44-2.44 2.12 2.12-2.44 2.44z"/></svg></div>
+        </div>
+        <div class="btn-grid">
+          <div class="btn-sec"><svg viewBox="0 0 24 24"><path d="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V5H19V19Z"/></svg></div>
+          <div class="btn-sec"><svg viewBox="0 0 24 24"><path d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,17H17V15H7V17M7,13H13V11H7V13M7,9H17V7H7V9Z"/></svg></div>
+          <div class="btn-sec"><svg viewBox="0 0 24 24"><path d="M21 13H14.4L19.1 17.7L17.7 19.1L13 14.4V21H11V14.3L6.3 19L4.9 17.6L9.4 13H3V11H9.6L4.9 6.3L6.3 4.9L11 9.6V3H13V9.4L17.6 4.8L19 6.3L14.3 11H21V13Z"/></svg></div>
+        </div>
+        <div class="plug-f">by Ae Flow Tools</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= AFTER EFFECTS WINDOW ================= -->
+  <div class="win awin" id="awin">
+    <div class="a-top"><div class="aebadge">Ae</div><span>File</span><span>Edit</span><span>Composition</span><span>Layer</span><span>Effect</span><span>Animation</span><span>View</span><span>Window</span><span>Help</span></div>
+
+    <div class="pnl" style="left:2px;top:30px;width:158px;height:346px">
+      <div class="pnl-h">Project</div>
+      <div class="pitem" id="projComp" style="opacity:0;background:rgba(45,140,235,.25)"><span class="ico" style="background:#c9b27c"></span>Home</div>
+      <div class="pitem"><span class="ico" style="background:#d6b25d;height:9px"></span>UI Flow</div>
+      <div class="pitem" style="padding-left:24px"><span class="ico" style="background:#d6b25d;height:9px"></span>Images</div>
+      <div class="pitem"><span class="ico" style="background:#d6b25d;height:9px"></span>Solids</div>
+    </div>
+
+    <div class="pnl" style="left:163px;top:30px;width:544px;height:346px">
+      <div class="pnl-h"><span class="blueline"></span>Composition <em id="compName">(none)</em></div>
+      <div class="viewer" id="viewer"><div class="compbox" id="compBox" style="opacity:0"></div><div class="abs" id="aDesignHost"></div></div>
+      <div class="vbar"><span>50%</span><span>Full</span><span class="tc" id="tcV">0;00;00;00</span></div>
+    </div>
+
+    <div class="pnl" style="left:710px;top:30px;width:188px;height:346px">
+      <div class="pnl-h">UI Flow <em>≡</em></div>
+      <div class="ufp">
+        <div class="ufp-top"><div class="ufp-logo">UI<span>Flow</span></div>
+          <div class="ufp-fig"><svg width="8" height="12" viewBox="0 0 38 57"><path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fill="#1ABCFE"/><path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z" fill="#0ACF83"/><path d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z" fill="#FF7262"/><path d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fill="#F24E1E"/><path d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fill="#A259FF"/></svg></div></div>
+        <div class="ufp-tabs"><div class="ufp-tab on">FIGMA</div><div class="ufp-tab">FIGMA MOTION<span class="ufp-beta">BETA</span></div></div>
+        <div class="ufp-body">
+          <div class="ufp-modes"><div class="ufp-mode on">+ New Comp</div><div class="ufp-mode">↓ Current</div></div>
+          <div class="ufp-sec"><div class="ufp-lab">OPTIONS</div>
+            <div class="ufp-row">Comp scale<span class="v">1x</span></div>
+            <div class="ufp-row">Frame rate<span class="v">60</span></div>
+            <div class="ufp-row">Duration<span class="v">5</span></div>
+            <div class="ufp-chk"><i>✓</i>Detect parametric shapes</div>
+            <div class="ufp-chk"><i class="off"></i>Precomp groups</div>
+          </div>
+          <div class="ufp-status" id="ufStatus"><span class="dot"></span><span id="ufStatusTxt">Waiting for Figma…</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pnl" style="left:2px;top:380px;width:896px;height:238px" id="tl">
+      <div class="pnl-h"><span class="blueline"></span><span id="tlName">Home</span> <em>✕</em></div>
+      <div class="tl-ctrl"><span class="tc" id="tcT">0;00;00;00</span><span class="srch"></span></div>
+      <div class="tl-head"><div class="cols"><span>●</span><span>#</span><span>Layer Name</span></div><div id="ticks"></div></div>
+      <div class="rows" id="rows"></div>
+      <div class="cti" id="cti"></div>
+    </div>
+  </div>
+
+  <!-- overlays -->
+  <div class="abs" id="ghostHost"></div>
+  <div class="scan" id="scanF"><i></i><b></b></div>
+  <div class="scan" id="scanA"><i></i><b></b></div>
+  <div class="pill" id="pill"><b><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></b><em id="pillA" style="font-style:normal"></em> <span id="pillB"></span></div>
+  <div class="ripple" id="ripple"></div>
+  <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M5 2.5l14 8.2-6.3 1.4-3.3 6.4z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</div>
+</div>
+
+
+<script>
+(function(){
+"use strict";
+var MODE = "static"; // "static" = plain UI transfer | "motion" = Figma Motion -> AE keyframes
+var M = MODE === "motion";
+if (M) document.body.classList.add("motion");
+var params = new URLSearchParams(location.search);
+if (params.get("bg") === "none") document.body.classList.add("bare");
+
+/* ---------------- timing (O shifts the shared send/transfer part in motion mode) ---------------- */
+var O = M ? 2.6 : 0;
+var RESET = M ? 15.6 : 10.0, DUR = M ? 17.2 : 11.3;
+var END = 2.0, PLAY_LEN = 2.4;                       // motion: comp seconds, real seconds per play-through
+var F_PLAYS = M ? [0.5, 9.6, 12.6] : [], A_PLAYS = M ? [9.6, 12.6] : [];
+var CAPS = M ? [
+  [0.3, 3.2, "Animate it", "in Figma Motion"],
+  [3.2, 7.1, "Send it with", "UI Flow"],
+  [7.1, 9.5, "Keyframes rebuilt", "in After Effects"],
+  [9.5, 15.5, "Same timing, same easing", "— frame for frame"]
+] : [
+  [0.3, 2.55, "Select any frame", "in Figma"],
+  [2.55, 4.5, "Click", "Send to Ae"],
+  [4.5, 6.8, "Rebuilt in After Effects", "layer for layer"],
+  [6.8, RESET, "Identical", "— nothing flattened"]
+];
+var PILL_T = M ? 10.1 : 7.9;
+document.getElementById("pillA").textContent = M ? "Identical motion" : "1:1 match";
+document.getElementById("pillB").textContent = M ? "· native After Effects keyframes" : "· 12 editable shape & text layers";
+
+var capHost = document.getElementById("caps");
+if (params.get("captions") !== "0") CAPS.forEach(function(c, i){
+  var d = document.createElement("div"); d.className = "cap";
+  d.innerHTML = "<b>"+(i+1)+"</b>"+c[2]+" <span>"+c[3]+"</span>"; capHost.appendChild(d); c.el = d;
+});
+
+/* ---------------- the design (one source, rendered 3x) ---------------- */
+var I = {
+  send:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  recv:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+  plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  more:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#2563eb"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',
+  home:'<svg width="26" height="26" viewBox="0 0 24 24" fill="#2563eb"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>',
+  chart:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a0a6b8" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>',
+  card:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a0a6b8" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/></svg>',
+  user:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a0a6b8" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  bell:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 1112 0v5l2 2H4z"/><path d="M10 21h4"/></svg>'
+};
+function tx(color, letter, name, sub, amt, amtColor){
+  return '<div class="tx"><div class="ti" style="background:'+color+'">'+letter+'</div><div class="tn">'+name+'<small>'+sub+'</small></div><div class="ta" style="color:'+amtColor+'">'+amt+'</div></div>';
+}
+var DESIGN =
+  '<div class="L" data-l="bg" style="left:0;top:0;width:390px;height:844px;background:#F3F4F8"></div>'+
+  '<div class="L" data-l="status" style="left:0;top:0;width:390px;height:48px">'+
+    '<div style="position:absolute;left:32px;top:15px;font-size:16px;font-weight:600">9:41</div>'+
+    '<svg style="position:absolute;right:26px;top:18px" width="70" height="13" viewBox="0 0 70 13"><rect x="0" y="8" width="3" height="5" rx="1" fill="#0f172a"/><rect x="5" y="5" width="3" height="8" rx="1" fill="#0f172a"/><rect x="10" y="2" width="3" height="11" rx="1" fill="#0f172a"/><rect x="15" y="0" width="3" height="13" rx="1" fill="#0f172a"/><path d="M26 5a10 10 0 0114 0l-1.6 1.7a7.6 7.6 0 00-10.8 0zM29 8.4a5.4 5.4 0 018 0L33 12.6z" fill="#0f172a"/><rect x="45" y="1" width="22" height="11" rx="3.5" fill="none" stroke="#0f172a" stroke-opacity=".4"/><rect x="47" y="3" width="16" height="7" rx="2" fill="#0f172a"/><rect x="68" y="4.5" width="1.6" height="4" rx=".8" fill="#0f172a" fill-opacity=".4"/></svg>'+
+  '</div>'+
+  '<div class="L" data-l="avatar" style="left:24px;top:64px;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#fdba74,#f472b6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px">M</div>'+
+  '<div class="L" data-l="greet" style="left:84px;top:65px"><div style="font-size:13px;color:#8a8fa3;font-weight:500">Good morning</div><div style="font-size:20px;font-weight:700;letter-spacing:-.3px;margin-top:1px">Maya Collins</div></div>'+
+  '<div class="L" data-l="bell" style="left:322px;top:65px;width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(15,23,42,.06)">'+I.bell+'<span style="position:absolute;right:11px;top:10px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span></div>'+
+  '<div class="L card-g" data-l="card" style="left:20px;top:134px;width:350px;height:196px">'+
+    '<div style="position:absolute;right:-50px;top:-70px;width:210px;height:210px;border-radius:50%;background:rgba(255,255,255,.12)"></div>'+
+    '<div style="position:absolute;right:40px;bottom:-90px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08)"></div>'+
+    '<div style="position:absolute;left:24px;top:26px;font-size:13px;font-weight:500;color:rgba(255,255,255,.75)">Total balance</div>'+
+    '<div style="position:absolute;right:22px;top:22px;font-size:12px;font-weight:600;background:rgba(255,255,255,.2);border-radius:20px;padding:5px 10px">+12.4%</div>'+
+    '<div style="position:absolute;left:24px;top:48px;font-size:36px;font-weight:700;letter-spacing:-1px">$24,580.40</div>'+
+    '<div style="position:absolute;left:24px;top:152px;font-size:14px;letter-spacing:2px;color:rgba(255,255,255,.85)">•••• 4821</div>'+
+    '<div style="position:absolute;right:24px;top:146px;font-size:20px;font-weight:800;font-style:italic;letter-spacing:.5px">VISA</div>'+
+  '</div>'+
+  '<div class="L qa" data-l="actions" style="left:20px;top:354px;width:350px">'+
+    '<div><i>'+I.send+'</i>Send</div><div><i>'+I.recv+'</i>Request</div><div><i>'+I.plus+'</i>Top up</div><div><i>'+I.more+'</i>More</div></div>'+
+  '<div class="L" data-l="recent" style="left:24px;top:466px;width:342px;display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:18px;font-weight:700">Recent activity</span><span style="font-size:14px;font-weight:600;color:#2563eb">See all</span></div>'+
+  '<div class="L" data-l="tx1" style="left:20px;top:504px">'+tx("#10b981","G","Grocery Mart","Food · Today","−$42.80","#0f172a")+'</div>'+
+  '<div class="L" data-l="tx2" style="left:20px;top:576px">'+tx("#6366f1","F","Freelance Pay","Transfer · Yesterday","+$1,250.00","#16a34a")+'</div>'+
+  '<div class="L" data-l="tx3" style="left:20px;top:648px">'+tx("#f59e0b","C","Coffee Lab","Café · Mon","−$6.40","#0f172a")+'</div>'+
+  '<div class="L" data-l="tab" style="left:0;top:736px;width:390px;height:108px;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -6px 20px rgba(15,23,42,.05)">'+
+    '<div style="display:flex;justify-content:space-around;padding:20px 20px 0">'+
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:5px">'+I.home+'<span style="width:5px;height:5px;border-radius:50%;background:#2563eb"></span></div>'+I.chart+I.card+I.user+'</div>'+
+    '<div style="position:absolute;left:128px;bottom:9px;width:134px;height:5px;border-radius:3px;background:#0f172a"></div>'+
+  '</div>';
+
+function makeDesign(host){
+  var d = document.createElement("div");
+  d.className = "dz"; d.innerHTML = DESIGN; host.appendChild(d); return d;
+}
+function layerMap(d){ var m = {}; d.querySelectorAll(".L").forEach(function(e){ m[e.dataset.l] = e; }); return m; }
+
+/* ---------------- layout ---------------- */
+var FIG_FULL = [190, 74, 1], SIDE_F = [12, 164, .69], SIDE_A = [647, 164, .69], AE_OFF = [1320, 164, .69];
+var FR_F = M ? {x:210 + (490 - 390*.46)/2, y:62, s:.46} : {x:250, y:102, s:.56};
+var FR_A = {x:163 + (544 - 390*.35)/2, y:30 + 24 + (302 - 844*.35)/2, s:.35};
+var plug = document.getElementById("plug");
+plug.style.left = (M ? 572 : 486) + "px"; plug.style.top = (M ? 120 : 268) + "px";
+var fLblEl = document.getElementById("fLbl");
+fLblEl.style.left = FR_F.x + "px"; fLblEl.style.top = (FR_F.y - 18) + "px";
+
+var fDesign = makeDesign(document.getElementById("fDesignHost"));
+fDesign.style.transform = "translate("+FR_F.x+"px,"+FR_F.y+"px) scale("+FR_F.s+")";
+var sel = document.getElementById("fSel");
+sel.style.cssText += ";left:"+FR_F.x+"px;top:"+FR_F.y+"px;width:"+(390*FR_F.s)+"px;height:"+(844*FR_F.s)+"px";
+
+var aDesign = makeDesign(document.getElementById("aDesignHost"));
+var vx = FR_A.x - 163, vy = FR_A.y - 30 - 24;
+aDesign.style.transform = "translate("+vx+"px,"+vy+"px) scale("+FR_A.s+")";
+var compBox = document.getElementById("compBox");
+compBox.style.cssText += ";left:"+vx+"px;top:"+vy+"px;width:"+(390*FR_A.s)+"px;height:"+(844*FR_A.s)+"px";
+
+var ghost = makeDesign(document.getElementById("ghostHost"));
+ghost.classList.add("ghost");
+
+/* layers: top of stack first; s = motion start (comp sec) */
+var LAYERS = [
+  {k:"tab",    n:"Tab Bar",         t:"★", fi:"#", c:"#a8a8ff", s:1.25},
+  {k:"tx3",    n:"Transaction 3",   t:"★", fi:"#", c:"#a8a8ff", s:1.10},
+  {k:"tx2",    n:"Transaction 2",   t:"★", fi:"#", c:"#a8a8ff", s:1.00},
+  {k:"tx1",    n:"Transaction 1",   t:"★", fi:"#", c:"#a8a8ff", s:0.90},
+  {k:"recent", n:"Recent Activity", t:"T", fi:"T", c:"#e56a6a", s:0.80},
+  {k:"actions",n:"Quick Actions",   t:"★", fi:"#", c:"#a8a8ff", s:0.62},
+  {k:"card",   n:"Balance Card",    t:"★", fi:"▭", c:"#4fc3c3", s:0.42},
+  {k:"bell",   n:"Notification",    t:"★", fi:"○", c:"#a8a8ff", s:0.30},
+  {k:"greet",  n:"Greeting",        t:"T", fi:"T", c:"#e56a6a", s:0.22},
+  {k:"avatar", n:"Avatar",          t:"★", fi:"○", c:"#e6a0d4", s:0.15},
+  {k:"status", n:"Status Bar",      t:"★", fi:"#", c:"#a8a8ff", s:0.00},
+  {k:"bg",     n:"Background",      t:"★", fi:"▭", c:"#c9b27c", s:-1}
+];
+var N = LAYERS.length, KD = .6;
+
+/* Figma layers panel */
+var fl = document.getElementById("fLayers"), html = '<div class="f-row" id="fHomeRow"><span class="ic">▾</span><span class="ic">#</span>Home</div>';
+LAYERS.forEach(function(L){ html += '<div class="f-row child"><span class="ic">'+L.fi+'</span>'+L.n+'</div>'; });
+fl.innerHTML = html;
+var fHomeRow = document.getElementById("fHomeRow"), fChildRows = fl.querySelectorAll(".child");
+
+/* Figma Motion timeline */
+var FM_X0 = 136, FM_W = 336, FM_SEC = 2.2;
+function fmX(sec){ return FM_X0 + sec / FM_SEC * FM_W; }
+if (M){
+  var r = ""; [0, .5, 1, 1.5, 2].forEach(function(s){ r += '<span class="tick" style="left:'+fmX(s)+'px;top:3px">'+s.toFixed(1)+'s</span>'; });
+  document.getElementById("fmRuler").innerHTML = r;
+  var fr = "";
+  LAYERS.filter(function(L){ return L.s >= 0; }).forEach(function(L, i){
+    fr += '<div class="fm-row" style="top:'+(i*17)+'px"><div class="nm"><i>'+L.fi+'</i>'+L.n+'</div>'+
+      '<div class="seg" style="left:'+fmX(L.s)+'px;width:'+(fmX(L.s+KD)-fmX(L.s))+'px"></div>'+
+      '<i class="kd" style="left:'+fmX(L.s)+'px"></i><i class="kd" style="left:'+fmX(L.s+KD)+'px"></i></div>';
+  });
+  document.getElementById("fmRows").innerHTML = fr;
+}
+
+/* AE timeline */
+var TRACK_X0 = 302, TRACK_W = 570, COMP_SEC = M ? 2.5 : 5;
+function trackX(sec){ return TRACK_X0 + sec / COMP_SEC * TRACK_W; }
+var ticks = ""; for (var s = 0; s <= COMP_SEC; s++) ticks += '<span class="tick" style="left:'+trackX(s)+'px">0'+s+'s</span>';
+document.getElementById("ticks").innerHTML = ticks;
+var rowsEl = document.getElementById("rows"), rowH = "";
+LAYERS.forEach(function(L, i){
+  rowH += '<div class="row" style="top:'+(i*17)+'px"><div class="flash"></div><div class="l"><span class="eye"></span><span class="chip" style="background:'+L.c+'"></span><span class="n">'+(i+1)+'</span><span class="t">'+L.t+'</span>'+L.n+'</div>'+
+    '<div class="bar" style="left:'+TRACK_X0+'px;width:'+TRACK_W+'px;background:'+L.c+'"></div>'+
+    (M && L.s >= 0 ? '<i class="dia" style="left:'+trackX(L.s)+'px"></i><i class="dia" style="left:'+trackX(L.s+KD)+'px"></i>' : '')+'</div>';
+});
+rowsEl.innerHTML = rowH;
+var rows = rowsEl.querySelectorAll(".row");
+var rowDias = [].map.call(rows, function(r){ return r.querySelectorAll(".dia"); });
+
+var BUILD0 = 5.0 + O;
+LAYERS.forEach(function(L, i){ L.b = L.k === "bg" ? BUILD0 : BUILD0 + 0.1 * (N - 1 - i); });
+var aEls = layerMap(aDesign), fEls = layerMap(fDesign);
+
+/* ---------------- stage-space targets ---------------- */
+function winPt(W, lx, ly){ return [W[0] + lx*W[2], W[1] + ly*W[2]]; }
+function offsetIn(el, root){ var x=0,y=0; while(el && el!==root){ x+=el.offsetLeft; y+=el.offsetTop; el=el.offsetParent; } return [x,y]; }
+var fwin = document.getElementById("fwin"), awin = document.getElementById("awin");
+var sendBtn = document.getElementById("sendBtn");
+var sb = offsetIn(sendBtn, fwin);
+var SEND_PT = winPt(FIG_FULL, sb[0] + sendBtn.offsetWidth*0.42, sb[1] + sendBtn.offsetHeight*0.55);
+var LBL_PT = winPt(FIG_FULL, FR_F.x + 22, FR_F.y - 10);
+function frameRect(W, F){ var p = winPt(W, F.x, F.y); return {x:p[0], y:p[1], w:390*F.s*W[2], h:844*F.s*W[2]}; }
+var RF = frameRect(SIDE_F, FR_F), RA = frameRect(SIDE_A, FR_A);
+
+/* ---------------- helpers ---------------- */
+var E = {
+  lin:function(x){return x;},
+  io:function(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;},
+  out:function(x){return 1-Math.pow(1-x,3);},
+  back:function(x){var c=1.7;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2);}
+};
+function clamp(v){ return v<0?0:v>1?1:v; }
+function lerp(a,b,p){ if (typeof a === "number") return a+(b-a)*p; return a.map(function(v,i){return v+(b[i]-v)*p;}); }
+function kf(t, K){
+  if (t <= K[0][0]) return K[0][1];
+  for (var i=0;i<K.length-1;i++){
+    var a=K[i], b=K[i+1];
+    if (t <= b[0]) return lerp(a[1], b[1], (b[2]||E.io)((t-a[0])/(b[0]-a[0])));
+  }
+  return K[K.length-1][1];
+}
+function tf(el, W){ el.style.transform = "translate("+W[0]+"px,"+W[1]+"px) scale("+W[2]+")"; }
+function tc(sec){ var f=Math.floor(sec*30+1e-6), s=Math.floor(f/30); f%=30; return "0;00;"+(s<10?"0":"")+s+";"+(f<10?"0":"")+f; }
+function setText(el, v){ if (el.textContent !== v) el.textContent = v; }
+function setCls(el, c){ if (el.className !== c) el.className = c; }
+/* playhead from a list of play starts: END when idle */
+function playP(t, plays){ var p = END; plays.forEach(function(s){ if (t >= s && t < s + PLAY_LEN) p = (t - s) / PLAY_LEN * END; }); return p; }
+function playing(t, plays){ return plays.some(function(s){ return t >= s && t < s + PLAY_LEN; }); }
+/* the motion itself — identical for Figma and AE */
+function motionState(L, p){
+  if (L.s < 0) return {op:1, ty:0, sc:1};
+  var q = E.out(clamp((p - L.s) / KD));
+  return {op:q, ty:(1-q) * (L.k === "tab" ? 110 : 40), sc:L.k === "card" ? .9 + .1*q : 1};
+}
+function applyLayer(el, st){
+  el.style.opacity = st.op;
+  el.style.transform = (st.ty || st.sc !== 1) ? "translateY("+st.ty+"px) scale("+st.sc+")" : "";
+}
+
+var $ = function(id){ return document.getElementById(id); };
+var cursor=$("cursor"), ripple=$("ripple"), sendTxt=$("sendTxt"), sendBar=$("sendBar"), sendGlow=$("sendGlow"),
+    labF=$("labF"), labA=$("labA"), projComp=$("projComp"), compName=$("compName"),
+    ufStatus=$("ufStatus"), ufStatusTxt=$("ufStatusTxt"), tcV=$("tcV"), tcT=$("tcT"), cti=$("cti"),
+    scanF=$("scanF"), scanA=$("scanA"), pill=$("pill"), fmPh=$("fmPh"), fmTime=$("fmTime"), fmPlay=$("fmPlay");
+[[scanF,RF],[scanA,RA]].forEach(function(p){ var s=p[0].style, r=p[1]; s.left=r.x+"px"; s.top=r.y+"px"; s.width=r.w+"px"; s.height=r.h+"px"; });
+var ICON_PLAY = '<svg width="8" height="9" viewBox="0 0 8 9"><path d="M0 0l8 4.5L0 9z" fill="#fff"/></svg>';
+var ICON_PAUSE = '<svg width="8" height="9" viewBox="0 0 8 9"><path d="M0 0h3v9H0zM5 0h3v9H5z" fill="#0d99ff"/></svg>';
+var lastIcon = null;
+
+var OFF = [1330, 760];
+var CUR = [[0,OFF],[0.35+O,OFF],[1.3+O,LBL_PT,E.io],[1.55+O,LBL_PT],[2.45+O,SEND_PT,E.io],[3.1+O,SEND_PT],[3.9+O,[1150,700],E.io],[3.91+O,OFF]];
+var CLICKS = [1.4+O, 2.62+O];
+
+function render(t){
+  var u = t - O; // time on the shared send/transfer track
+
+  CAPS.forEach(function(c){ if (c.el) c.el.style.opacity = kf(t, [[c[0],0],[c[0]+.3,1],[c[1]-.25,1],[c[1],0]]); });
+
+  /* windows */
+  var fw = kf(t, [[0,FIG_FULL],[3.4+O,FIG_FULL],[4.25+O,SIDE_F],[RESET,SIDE_F],[RESET+.95,FIG_FULL]]);
+  var aw = kf(t, [[0,AE_OFF],[3.45+O,AE_OFF],[4.3+O,SIDE_A,E.out],[RESET,SIDE_A],[RESET+.8,AE_OFF,E.io]]);
+  tf(fwin, fw); tf(awin, aw);
+  awin.style.opacity = kf(t, [[3.45+O,0],[3.8+O,1],[RESET+.3,1],[RESET+.75,0]]);
+  labF.style.opacity = labA.style.opacity = kf(t, [[4.1+O,0],[4.5+O,1],[RESET-.1,1],[RESET+.2,0]]);
+
+  /* cursor + clicks */
+  var cp = kf(t, CUR);
+  var press = 0; CLICKS.forEach(function(c){ press = Math.max(press, kf(t, [[c-.08,0],[c,1],[c+.12,0]])); });
+  cursor.style.transform = "translate("+(cp[0]-5)+"px,"+(cp[1]-3)+"px) scale("+(1-.15*press)+")";
+  cursor.style.opacity = kf(t, [[0.3+O,0],[0.5+O,1],[3.5+O,1],[3.85+O,0]]);
+  var rp = -1; CLICKS.forEach(function(c, i){ if (t >= c && t < c+.5) rp = i; });
+  if (rp >= 0){ var q = (t - CLICKS[rp]) / .5, pt = rp ? SEND_PT : LBL_PT;
+    ripple.style.opacity = 1-q; ripple.style.transform = "translate("+pt[0]+"px,"+pt[1]+"px) scale("+(.3+q*1.2)+")";
+  } else ripple.style.opacity = 0;
+
+  /* figma selection */
+  var selOn = u >= 1.42 && t < RESET + 1.2;
+  sel.style.opacity = selOn ? 1 : 0;
+  fLblEl.style.color = selOn ? "#0d99ff" : "#9a9a9a";
+  fHomeRow.style.background = selOn ? "rgba(13,153,255,.28)" : "transparent";
+  fChildRows.forEach(function(r){ r.style.background = selOn ? "rgba(13,153,255,.1)" : "transparent"; });
+
+  /* send button */
+  sendGlow.style.opacity = kf(u, [[2.3,0],[2.5,1],[2.75,1],[3.0,0]]) * .6;
+  sendBtn.style.transform = "scale("+(1-.035*kf(u,[[2.56,0],[2.62,1],[2.78,0]]))+")";
+  var sending = u >= 2.65 && u < 3.55, sent = u >= 3.55 && t < RESET + 1.2;
+  setText(sendTxt, sending ? "Sending…" : sent ? "✓ Sent to Ae" : "Send to Ae");
+  sendBar.style.width = (sending ? kf(u, [[2.65,0],[3.55,100,E.out]]) : sent ? 100 : 0) + "%";
+  sendBar.style.opacity = sent ? kf(u, [[3.55,1],[3.9,0]]) : 1;
+
+  /* ghost frame flight Figma -> AE */
+  var gp = clamp((u - 4.2) / .85), ge = E.io(gp);
+  var gx = lerp(RF.x, RA.x, ge), gy = lerp(RF.y, RA.y, ge) - Math.sin(gp*Math.PI) * 70, gs = lerp(RF.w, RA.w, ge) / 390;
+  ghost.style.transform = "translate("+gx+"px,"+gy+"px) scale("+gs+")";
+  ghost.style.opacity = kf(u, [[4.15,0],[4.3,.95],[4.95,.95],[5.25,0]]);
+
+  /* Figma Motion playback */
+  var pF = M ? playP(t, F_PLAYS) : END;
+  LAYERS.forEach(function(L){ applyLayer(fEls[L.k], motionState(L, pF)); });
+  if (M){
+    fmPh.style.left = fmX(pF) + "px";
+    setText(fmTime, "0:0" + pF.toFixed(2));
+    var ic = playing(t, F_PLAYS) ? ICON_PAUSE : ICON_PLAY;
+    if (ic !== lastIcon){ fmPlay.innerHTML = ic; lastIcon = ic; }
+  }
+
+  /* AE comp */
+  var built = t >= BUILD0 - .05 && t < RESET + .8;
+  projComp.style.opacity = built ? 1 : 0;
+  setText(compName, built ? "Home" : "(none)");
+  compBox.style.opacity = built ? 1 : 0;
+
+  if (u >= 4.45 && u < 6.35){ setCls(ufStatus, "ufp-status recv"); setText(ufStatusTxt, "Receiving “Home”…"); ufStatus.style.opacity = .6 + .4*Math.abs(Math.sin(t*6)); }
+  else if (u >= 6.35 && t < RESET + .8){ setCls(ufStatus, "ufp-status done"); setText(ufStatusTxt, M ? "✓ 12 layers + keyframes" : "✓ 12 layers built"); ufStatus.style.opacity = 1; }
+  else { setCls(ufStatus, "ufp-status"); setText(ufStatusTxt, "Waiting for Figma…"); ufStatus.style.opacity = 1; }
+
+  var animA = M && built && t >= A_PLAYS[0];
+  var pA = animA ? playP(t, A_PLAYS) : 0;
+  var aPlaying = animA && playing(t, A_PLAYS);
+  cti.style.left = trackX(pA) + "px";
+  setText(tcV, tc(pA)); setText(tcT, tc(pA));
+
+  LAYERS.forEach(function(L, i){
+    var el = aEls[L.k], row = rows[i];
+    if (!built) applyLayer(el, {op:0, ty:0, sc:1});
+    else if (!animA){ var b = clamp((t - L.b) / .18); applyLayer(el, {op:b, ty:(1 - E.out(b)) * -14, sc:1}); }
+    else applyLayer(el, motionState(L, pA));
+    row.style.opacity = built ? clamp((t - L.b) / .12) : 0;
+    row.firstChild.style.opacity = built && u < 7 ? kf(t, [[L.b,0],[L.b+.05,1],[L.b+.6,0]]) : 0;
+    var dias = rowDias[i];
+    for (var d = 0; d < dias.length; d++){
+      var pop = built ? E.back(clamp((t - L.b - .08) / .25)) : 0;
+      dias[d].style.transform = "rotate(45deg) scale("+pop+")";
+      dias[d].style.background = aPlaying && pA >= L.s + d*KD ? "#e6e6e6" : "#8a8a8a";
+    }
+  });
+
+  /* static: 1:1 scan */
+  if (!M){
+    var sp = clamp((t - 6.95) / 1.1);
+    [scanF, scanA].forEach(function(s){
+      s.style.opacity = kf(t, [[6.85,0],[7.0,1],[8.7,1],[9.05,0]]);
+      s.firstChild.style.top = (sp * 110 - 10) + "%";
+      s.firstChild.style.opacity = sp < 1 ? 1 : 0;
+      s.lastChild.style.opacity = kf(t, [[7.95,0],[8.15,1],[8.7,1],[9.0,0]]);
+    });
+  }
+  var pl = kf(t, [[PILL_T,0],[PILL_T+.3,1],[RESET-.2,1],[RESET+.15,0]]);
+  pill.style.opacity = pl;
+  pill.style.transform = "translateX(-50%) translateY("+((1-pl)*10)+"px)";
+}
+
+/* ---------------- stage scaling + loop ---------------- */
+var demo = $("demo"), stage = $("stage");
+function fit(){ stage.style.transform = "scale("+(demo.clientWidth/1280)+")"; }
+fit(); window.addEventListener("resize", fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe(demo);
+
+var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduce){ render(M ? 11.4 : 8.4); return; }
+if (params.has("t")){ render(parseFloat(params.get("t")) || 0); return; } // freeze a frame, e.g. ?t=8
+
+var visible = true, elapsed = 0, last = null;
+if (window.IntersectionObserver) new IntersectionObserver(function(e){ visible = e[0].isIntersecting; }).observe(demo);
+function frame(now){
+  if (last !== null && visible && !document.hidden) elapsed += Math.min(now - last, 100) / 1000;
+  last = now;
+  render(elapsed % DUR);
+  requestAnimationFrame(frame);
+}
+render(0);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
