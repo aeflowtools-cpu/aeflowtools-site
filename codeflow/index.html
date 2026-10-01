@@ -31,7 +31,7 @@
     "downloadUrl": "https://www.aeflowtools.com/codeflow/download/CodeFlow-1.0.0.zxp",
     "offers": [
       { "@type": "Offer", "name": "Free trial (3 builds)", "price": "0", "priceCurrency": "USD", "url": "https://www.aeflowtools.com/codeflow" },
-      { "@type": "Offer", "name": "CodeFlow licence", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
+      { "@type": "Offer", "name": "CodeFlow license", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
     ]
   }
   </script>
@@ -114,7 +114,7 @@
     .cf-dl-steps { margin: 22px 0 0; padding: 20px 0 0 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 15px; display: grid; gap: 9px; }
     .cf-dl-steps strong { color: var(--text); font-weight: 600; }
 
-    /* free vs licence */
+    /* free vs license */
     .cf-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 920px; margin: 0 auto; align-items: stretch; }
     .cf-plans .pro-card { max-width: none; margin: 0; display: flex; }
     .cf-plans .pro-inner { flex: 1; display: flex; flex-direction: column; padding: 44px 32px; }
@@ -178,7 +178,7 @@
         <a class="btn btn-primary" href="/codeflow/download/CodeFlow-1.0.0.zxp" download onclick="window.fbq&&fbq('track','Lead')">Download free <span class="arrow">↓</span></a>
         <a class="btn btn-ghost" href="#how">See how it works</a>
       </div>
-      <div class="cf-note">Free to try: 3 builds on us, then <a href="#buy" style="text-decoration:underline">$20 one-time</a> · After Effects 2022 or newer</div>
+      <div class="cf-note">Free to try: 3 builds on us, then <a href="#buy" style="text-decoration:underline"><span data-cf-price>$20</span> lifetime license</a> · After Effects 2022 or newer</div>
 
       <div class="cf-flow" aria-label="From a Claude prompt to editable After Effects comps">
         <div class="cf-node">
@@ -346,8 +346,8 @@
   <section class="section" id="buy">
     <div class="container">
       <div class="section-head">
-        <h2>Free to try. $20 to keep going.</h2>
-        <p>Use your 3 free builds to see it work on your own videos. Then unlock unlimited builds with one payment.</p>
+        <h2>Free to try. <span data-cf-price>$20</span> to keep going.</h2>
+        <p>Use your 3 free builds to see it work on your own videos. Then unlock unlimited builds with a lifetime license: one payment, no subscription.</p>
       </div>
       <div class="cf-plans">
         <div class="cf-plan">
@@ -370,10 +370,10 @@
 
         <div class="pro-card">
           <div class="pro-inner">
-            <span class="pro-badge">Licence</span>
+            <span class="pro-badge">Lifetime license</span>
             <div class="pro-title">CodeFlow</div>
-            <div class="pro-price">$20</div>
-            <div class="pro-sub">One-time payment</div>
+            <div class="pro-price" data-cf-price>$20</div>
+            <div class="pro-sub" data-cf-sub>One-time payment · never expires</div>
 
             <ul class="pro-list">
               <li><span class="ck">✓</span> Unlimited builds</li>
@@ -382,10 +382,10 @@
               <li><span class="ck">✓</span> No subscription</li>
             </ul>
 
-            <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/gygsdc" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
-              Buy a licence <span class="arrow">→</span>
+            <a class="btn btn-primary" data-cf-buy href="https://aeflowtools.gumroad.com/l/gygsdc" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
+              Buy lifetime license <span class="arrow">→</span>
             </a>
-            <div class="pro-note">Secure checkout via Gumroad · Your licence key arrives right after checkout.</div>
+            <div class="pro-note">Secure checkout via <span data-cf-store>Gumroad</span> · Your license key arrives right after checkout.</div>
           </div>
         </div>
       </div>
@@ -396,8 +396,8 @@
           <div class="cf-step">
             <div class="n">1</div>
             <div>
-              <h4>Buy your licence</h4>
-              <p>Check out on Gumroad. Your licence key arrives right away.</p>
+              <h4>Buy your license</h4>
+              <p>Check out on Gumroad. Your license key arrives right away.</p>
             </div>
           </div>
           <div class="cf-step">
@@ -422,13 +422,13 @@
         <details>
           <summary>What's free and what costs money?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">The extension and the Claude skill are both free to download, and you get 3 free builds on every computer. After that CodeFlow needs a licence key: $20, one time, for everyone.</p>
+            <p style="color:var(--muted)">The extension and the Claude skill are both free to download, and you get 3 free builds on every computer. After that CodeFlow needs a lifetime license key: <span data-cf-price>$20</span>, paid once, for everyone. (Bangladesh has its own local price and shop.)</p>
           </div>
         </details>
         <details>
           <summary>What happens after the 3 free builds?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">CodeFlow asks for a licence key before it builds more. Everything you've already built stays in your After Effects project and keeps working, with or without CodeFlow.</p>
+            <p style="color:var(--muted)">CodeFlow asks for a license key before it builds more. Everything you've already built stays in your After Effects project and keeps working, with or without CodeFlow.</p>
           </div>
         </details>
         <details>
@@ -458,19 +458,19 @@
         <details>
           <summary>How many computers can I use it on?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">Each licence works on 2 computers at the same time. If you change computers, free up a seat yourself from the Manage option in the panel.</p>
+            <p style="color:var(--muted)">Each license works on 2 computers at the same time. If you change computers, free up a seat yourself from the Manage option in the panel.</p>
           </div>
         </details>
         <details>
           <summary>Does it need internet?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">Yes. CodeFlow checks your licence (or your free builds) online when it opens and before each build. Your projects and files never leave your computer: only your licence and computer details are checked.</p>
+            <p style="color:var(--muted)">Yes. CodeFlow checks your license (or your free builds) online when it opens and before each build. Your projects and files never leave your computer: only your license and computer details are checked.</p>
           </div>
         </details>
         <details>
           <summary>How do I get updates?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">When a new version is out, CodeFlow shows an update message in the panel. Download the newest installer from the top of this page and install it over the old one. Your licence keeps working.</p>
+            <p style="color:var(--muted)">When a new version is out, CodeFlow shows an update message in the panel. Download the newest installer from the top of this page and install it over the old one. Your license keeps working.</p>
           </div>
         </details>
         <details>
@@ -527,6 +527,21 @@
         else fallback();
       });
     });
+    // Price + shop by country: Bangladesh sees its local price and the SupportKori shop, everyone else $20 and Gumroad.
+    // Both come from the license server (Supabase cf_config), so they can be changed without touching this page.
+    // If anything fails the page keeps the default ($20, Gumroad).
+    fetch('/api/codeflow', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'info' }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok || !d.price) return;
+        document.querySelectorAll('[data-cf-price]').forEach(function (e) { e.textContent = d.price; });
+        if (d.region === 'BD') {
+          document.querySelectorAll('[data-cf-sub]').forEach(function (e) { e.textContent = 'Bangladesh price · lifetime license'; });
+          document.querySelectorAll('[data-cf-store]').forEach(function (e) { e.textContent = 'SupportKori'; });
+        }
+        if (d.buyUrl && /^https:\/\//i.test(d.buyUrl)) document.querySelectorAll('[data-cf-buy]').forEach(function (a) { a.href = d.buyUrl; });
+      })
+      .catch(function () {});
     // Meta Pixel: product page
     try { window.fbq && fbq('track', 'ViewContent', { content_name: 'CodeFlow' }); } catch (e) {}
   </script>

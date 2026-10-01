@@ -1,10 +1,10 @@
-// CodeFlow licence server: https://www.aeflowtools.com/api/codeflow  (POST JSON { action, ... })
+// CodeFlow license server: https://www.aeflowtools.com/api/codeflow  (POST JSON { action, ... })
 //
 // The CodeFlow After Effects panel calls this at every launch and before every build ("always online").
-// Licences are Gumroad license keys (verified with Gumroad's API) or manual keys (source 'manual',
+// Licenses are Gumroad license keys (verified with Gumroad's API) or manual keys (source 'manual',
 // created in the database for giveaways / influencers / testing).
-//   - 2 computers per licence (cf_config.seats); a buyer can free a seat from the panel
-//   - 3 free builds per computer without a licence (cf_config.trial_builds), counted here
+//   - 2 computers per license (cf_config.seats); a buyer can free a seat from the panel
+//   - 3 free builds per computer without a license (cf_config.trial_builds), counted here
 //   - every answer is signed (Ed25519): the panel rejects answers that didn't come from this server
 //   - the panel can only decrypt the After Effects builder with the content key it gets from here
 //
@@ -115,7 +115,7 @@ async function supportkoriVerify(cfg, key) {
 }
 const SK_RE = /^[A-Z0-9]{5}(-[A-Z0-9]{5}){3}$/;           // SupportKori keys look like FE3Z8-667GV-WNZ3G-8K34Y
 
-// Asks the stores whether a key is a genuine, still-valid purchase. `only` = just that store (used when re-checking a known licence).
+// Asks the stores whether a key is a genuine, still-valid purchase. `only` = just that store (used when re-checking a known license).
 //   -> { source, email, saleId } | { error: 'refunded' | 'revoked' | 'invalid_key' | 'verify_unavailable' }
 async function verifyKey(cfg, key, only) {
   const order = only ? [only] : (SK_RE.test(key) ? ['supportkori', 'gumroad'] : ['gumroad', 'supportkori']);
@@ -159,7 +159,7 @@ async function telegram(text) {
   try { await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }) }); } catch (e) {}
 }
 
-// ---- licence + seat check (shared by session and build) ----
+// ---- license + seat check (shared by session and build) ----
 async function checkLicense(cfg, key, machine, info, ip, { register }) {
   let lic = (await rows(`cf_licenses?key=eq.${enc(key)}&select=*`))[0];
   if (!lic) {
@@ -168,7 +168,7 @@ async function checkLicense(cfg, key, machine, info, ip, { register }) {
     lic = (await db('cf_licenses', { method: 'POST', headers: { Prefer: 'return=representation' }, body: {
       key, source: v.source, email: clean(v.email, 120), sale_id: clean(v.saleId, 60), seats: cfg.seats, last_checked: new Date().toISOString(),
     } })).data[0];
-    telegram(`🎬 New CodeFlow licence activated (${v.source})\nKey: ${mask(key)}\nEmail: ${lic.email || '-'}\nPC: ${info.name || '-'}`);
+    telegram(`🎬 New CodeFlow license activated (${v.source})\nKey: ${mask(key)}\nEmail: ${lic.email || '-'}\nPC: ${info.name || '-'}`);
   } else if ((lic.source === 'gumroad' || lic.source === 'supportkori') && lic.status === 'active' && (!lic.last_checked || Date.now() - Date.parse(lic.last_checked) > 6 * 3600e3)) {
     // re-check with the store every 6 h: a refund / disabled key stops working; a store that is down never locks anyone out
     const v = await verifyKey(cfg, key, lic.source);
@@ -239,7 +239,7 @@ export default async function handler(req, res) {
     const reply = (payload) => res.status(200).json({ ok: true, token: sign(cfg, Object.assign({ v: 1, machine, nonce, iat: now, ext: info.ext }, payload)) });
     const fail = (error, extra) => res.status(200).json(Object.assign({ ok: false, error, buyUrl: bi.buyUrl, price: bi.price, token: sign(cfg, { v: 1, machine, nonce, iat: now, ext: info.ext, error }) }, extra || {}));
 
-    // start of a panel / bridge session: licence (or trial) check, gives the builder's content key
+    // start of a panel / bridge session: license (or trial) check, gives the builder's content key
     if (action === 'session') {
       await log('session', ip, { license_key: key || null, machine, detail: info });
       const update = updateInfo(cfg, info.ext);
@@ -272,7 +272,7 @@ export default async function handler(req, res) {
       return reply({ mode: 'trial', build: true, remaining: r, limit: cfg.trialBuilds });
     }
 
-    // the computers using a licence (shown when seats are full, and in Manage licence)
+    // the computers using a license (shown when seats are full, and in Manage license)
     if (action === 'seats') {
       if (!key) return fail('invalid_key');
       const lic = (await rows(`cf_licenses?key=eq.${enc(key)}&select=key,status,seats`))[0];
