@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Meta Pixel -->
+  <script src="/meta-pixel.js"></script>
+  <title>CodeFlow — Claude Videos to Editable After Effects | AE Flow Tools</title>
+  <meta name="description" content="CodeFlow turns motion videos made with Claude into native, editable After Effects comps: real text, real keyframes, real layers. $20 one-time." />
+  <link rel="canonical" href="https://www.aeflowtools.com/codeflow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AE Flow Tools" />
+  <meta property="og:title" content="CodeFlow — Claude videos to editable After Effects" />
+  <meta property="og:description" content="Made a motion video with Claude? CodeFlow builds it in After Effects as real, editable comps: live text, bezier keyframes, native layers." />
+  <meta property="og:url" content="https://www.aeflowtools.com/codeflow" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CodeFlow",
+    "applicationCategory": "MultimediaApplication",
+    "description": "Turns motion videos made with Claude into native, editable Adobe After Effects comps.",
+    "softwareRequirements": "Adobe After Effects 2022 or newer",
+    "url": "https://www.aeflowtools.com/codeflow",
+    "publisher": { "@type": "Organization", "name": "AE Flow Tools", "url": "https://www.aeflowtools.com" },
+    "offers": { "@type": "Offer", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
+  }
+  </script>
+  <style>
+    /* ---------- CodeFlow page ---------- */
+    .cf-icon { width: 76px; height: 76px; margin: 0 auto 24px; border-radius: 20px; box-shadow: 0 16px 44px rgba(47,91,255,0.5), 0 0 0 1px rgba(255,255,255,0.08); }
+    .cf-note { margin-top: 20px; color: var(--faint); font-size: 13.5px; }
+
+    /* hero flow strip: Claude -> one file -> After Effects */
+    .cf-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 14px; max-width: 920px; margin: 54px auto 0; text-align: left; }
+    .cf-node { border-radius: 18px; padding: 20px 20px 18px; background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); }
+    .cf-node small { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 10px; }
+    .cf-node b { display: block; font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .cf-node p { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+    .cf-arrow { align-self: center; color: var(--accent-2); font-size: 24px; }
+    .cf-prompt { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #0a0d14; border: 1px solid var(--border); color: #cfe0ff; font: 13px/1.4 "JetBrains Mono", Consolas, monospace; }
+    .cf-file { margin-top: 12px; display: inline-flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 10px; background: #0a0d14; border: 1px solid var(--border); font: 13px/1.2 "JetBrains Mono", Consolas, monospace; color: #cfe0ff; }
+    .cf-file img { width: 20px; height: 20px; border-radius: 6px; }
+    .cf-tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .cf-tags span { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: rgba(47,91,255,0.12); border: 1px solid rgba(91,127,255,0.3); color: #b9c8ff; }
+
+    /* how it works */
+    .cf-split { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; max-width: 980px; margin: 0 auto; }
+    .cf-steps { display: grid; gap: 28px; }
+    .cf-step { display: flex; gap: 18px; }
+    .cf-step .n { flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-weight: 800; font-size: 16px;
+      background: linear-gradient(160deg, rgba(47,91,255,0.35), rgba(47,91,255,0.08)); border: 1px solid rgba(91,127,255,0.35); }
+    .cf-step h4 { font-size: 18.5px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+    .cf-step p { color: var(--muted); font-size: 15px; }
+    .cf-step code, .cf-faq code { font: 13px "JetBrains Mono", Consolas, monospace; padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,0.07); color: #d8e3ff; }
+    .cf-shot { max-width: 330px; margin: 0 auto; border-radius: 20px; overflow: hidden; background: #0B1426; border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 30px 70px rgba(0,0,0,0.55), 0 0 90px rgba(47,91,255,0.2); }
+    .cf-shot img { width: 100%; height: auto; display: block; }
+
+    /* get the skill */
+    .cf-two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 960px; margin: 0 auto; }
+    .cf-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 26px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+    .cf-card h4 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .cf-card > p { color: var(--muted); font-size: 14.5px; margin-bottom: 16px; }
+    .cf-card ol { color: var(--muted); font-size: 14.5px; padding-left: 20px; display: grid; gap: 8px; }
+    .cf-card ol strong { color: var(--text); font-weight: 600; }
+    .cf-code { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; padding: 11px 12px 11px 14px; border-radius: 12px;
+      background: #0a0d14; border: 1px solid var(--border); font: 13px/1.4 "JetBrains Mono", Consolas, monospace; color: #cfe0ff; }
+    .cf-code span { overflow-x: auto; white-space: nowrap; min-width: 0; flex: 1; scrollbar-width: none; }
+    .cf-code span::-webkit-scrollbar { display: none; }
+    .cf-two > *, .cf-split > *, .cf-flow > * { min-width: 0; }   /* long commands must scroll inside their card, never stretch the page */
+    .cf-copy { flex: none; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: var(--text); font: 600 12px Inter, sans-serif; padding: 6px 11px; border-radius: 8px; cursor: pointer; }
+    .cf-copy:hover { background: rgba(255,255,255,0.12); }
+    .cf-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent-2); font-weight: 600; font-size: 14.5px; margin-top: 14px; }
+    .cf-link:hover { text-decoration: underline; }
+    .cf-need { max-width: 960px; margin: 22px auto 0; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .cf-need span { font-size: 13px; color: var(--muted); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); }
+
+    /* buy card (same look as the UI Flow Pro card) */
+    .pro-card { max-width: 460px; margin: 0 auto; text-align: center; border-radius: 24px; padding: 1px; background: linear-gradient(140deg, rgba(255,255,255,0.16), rgba(47,91,255,0.4)); }
+    .pro-inner { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); backdrop-filter: blur(22px) saturate(150%); -webkit-backdrop-filter: blur(22px) saturate(150%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); border-radius: 23px; padding: 44px 36px; }
+    .pro-badge { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4ade80; background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3); padding: 5px 12px; border-radius: 999px; margin-bottom: 18px; }
+    .pro-title { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .pro-price { font-size: 54px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; margin: 6px 0 4px; }
+    .pro-sub { color: var(--muted); margin-bottom: 26px; }
+    .pro-list { text-align: left; margin: 0 auto 28px; max-width: 330px; display: grid; gap: 12px; padding: 0; }
+    .pro-list li { list-style: none; display: flex; align-items: center; gap: 10px; color: var(--text); font-size: 15px; }
+    .pro-list .ck { width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); display: flex; align-items: center; justify-content: center; color: #4ade80; font-size: 12px; }
+    .pro-note { margin-top: 18px; font-size: 13px; color: #aeb7c8; }
+    .section-head h2 { line-height: 1.2; }
+    .cf-after { max-width: 760px; margin: 44px auto 0; }
+    .cf-after h3 { text-align: center; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 22px; }
+    .cf-after .cf-steps { gap: 20px; }
+
+    .cf-faq { padding-top: 8px; }
+
+    @media (max-width: 520px) {
+      .cf-code span { white-space: normal; overflow-wrap: anywhere; }   /* show the whole command on phones */
+    }
+    @media (max-width: 820px) {
+      .cf-flow { grid-template-columns: 1fr; gap: 10px; }
+      .cf-arrow { transform: rotate(90deg); justify-self: center; }
+      .cf-split { grid-template-columns: 1fr; gap: 40px; }
+      .cf-two { grid-template-columns: 1fr; }
+      .pro-inner { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <img class="logo-lockup" src="/brand/aeflowtools-lockup-dark.svg" alt="AE Flow Tools" width="151" height="28" />
+      </a>
+      <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+      <div class="nav-links" id="navlinks">
+        <a href="/">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
+          <div class="dropdown-menu">
+            <a href="/uiflow"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <a href="/codeflow"><span>CodeFlow</span> <span class="pill ok">Available</span></a>
+          </div>
+        </div>
+        <a href="/blog">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container">
+      <img class="cf-icon" src="/codeflow/codeflow-icon.svg" alt="CodeFlow" width="76" height="76" />
+      <span class="eyebrow"><span class="dot"></span> New · CodeFlow for After Effects</span>
+      <h1 class="display">Claude made it.<br />Now edit it in After Effects.</h1>
+      <p class="lead">
+        CodeFlow turns motion videos made with Claude into native After Effects comps:
+        real text, real keyframes, real layers. Nothing flattened, nothing to rebuild.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/gygsdc" onclick="window.fbq&&fbq('track','InitiateCheckout')">Buy CodeFlow · $20 <span class="arrow">→</span></a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <div class="cf-note">One-time payment · Works on 2 computers · After Effects 2022 or newer</div>
+
+      <div class="cf-flow" aria-label="From a Claude prompt to editable After Effects comps">
+        <div class="cf-node">
+          <small>1 · Claude</small>
+          <b>Say the magic words</b>
+          <p>Convert a video you already made, or start a new one.</p>
+          <div class="cf-prompt">make it for CodeFlow</div>
+        </div>
+        <div class="cf-arrow" aria-hidden="true">→</div>
+        <div class="cf-node">
+          <small>2 · One file</small>
+          <b>A single .codeflow file</b>
+          <p>Layers, keyframes, fonts, images and clips, all packed together.</p>
+          <div class="cf-file"><img src="/codeflow/codeflow-icon.svg" alt="" width="20" height="20" /> my-promo.codeflow</div>
+        </div>
+        <div class="cf-arrow" aria-hidden="true">→</div>
+        <div class="cf-node">
+          <small>3 · After Effects</small>
+          <b>Native, editable comps</b>
+          <p>Open it in the CodeFlow panel and click Build.</p>
+          <div class="cf-tags"><span>Text</span><span>Shapes</span><span>Footage</span><span>Precomps</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-head">
+        <h2>From Claude to your timeline</h2>
+        <p>Three steps. No exporting, no recreating, no flattened video.</p>
+      </div>
+      <div class="cf-split">
+        <div class="cf-steps">
+          <div class="cf-step">
+            <div class="n">1</div>
+            <div>
+              <h4>Make it with Claude</h4>
+              <p>Add the free CodeFlow skill to Claude, then ask it to <code>make it for CodeFlow</code>. Claude gives you one <code>.codeflow</code> file and tells you exactly where it saved it.</p>
+            </div>
+          </div>
+          <div class="cf-step">
+            <div class="n">2</div>
+            <div>
+              <h4>Open it in After Effects</h4>
+              <p>Go to <strong>Window → Extensions → CodeFlow</strong> and drop the file in. You see what's inside before you build.</p>
+            </div>
+          </div>
+          <div class="cf-step">
+            <div class="n">3</div>
+            <div>
+              <h4>Click Build</h4>
+              <p>CodeFlow installs any missing fonts and builds native comps in their own folder. Your project is never overwritten, so you can keep adding more videos.</p>
+            </div>
+          </div>
+        </div>
+        <div class="cf-shot"><img src="/codeflow/panel.png" alt="The CodeFlow panel in After Effects after building a project: 9 comps, 200 layers" width="660" height="1060" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>It's After Effects, not a video file</h2>
+        <p>Everything arrives the way a motion designer would have made it.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="ficon">Aa</div>
+          <h4>Real, editable text</h4>
+          <p>Text stays text, in the right font. Fonts travel inside the file and install automatically. Word-by-word reveals are one text layer with an animator.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">∿</div>
+          <h4>Real keyframes and easing</h4>
+          <p>Bezier eases land in the Graph Editor, ready to tweak. No baked frames, no walls of keys.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">◧</div>
+          <h4>Native layers</h4>
+          <p>Shape layers, masks, blur, drop shadow and gradients, built from the real After Effects tools.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">▶</div>
+          <h4>Footage stays footage</h4>
+          <p>Stock clips and videos come in as real footage layers with the same trim, speed and loop. Never stretched.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">▤</div>
+          <h4>Organized like a pro</h4>
+          <p>One precomp per scene, named layers, and a tidy project folder for every build.</p>
+        </div>
+        <div class="feature">
+          <div class="ficon">✓</div>
+          <h4>Looks like the original</h4>
+          <p>In our tests, builds match the video Claude made at about 98–99% frame similarity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SKILL -->
+  <section class="section" id="skill">
+    <div class="container">
+      <div class="section-head">
+        <h2>Add the free skill to Claude</h2>
+        <p>The CodeFlow skill teaches Claude how to make files that open in After Effects. It's free and open on GitHub.</p>
+      </div>
+      <div class="cf-two">
+        <div class="cf-card">
+          <h4>Claude Code</h4>
+          <p>Run these two commands, then restart Claude Code:</p>
+          <div class="cf-code"><span>/plugin marketplace add aeflowtools-cpu/codeflow</span><button class="cf-copy" type="button" data-copy="/plugin marketplace add aeflowtools-cpu/codeflow">Copy</button></div>
+          <div class="cf-code"><span>/plugin install codeflow@aeflowtools</span><button class="cf-copy" type="button" data-copy="/plugin install codeflow@aeflowtools">Copy</button></div>
+          <a class="cf-link" href="https://github.com/aeflowtools-cpu/codeflow" target="_blank" rel="noopener">View on GitHub <span>→</span></a>
+        </div>
+        <div class="cf-card">
+          <h4>Claude app</h4>
+          <p>Upload the skill file once:</p>
+          <ol>
+            <li>Download <strong>codeflow-skill.zip</strong> below.</li>
+            <li>Open <strong>Settings → Capabilities → Skills</strong>.</li>
+            <li>Click <strong>Upload skill</strong> and choose the zip.</li>
+          </ol>
+          <a class="cf-link" href="https://github.com/aeflowtools-cpu/codeflow/raw/main/codeflow-skill.zip">Download codeflow-skill.zip <span>↓</span></a>
+        </div>
+      </div>
+      <div class="cf-need">
+        <span>Claude Code or the Claude desktop app</span>
+        <span>Node.js 18 or newer</span>
+        <span>Google Chrome or Edge (for previews)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUY -->
+  <section class="section" id="buy">
+    <div class="container">
+      <div class="section-head">
+        <h2>One price. No subscription.</h2>
+      </div>
+      <div class="pro-card">
+        <div class="pro-inner">
+          <span class="pro-badge">CodeFlow for After Effects</span>
+          <div class="pro-title">CodeFlow</div>
+          <div class="pro-price">$20</div>
+          <div class="pro-sub">One-time payment</div>
+
+          <ul class="pro-list">
+            <li><span class="ck">✓</span> Unlimited builds</li>
+            <li><span class="ck">✓</span> Works on 2 computers</li>
+            <li><span class="ck">✓</span> Real text, keyframes and footage</li>
+            <li><span class="ck">✓</span> Fonts included in every file</li>
+            <li><span class="ck">✓</span> No subscription</li>
+          </ul>
+
+          <a class="btn btn-primary" href="https://aeflowtools.gumroad.com/l/gygsdc" style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','InitiateCheckout')">
+            Buy CodeFlow <span class="arrow">→</span>
+          </a>
+          <div class="pro-note">Secure checkout via Gumroad · You get the installer and your licence key right after checkout.</div>
+        </div>
+      </div>
+
+      <div class="cf-after">
+        <h3>After you buy</h3>
+        <div class="cf-steps">
+          <div class="cf-step">
+            <div class="n">1</div>
+            <div>
+              <h4>Install the extension</h4>
+              <p>Open the downloaded <code>.zxp</code> file with a free ZXP installer, such as the <a class="cf-link" style="margin:0" href="https://aescripts.com/learn/post/zxp-installer" target="_blank" rel="noopener">aescripts ZXP Installer</a>. Then restart After Effects.</p>
+            </div>
+          </div>
+          <div class="cf-step">
+            <div class="n">2</div>
+            <div>
+              <h4>Activate your licence</h4>
+              <p>Open <strong>Window → Extensions → CodeFlow</strong>, paste the licence key from your receipt, and click Activate.</p>
+            </div>
+          </div>
+          <div class="cf-step">
+            <div class="n">3</div>
+            <div>
+              <h4>Build your first video</h4>
+              <p>Ask Claude to <code>make it for CodeFlow</code>, drop the file into the panel, and click Build.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section cf-faq" id="faq">
+    <div class="container">
+      <div class="section-head">
+        <h2>Questions</h2>
+      </div>
+      <div class="cmp-acc cf-faq">
+        <details>
+          <summary>Do I need Claude?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">Yes. CodeFlow opens the files that Claude makes with the free CodeFlow skill. For the best results use Claude Code or the Code tab of the Claude desktop app, because Claude can then preview and check its work on your computer. CodeFlow adds no AI cost of its own.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Can I convert a video I already made?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">Yes. Videos made with HTML, SVG, CSS, GSAP or JavaScript work, including images and stock clips. Point Claude at the file and say <code>make this for CodeFlow</code>. You can also start a new video and get an MP4 preview and the editable file together.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Is the text really editable?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">Yes: real text layers in the right font. One catch: if your SVGs come from Figma with <em>Outline text</em> turned on (its default), the words are only shapes and there's no text to recover. Export them again with Outline text unchecked.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Will it look exactly like my video?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">In our tests, builds match the original at about 98–99% frame similarity. Things After Effects can't do natively, such as 3D or WebGL scenes and canvas particle effects, come in as pictures, and Claude tells you when that happens.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How many computers can I use it on?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">Each licence works on 2 computers at the same time. If you change computers, free up a seat yourself from the Manage option in the panel.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Does it need internet?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">Yes. CodeFlow checks your licence online when it opens and before each build. Your projects and files never leave your computer: only your licence and computer details are checked.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How do I get updates?</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">When a new version is out, CodeFlow shows an update message in the panel. Download the latest installer from your Gumroad receipt email or your Gumroad Library, and install it over the old one. Your licence keeps working.</p>
+          </div>
+        </details>
+        <details>
+          <summary>I have a question or a problem</summary>
+          <div class="cmp-body">
+            <p style="color:var(--muted)">Write to <a class="cf-link" style="margin:0" href="mailto:contact@aeflowtools.com">contact@aeflowtools.com</a> and we'll help.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="brand" href="/"><img class="logo-lockup" src="/brand/aeflowtools-lockup-dark.svg" alt="AE Flow Tools" width="151" height="28" /></a>
+        <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/uiflow">UI Flow</a>
+        <a href="/blog">Blog</a>
+      </div>
+      <div class="socials">
+        <a href="https://instagram.com/aeflowtools" target="_blank" rel="noopener" aria-label="Instagram" title="@aeflowtools">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="mailto:contact@aeflowtools.com" aria-label="Email" title="contact@aeflowtools.com">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // close the Plugins dropdown when clicking outside it
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('.dropdown').forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove('open');
+      });
+    });
+    // "Copy" buttons next to the install commands
+    document.querySelectorAll('.cf-copy').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var text = b.getAttribute('data-copy');
+        var done = function () { var old = b.textContent; b.textContent = 'Copied ✓'; setTimeout(function () { b.textContent = old; }, 1600); };
+        var fallback = function () {
+          var t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+          document.body.appendChild(t); t.select();
+          try { if (document.execCommand('copy')) done(); } catch (e) {}
+          document.body.removeChild(t);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback();
+      });
+    });
+    // Meta Pixel: product page
+    try { window.fbq && fbq('track', 'ViewContent', { content_name: 'CodeFlow' }); } catch (e) {}
+  </script>
+</body>
+</html>

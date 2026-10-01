@@ -6,7 +6,7 @@
   <!-- Meta Pixel -->
   <script src="/meta-pixel.js"></script>
   <title>AE Flow Tools — Plugin Library</title>
-  <meta name="description" content="The AE Flow Tools plugin library. Plugins for a better After Effects motion workflow. UI Flow available now, Comp Flow coming soon." />
+  <meta name="description" content="The AE Flow Tools plugin library. Plugins for a better After Effects motion workflow. UI Flow and CodeFlow available now." />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
   <link rel="icon" type="image/png" href="/favicon.png" />
@@ -29,7 +29,7 @@
           <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
           <div class="dropdown-menu">
             <a href="uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
-            <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
+            <a href="codeflow"><span>CodeFlow</span> <span class="pill ok">Available</span></a>
           </div>
         </div>
         <a href="/blog">Blog</a>
@@ -62,16 +62,16 @@
           </div>
         </a>
 
-        <!-- Comp Flow — coming soon, not clickable -->
-        <div class="lib-card locked">
+        <!-- CodeFlow — available -->
+        <a class="lib-card" href="codeflow">
           <div class="lib-card-inner">
-            <div class="lib-visual">◈</div>
-            <span class="badge soon">Coming soon</span>
-            <h3>Comp Flow</h3>
-            <p>The fastest way to store, organize, and share your After Effects comps.</p>
-            <span class="locked-label">Coming soon</span>
+            <div class="lib-visual"><img src="/codeflow/codeflow-icon.svg" alt="" width="84" height="84" style="border-radius:22px; box-shadow:0 12px 36px rgba(47,91,255,0.45);" /></div>
+            <span class="badge free">New</span>
+            <h3>CodeFlow</h3>
+            <p>Turn videos made with Claude into editable After Effects comps. Real text, real keyframes, one click.</p>
+            <span class="card-cta">Open CodeFlow <span class="arrow">→</span></span>
           </div>
-        </div>
+        </a>
 
         <!-- More -->
         <div class="more-soon">More plugins coming soon.</div>
