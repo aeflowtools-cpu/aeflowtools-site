@@ -5,59 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Meta Pixel -->
   <script src="/meta-pixel.js"></script>
-  <title>UI Flow vs AEUX — Comparison | AE Flow Tools</title>
-  <meta name="description" content="See the same Figma frame exported both ways — UI Flow keeps text editable and layout intact, AEUX flattens and breaks it." />
-  <link rel="canonical" href="https://www.aeflowtools.com/uiflow/vs" />
+  <title>Blog — Figma to After Effects Guides | AE Flow Tools</title>
+  <meta name="description" content="Guides and tutorials for motion designers: moving Figma designs into After Effects, animating UI, and faster AE workflows." />
+  <link rel="canonical" href="https://www.aeflowtools.com/blog" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="AE Flow Tools" />
-  <meta property="og:title" content="UI Flow vs AEUX — Comparison" />
-  <meta property="og:description" content="The same Figma frame, exported both ways. UI Flow rebuilds it faithfully; AEUX flattens and breaks it." />
-  <meta property="og:url" content="https://www.aeflowtools.com/uiflow/vs" />
-  <meta property="og:image" content="https://i.postimg.cc/25Mw22Mf/UI-Flow-Logo.png" />
-  <link rel="stylesheet" href="../styles.css" />
+  <meta property="og:title" content="AE Flow Tools Blog" />
+  <meta property="og:description" content="Figma to After Effects guides, UI animation tutorials and workflow tips for motion designers." />
+  <meta property="og:url" content="https://www.aeflowtools.com/blog" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/blog/blog.css" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
 </head>
 <body>
   <div class="glow g1"></div>
-  <div class="glow g2"></div>
 
   <!-- NAV -->
   <nav class="nav">
     <div class="container nav-inner">
-      <a class="brand" href="../">
+      <a class="brand" href="/">
         <img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" />
         AE Flow Tools
       </a>
       <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
       <div class="nav-links" id="navlinks">
-        <a href="../">Home</a>
+        <a href="/">Home</a>
         <div class="dropdown">
           <button class="dropbtn" onclick="this.parentElement.classList.toggle('open')">Plugins <span class="caret">▾</span></button>
           <div class="dropdown-menu">
-            <a href="../uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
+            <a href="/uiflow/"><span>UI Flow</span> <span class="pill ok">Available</span></a>
             <span class="disabled"><span>Comp Flow</span> <span class="pill soon">Coming soon</span></span>
           </div>
         </div>
-        <a href="/blog">Blog</a>
+        <a href="/blog" class="active">Blog</a>
         <a class="nav-cta" href="/uiflow/tools">Download free</a>
       </div>
     </div>
   </nav>
 
-  <!-- UI FLOW vs AEUX -->
-  <section class="section" id="compare" style="padding-top:56px;">
+  <header class="hero hero-sm">
     <div class="container">
-      <div class="section-head">
-        <span class="kicker">Side by side</span>
-        <h1 class="display" style="font-size:clamp(30px,4.4vw,48px);">UI Flow vs AEUX</h1>
-        <p>The same Figma frame, exported both ways. Pick a case and see what survives the trip into After Effects.</p>
-      </div>
-      <div class="vs" data-vs></div>
-      <div class="hero-actions" style="margin-top:40px;">
-        <a class="btn btn-primary" href="/uiflow/tools">Download UI Flow free <span class="arrow">→</span></a>
-        <a class="btn btn-ghost" href="/uiflow">Learn more</a>
+      <span class="kicker">Blog</span>
+      <h1 class="display">Guides for motion designers</h1>
+      <p class="lead">Figma to After Effects workflows, UI animation tutorials, and fixes for the problems that slow you down.</p>
+    </div>
+  </header>
+
+  <section class="section" style="padding-top:16px;">
+    <div class="container">
+      <div class="blog-list">
+        <a class="post-card" href="/blog/import-figma-into-after-effects">
+          <div class="thumb"><img src="/uiflow/assets/figma-1.png" alt="" loading="lazy" /><img src="/uiflow/assets/uiflow-1.png" alt="" loading="lazy" /></div>
+          <div class="body">
+            <span class="tag">Guide</span>
+            <h2>How to Import Figma into After Effects (2026 Guide)</h2>
+            <p>The 4 ways to move Figma designs into After Effects, compared, plus a step-by-step guide to getting fully editable layers in one click.</p>
+            <span class="meta">Oct 1, 2026 · 8 min read</span>
+          </div>
+        </a>
       </div>
     </div>
   </section>
@@ -66,11 +73,12 @@
   <footer class="footer">
     <div class="container footer-inner">
       <div>
-        <a class="brand" href="../"><img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
+        <a class="brand" href="/"><img class="logo" src="https://i.postimg.cc/yYxqXN3k/xh-DXWrj-Lwuzcx-DUadh-Tjt-ZVq-Zfs.avif" alt="AE Flow Tools" /> AE Flow Tools</a>
         <p class="copy" style="margin-top:10px;">© 2026 AE Flow Tools. All rights reserved.</p>
       </div>
       <div class="footer-links">
-        <a href="/uiflow">UI Flow</a>
+        <a href="/uiflow/">UI Flow</a>
+        <a href="/blog">Blog</a>
         <a href="/uiflow/tools">Download</a>
       </div>
       <div class="socials">
@@ -84,23 +92,12 @@
     </div>
   </footer>
 
-  <!-- Lightbox (comparison image preview) -->
-  <div class="lb-overlay" id="lbOverlay">
-    <button class="lb-close" id="lbClose" aria-label="Close">×</button>
-    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image">‹</button>
-    <img class="lb-img" id="lbImg" src="" alt="" />
-    <button class="lb-nav lb-next" id="lbNext" aria-label="Next image">›</button>
-    <div class="lb-cap" id="lbCap"></div>
-  </div>
-
   <script>
-    // close the Plugins dropdown when clicking outside it
-    document.addEventListener('click', function (e) {
-      document.querySelectorAll('.dropdown').forEach(function (d) {
-        if (!d.contains(e.target)) d.classList.remove('open');
+    document.addEventListener("click", function (e) {
+      document.querySelectorAll(".dropdown").forEach(function (d) {
+        if (!d.contains(e.target)) d.classList.remove("open");
       });
     });
   </script>
-  <script src="/uiflow/compare.js" defer></script>
 </body>
 </html>
