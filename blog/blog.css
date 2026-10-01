@@ -3,6 +3,8 @@
    Builds on /styles.css tokens. Keep articles readable: ~720px column.
    ============================================================ */
 
+.bd-only { display: none; }
+
 /* ---------- Blog index ---------- */
 .blog-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; max-width: 980px; margin: 0 auto; }
 .post-card {

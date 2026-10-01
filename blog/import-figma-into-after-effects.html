@@ -149,7 +149,7 @@
 
       <h3>4. UI Flow</h3>
       <p><a href="/uiflow">UI Flow</a> is a Figma plugin plus an After Effects extension built for one job: rebuild the Figma design inside AE as <strong>native, editable layers that match the original</strong>. Shapes become shape layers, text stays live text (including mixed styles and gradient text), and shadows, blurs, masks and blend modes are rebuilt as real AE effects. Nothing gets flattened unless you ask for it.</p>
-      <p>The catch: it's a two-part install (Figma plugin + AE extension), and the free plan includes 25 exports every 30 days. After that it's a one-time <a href="/uiflow/pro">lifetime license</a>, not a subscription.</p>
+      <p>The catch: it's a two-part install (Figma plugin + AE extension)<span class="intl-only">, and the free plan includes 25 exports every 30 days. After that it's a one-time <a href="/uiflow/pro">lifetime license</a>, not a subscription</span><span class="bd-only">. The good news: it's completely free for everyone in Bangladesh, with no limits</span>.</p>
 
       <h3>Side by side</h3>
       <div class="tbl-wrap">
@@ -315,6 +315,13 @@
         try { window.fbq && fbq('trackCustom', 'BlogToDownload', { post: 'import-figma-into-after-effects' }); } catch (e) {}
       });
     });
+    // Bangladesh visitors: UI Flow is fully free there, so swap the pricing lines
+    fetch('/api/geo').then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.country === 'BD') {
+        document.querySelectorAll('.bd-only').forEach(function (el) { el.classList.remove('bd-only'); });
+        document.querySelectorAll('.intl-only').forEach(function (el) { el.style.display = 'none'; });
+      }
+    }).catch(function () {});
   </script>
 </body>
 </html>
