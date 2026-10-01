@@ -49,7 +49,7 @@ async function config() {
     // prices shown to users: Bangladesh visitors see price_bd and buy at buy_url_bd (only once buy_url_bd is set)
     priceIntl: c.price_intl || '$20',
     priceBd: c.price_bd || '৳999',
-    buyUrlBd: c.buy_url_bd || '',
+    buyUrlBd: c.buy_url_bd || 'https://www.supportkori.com/arafatmiraz/extras/code-flow-license-key-q4ic',   // the SupportKori shop; cf_config buy_url_bd overrides it
     update: {
       latest: c.latest_version || '',
       url: c.download_url || 'https://aeflowtools.com/codeflow',
