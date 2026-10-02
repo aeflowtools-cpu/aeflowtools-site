@@ -4,7 +4,7 @@
 // Licenses are Gumroad license keys (verified with Gumroad's API) or manual keys (source 'manual',
 // created in the database for giveaways / influencers / testing).
 //   - 2 computers per license (cf_config.seats); a buyer can free a seat from the panel
-//   - 3 free builds per computer without a license (cf_config.trial_builds), counted here
+//   - 5 free builds per computer without a license (cf_config.trial_builds), counted here
 //   - every answer is signed (Ed25519): the panel rejects answers that didn't come from this server
 //   - the panel can only decrypt the After Effects builder with the content key it gets from here
 //
@@ -40,7 +40,7 @@ async function config() {
     master: Buffer.from(c.content_master_hex, 'hex'),
     productId: c.gumroad_product_id || '',
     seats: +(c.seats || 2),
-    trialBuilds: +(c.trial_builds || 3),
+    trialBuilds: +(c.trial_builds || 5),
     sessionHours: +(c.session_hours || 12),
     deactivationsPer30d: +(c.deactivations_per_30d || 3),
     buyUrl: c.buy_url || 'https://aeflowtools.gumroad.com',
@@ -223,7 +223,7 @@ export default async function handler(req, res) {
   if (action === 'info') {
     try {
       const cfg = await config(), bi = buyInfo(cfg, req);
-      return res.status(200).json({ ok: true, region: bi.region, price: bi.price, buyUrl: bi.buyUrl, intlPrice: cfg.priceIntl, bdPrice: cfg.priceBd });
+      return res.status(200).json({ ok: true, region: bi.region, price: bi.price, buyUrl: bi.buyUrl, intlPrice: cfg.priceIntl, bdPrice: cfg.priceBd, trial: cfg.trialBuilds });
     } catch (e) { return res.status(500).json({ ok: false, error: 'server_error' }); }
   }
   const machine = String(b.machine || '').toLowerCase(), nonce = String(b.nonce || '');

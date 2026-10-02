@@ -30,7 +30,7 @@
     "publisher": { "@type": "Organization", "name": "AE Flow Tools", "url": "https://www.aeflowtools.com" },
     "downloadUrl": "https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.1.0.zip",
     "offers": [
-      { "@type": "Offer", "name": "Free trial (3 builds)", "price": "0", "priceCurrency": "USD", "url": "https://www.aeflowtools.com/codeflow" },
+      { "@type": "Offer", "name": "Free trial (5 builds)", "price": "0", "priceCurrency": "USD", "url": "https://www.aeflowtools.com/codeflow" },
       { "@type": "Offer", "name": "CodeFlow license", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
     ]
   }
@@ -182,7 +182,7 @@
         <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.1.0.zip" download onclick="window.fbq&&fbq('track','Lead')">Download free <span class="arrow">↓</span></a>
         <a class="btn btn-ghost" href="#how">See how it works</a>
       </div>
-      <div class="cf-note">Free to try: 3 builds on us, then <a href="#buy" style="text-decoration:underline"><span data-cf-price>$20</span> lifetime license</a> · After Effects 2022 or newer</div>
+      <div class="cf-note">Free to try: <span data-cf-trial>5</span> builds on us, then <a href="#buy" style="text-decoration:underline"><span data-cf-price>$20</span> lifetime license</a> · After Effects 2022 or newer</div>
 
       <div class="cf-flow" aria-label="From a Claude prompt to editable After Effects comps">
         <div class="cf-node">
@@ -293,7 +293,7 @@
     <div class="container">
       <div class="section-head">
         <h2>Step 1: install the extension</h2>
-        <p>It's free to download, with 3 free builds on every computer so you can try it properly.</p>
+        <p>It's free to download, with <span data-cf-trial>5</span> free builds on every computer so you can try it properly.</p>
       </div>
       <div class="cf-dl">
         <div class="cf-dl-main">
@@ -308,7 +308,7 @@
           <li>Unzip the download. Inside: the installer (<code>CodeFlow-<span data-ver>1.1.0</span>.zxp</code>), the Claude skill, and a PDF manual.</li>
           <li>Open the <code>.zxp</code> file with a free ZXP installer, such as the <a class="cf-link" style="margin:0" href="https://aescripts.com/learn/post/zxp-installer" target="_blank" rel="noopener">aescripts ZXP Installer</a>.</li>
           <li>Restart After Effects.</li>
-          <li>Open <strong>Window → Extensions → CodeFlow</strong>. You're ready: you have 3 free builds.</li>
+          <li>Open <strong>Window → Extensions → CodeFlow</strong>. You're ready: you have <span data-cf-trial>5</span> free builds.</li>
           <li>Make sure <strong>Google Chrome or Microsoft Edge</strong> is installed (free). CodeFlow uses it quietly in the background to read your video.</li>
         </ol>
       </div>
@@ -355,14 +355,14 @@
     <div class="container">
       <div class="section-head">
         <h2>Free to try. <span data-cf-price>$20</span> to keep going.</h2>
-        <p>Use your 3 free builds to see it work on your own videos. Then unlock unlimited builds with a lifetime license: one payment, no subscription.</p>
+        <p>Use your <span data-cf-trial>5</span> free builds to see it work on your own videos. Then unlock unlimited builds with a lifetime license: one payment, no subscription.</p>
       </div>
       <div class="cf-plans">
         <div class="cf-plan">
           <span class="pro-badge" style="color:#9fb6ff; background:rgba(91,127,255,0.12); border-color:rgba(91,127,255,0.35);">Free trial</span>
           <div class="pro-title">Try it</div>
           <div class="pro-price">$0</div>
-          <div class="pro-sub">3 builds on each computer</div>
+          <div class="pro-sub"><span data-cf-trial>5</span> builds on each computer</div>
 
           <ul class="pro-list">
             <li><span class="ck">✓</span> Every feature included</li>
@@ -430,11 +430,11 @@
         <details>
           <summary>What's free and what costs money?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">The extension and the Claude skill are both free to download, and you get 3 free builds on every computer. After that CodeFlow needs a lifetime license key: <span data-cf-price>$20</span>, paid once, for everyone. (Bangladesh has its own local price and shop.)</p>
+            <p style="color:var(--muted)">The extension and the Claude skill are both free to download, and you get <span data-cf-trial>5</span> free builds on every computer. After that CodeFlow needs a lifetime license key: <span data-cf-price>$20</span>, paid once, for everyone. (Bangladesh has its own local price and shop.)</p>
           </div>
         </details>
         <details>
-          <summary>What happens after the 3 free builds?</summary>
+          <summary>What happens after the <span data-cf-trial>5</span> free builds?</summary>
           <div class="cmp-body">
             <p style="color:var(--muted)">CodeFlow asks for a license key before it builds more. Everything you've already built stays in your After Effects project and keeps working, with or without CodeFlow.</p>
           </div>
@@ -543,6 +543,7 @@
       .then(function (d) {
         if (!d || !d.ok || !d.price) return;
         document.querySelectorAll('[data-cf-price]').forEach(function (e) { e.textContent = d.price; });
+        if (d.trial >= 1 && d.trial <= 99) document.querySelectorAll('[data-cf-trial]').forEach(function (e) { e.textContent = d.trial; });   // free builds per computer (cf_config.trial_builds)
         if (d.region === 'BD') {
           document.querySelectorAll('[data-cf-sub]').forEach(function (e) { e.textContent = 'Bangladesh price · lifetime license'; });
           document.querySelectorAll('[data-cf-store]').forEach(function (e) { e.textContent = 'SupportKori'; });
