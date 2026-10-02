@@ -25,10 +25,10 @@
     "name": "CodeFlow",
     "applicationCategory": "MultimediaApplication",
     "description": "Turns motion videos made with Claude into native, editable Adobe After Effects comps.",
-    "softwareRequirements": "Adobe After Effects 2022 or newer",
+    "softwareRequirements": "Adobe After Effects 2022 or newer, Google Chrome or Microsoft Edge",
     "url": "https://www.aeflowtools.com/codeflow",
     "publisher": { "@type": "Organization", "name": "AE Flow Tools", "url": "https://www.aeflowtools.com" },
-    "downloadUrl": "https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.0.0.zip",
+    "downloadUrl": "https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.1.0.zip",
     "offers": [
       { "@type": "Offer", "name": "Free trial (3 builds)", "price": "0", "priceCurrency": "USD", "url": "https://www.aeflowtools.com/codeflow" },
       { "@type": "Offer", "name": "CodeFlow license", "price": "20.00", "priceCurrency": "USD", "url": "https://aeflowtools.gumroad.com/l/gygsdc" }
@@ -179,7 +179,7 @@
         real text, real keyframes, real layers. Nothing flattened, nothing to rebuild.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.0.0.zip" download onclick="window.fbq&&fbq('track','Lead')">Download free <span class="arrow">↓</span></a>
+        <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.1.0.zip" download onclick="window.fbq&&fbq('track','Lead')">Download free <span class="arrow">↓</span></a>
         <a class="btn btn-ghost" href="#how">See how it works</a>
       </div>
       <div class="cf-note">Free to try: 3 builds on us, then <a href="#buy" style="text-decoration:underline"><span data-cf-price>$20</span> lifetime license</a> · After Effects 2022 or newer</div>
@@ -188,22 +188,22 @@
         <div class="cf-node">
           <small>1 · Claude</small>
           <b>Say the magic words</b>
-          <p>Convert a video you already made, or start a new one.</p>
+          <p>Claude writes your video as one HTML file. Make a new one, or prepare one you already have.</p>
           <div class="cf-prompt">make it for CodeFlow</div>
         </div>
         <div class="cf-arrow" aria-hidden="true">→</div>
         <div class="cf-node">
-          <small>2 · One file</small>
-          <b>A single .codeflow file</b>
-          <p>Layers, keyframes, fonts, images and clips, all packed together.</p>
-          <div class="cf-file"><img src="/codeflow/codeflow-icon.svg" alt="" width="20" height="20" /> my-promo.codeflow</div>
+          <small>2 · Drop it in</small>
+          <b>Converted in seconds</b>
+          <p>Drag the HTML onto the CodeFlow panel. It reads every frame itself: no AI, no tokens.</p>
+          <div class="cf-file"><img src="/codeflow/codeflow-icon.svg" alt="" width="20" height="20" /> my-promo.html</div>
         </div>
         <div class="cf-arrow" aria-hidden="true">→</div>
         <div class="cf-node">
           <small>3 · After Effects</small>
           <b>Native, editable comps</b>
-          <p>Open it in the CodeFlow panel and click Build.</p>
-          <div class="cf-tags"><span>Text</span><span>Shapes</span><span>Footage</span><span>Precomps</span></div>
+          <p>Click Build. Real text, keyframes and layers, with camera moves on parent layers.</p>
+          <div class="cf-tags"><span>Text</span><span>Shapes</span><span>Images</span><span>Precomps</span></div>
         </div>
       </div>
     </div>
@@ -222,15 +222,15 @@
             <div class="n">1</div>
             <div>
               <h4>Make it with Claude</h4>
-              <p>Add the free CodeFlow skill to Claude, then ask it to <code>make it for CodeFlow</code>. Claude gives you one <code>.codeflow</code> file and tells you exactly where it saved it.</p>
-              <p style="margin-top:8px"><strong style="color:var(--text)">Starting a new video?</strong> Ask for it to be built in CodeFlow from the start: <code>make a new video for CodeFlow</code>. It skips the "rebuild an existing video" work, so it usually costs less time and fewer tokens than converting a video you already made.</p>
+              <p>Add the free CodeFlow skill to Claude, then ask it to <code>make it for CodeFlow</code>. Claude writes your video as one HTML file, tells you exactly where it saved it, and you can watch it in Chrome right away.</p>
+              <p style="margin-top:8px"><strong style="color:var(--text)">Cheap and fast.</strong> Claude only writes the video. The conversion to After Effects is done by the CodeFlow panel, without AI, so you don't pay tokens or wait for it. There is nothing to run and nothing to install on top of the skill.</p>
             </div>
           </div>
           <div class="cf-step">
             <div class="n">2</div>
             <div>
               <h4>Open it in After Effects</h4>
-              <p>Go to <strong>Window → Extensions → CodeFlow</strong> and drop the file in. You see what's inside before you build.</p>
+              <p>Go to <strong>Window → Extensions → CodeFlow</strong> and drag the HTML file onto the panel. It converts in a few seconds (a 15-second video takes about 3) and tells you if anything could not be converted exactly.</p>
             </div>
           </div>
           <div class="cf-step">
@@ -271,18 +271,18 @@
         </div>
         <div class="feature">
           <div class="ficon">▶</div>
-          <h4>Footage stays footage</h4>
-          <p>Stock clips and videos come in as real footage layers with the same trim, speed and loop. Never stretched.</p>
+          <h4>Converted in seconds, no AI</h4>
+          <p>The panel reads your video frame by frame itself. A 15-second video converts in about 3 seconds, so there are no tokens to pay and nothing to wait for.</p>
         </div>
         <div class="feature">
           <div class="ficon">▤</div>
           <h4>Organized like a pro</h4>
-          <p>One precomp per scene, named layers, and a tidy project folder for every build.</p>
+          <p>A precomp for every clipped area, parent layers that carry camera moves, named layers, and a tidy project folder for every build.</p>
         </div>
         <div class="feature">
           <div class="ficon">✓</div>
           <h4>Looks like the original</h4>
-          <p>In our tests, builds match the video Claude made at about 98–99% frame similarity.</p>
+          <p>In our tests, converted videos match the video Claude made at about 96–99% frame similarity, and the panel lists anything it could not convert exactly.</p>
         </div>
       </div>
     </div>
@@ -300,15 +300,16 @@
           <img src="/codeflow/codeflow-icon.svg" alt="" width="64" height="64" style="border-radius:16px; flex:none;" />
           <div>
             <b>CodeFlow for After Effects</b>
-            <small>Version <span data-ver>1.0.0</span> · After Effects 2022 or newer · Free to download</small>
+            <small>Version <span data-ver>1.1.0</span> · After Effects 2022 or newer · Free to download</small>
           </div>
-          <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.0.0.zip" download onclick="window.fbq&&fbq('track','Lead')">Download <span class="arrow">↓</span></a>
+          <a class="btn btn-primary" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.1.0.zip" download onclick="window.fbq&&fbq('track','Lead')">Download <span class="arrow">↓</span></a>
         </div>
         <ol class="cf-dl-steps">
-          <li>Unzip the download. Inside: the installer (<code>CodeFlow-<span data-ver>1.0.0</span>.zxp</code>), the Claude skill, and a PDF manual.</li>
+          <li>Unzip the download. Inside: the installer (<code>CodeFlow-<span data-ver>1.1.0</span>.zxp</code>), the Claude skill, and a PDF manual.</li>
           <li>Open the <code>.zxp</code> file with a free ZXP installer, such as the <a class="cf-link" style="margin:0" href="https://aescripts.com/learn/post/zxp-installer" target="_blank" rel="noopener">aescripts ZXP Installer</a>.</li>
           <li>Restart After Effects.</li>
           <li>Open <strong>Window → Extensions → CodeFlow</strong>. You're ready: you have 3 free builds.</li>
+          <li>Make sure <strong>Google Chrome or Microsoft Edge</strong> is installed (free). CodeFlow uses it quietly in the background to read your video.</li>
         </ol>
       </div>
     </div>
@@ -319,7 +320,7 @@
     <div class="container">
       <div class="section-head">
         <h2>Step 2: add the free skill to Claude</h2>
-        <p>The CodeFlow skill teaches Claude how to make files that open in After Effects. It's free and open on GitHub.</p>
+        <p>The CodeFlow skill teaches Claude how to write your video so the CodeFlow panel can convert it. It's free, tiny, and open on GitHub.</p>
       </div>
       <div class="cf-two">
         <div class="cf-card">
@@ -341,11 +342,11 @@
         </div>
       </div>
       <div class="cf-need">
-        <span>Claude desktop app (Code tab) or Claude Code</span>
-        <span>Node.js 18 or newer</span>
-        <span>Google Chrome or Edge (for previews)</span>
+        <span>Any Claude: the app, the Code tab or Claude Code</span>
+        <span>No Node.js, no ffmpeg, no setup</span>
+        <span>Google Chrome or Edge (the panel uses it to read the video)</span>
       </div>
-      <div class="cf-tip"><b>Tip</b><span>For the best speed, run Claude <b>on your own computer</b>: open the Claude desktop app, go to the <b>Code</b> tab and choose <b>Local</b> (or use Claude Code in a terminal). The Code tab on claude.ai in a browser runs in the cloud, so it can't see your files and is much slower.</span></div>
+      <div class="cf-tip"><b>Tip</b><span>Claude only has to <b>write one file</b>, so any way of using Claude works, including normal chat. The conversion itself happens in the CodeFlow panel on your computer, in seconds, with no AI.</span></div>
     </div>
   </section>
 
@@ -369,7 +370,7 @@
             <li><span class="ck">✓</span> Real After Effects comps, yours to keep</li>
           </ul>
 
-          <a class="btn btn-ghost" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.0.0.zip" download style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','Lead')">
+          <a class="btn btn-ghost" href="https://pub-4536720a8def4fdaaf275e0e5079ddfd.r2.dev/Code%20flow/CodeFlow%20v1.1.0.zip" download style="width:100%; justify-content:center;" onclick="window.fbq&&fbq('track','Lead')">
             Download free <span class="arrow">↓</span>
           </a>
           <div class="pro-note">Install it, then ask Claude for your first file.</div>
@@ -441,13 +442,13 @@
         <details>
           <summary>Do I need Claude?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">Yes. CodeFlow opens the files that Claude makes with the free CodeFlow skill. For the best results use the <b>Code tab of the Claude desktop app with Local selected</b>, or Claude Code in a terminal, because Claude can then preview and check its work on your own computer. The Code tab in a web browser runs in the cloud, so it is much slower, and normal Claude chat can't run the tools at all. CodeFlow adds no AI cost of its own.</p>
+            <p style="color:var(--muted)">Yes, to make the video. With the free CodeFlow skill, Claude writes your video as one HTML file. Any way of using Claude works (the app, the Code tab, Claude Code), because Claude only has to write a file. The conversion to After Effects is done by the CodeFlow panel itself, in seconds, without AI, so CodeFlow adds no AI cost of its own.</p>
           </div>
         </details>
         <details>
           <summary>Can I convert a video I already made?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">Yes. Videos made with HTML, SVG, CSS, GSAP or JavaScript work, including images and stock clips. Point Claude at the file and say <code>make this for CodeFlow</code>. For new videos there is a cheaper way: ask Claude to build the video in CodeFlow from the start (<code>make a new video for CodeFlow</code>). It skips the "rebuild an existing video" work, so it usually costs less time and fewer tokens than converting, and you get an MP4 preview and the editable file together.</p>
+            <p style="color:var(--muted)">Usually, yes. A video made with HTML, SVG or CSS that can jump to any moment in time (a <code>seek(t)</code> function, or plain CSS animations) can be dropped on the panel as it is. If the panel says it can't step through your video, tell Claude <code>make this ready for CodeFlow</code> and it adds the missing piece. Stock footage and screen recordings are placed in After Effects by you; canvas, WebGL and 3D are not converted.</p>
           </div>
         </details>
         <details>
@@ -459,7 +460,7 @@
         <details>
           <summary>Will it look exactly like my video?</summary>
           <div class="cmp-body">
-            <p style="color:var(--muted)">In our tests, builds match the original at about 98–99% frame similarity. Things After Effects can't do natively, such as 3D or WebGL scenes and canvas particle effects, come in as pictures, and Claude tells you when that happens.</p>
+            <p style="color:var(--muted)">In our tests, converted videos match the original at about 96–99% frame similarity, and the panel tells you what it could not convert exactly. Things After Effects can't do natively, such as 3D, WebGL, canvas and blend modes, are not converted. A fade on a whole group is applied to each part, so overlaps can look slightly different in the middle of a fast fade.</p>
           </div>
         </details>
         <details>
