@@ -50,6 +50,9 @@ async function config() {
     priceIntl: c.price_intl || '$20',
     priceBd: c.price_bd || '৳999',
     buyUrlBd: c.buy_url_bd || 'https://www.supportkori.com/arafatmiraz/extras/code-flow-license-key-q4ic',   // the SupportKori shop; cf_config buy_url_bd overrides it
+    // where the PANEL's "Buy" links go (every country); empty = the shop for the visitor's country. The website's Buy button always uses
+    // the shop (buy_url / buy_url_bd), so this can point at the CodeFlow page without making the website link to itself.
+    panelBuyUrl: c.panel_buy_url || '',
     update: {
       latest: c.latest_version || '',
       url: c.download_url || 'https://aeflowtools.com/codeflow',
@@ -236,8 +239,9 @@ export default async function handler(req, res) {
     const key = normKey(b.key);
     const now = Math.floor(Date.now() / 1000);
     const bi = buyInfo(cfg, req);                         // price + shop for this visitor's country
+    const panelBuy = cfg.panelBuyUrl || bi.buyUrl;        // the panel's "Buy" links (cf_config panel_buy_url)
     const reply = (payload) => res.status(200).json({ ok: true, token: sign(cfg, Object.assign({ v: 1, machine, nonce, iat: now, ext: info.ext }, payload)) });
-    const fail = (error, extra) => res.status(200).json(Object.assign({ ok: false, error, buyUrl: bi.buyUrl, price: bi.price, token: sign(cfg, { v: 1, machine, nonce, iat: now, ext: info.ext, error }) }, extra || {}));
+    const fail = (error, extra) => res.status(200).json(Object.assign({ ok: false, error, buyUrl: panelBuy, price: bi.price, token: sign(cfg, { v: 1, machine, nonce, iat: now, ext: info.ext, error }) }, extra || {}));
 
     // start of a panel / bridge session: license (or trial) check, gives the builder's content key
     if (action === 'session') {
@@ -246,11 +250,11 @@ export default async function handler(req, res) {
       if (key) {
         const c = await checkLicense(cfg, key, machine, info, ip, { register: true });
         if (c.error) return fail(c.error, c.seats ? { seats: c.seats } : null);
-        return reply({ mode: 'licensed', key: mask(key), exp: now + cfg.sessionHours * 3600, ck: contentKey(cfg, info.ext), buyUrl: bi.buyUrl, price: bi.price, update });
+        return reply({ mode: 'licensed', key: mask(key), exp: now + cfg.sessionHours * 3600, ck: contentKey(cfg, info.ext), buyUrl: panelBuy, price: bi.price, update });
       }
       const t = await trialState(cfg, machine, info, ip);
       const remaining = Math.max(0, cfg.trialBuilds - t.used);
-      return reply({ mode: 'trial', remaining, limit: cfg.trialBuilds, exp: now + cfg.sessionHours * 3600, ck: remaining > 0 ? contentKey(cfg, info.ext) : null, buyUrl: bi.buyUrl, price: bi.price, update });
+      return reply({ mode: 'trial', remaining, limit: cfg.trialBuilds, exp: now + cfg.sessionHours * 3600, ck: remaining > 0 ? contentKey(cfg, info.ext) : null, buyUrl: panelBuy, price: bi.price, update });
     }
 
     // before every build: licensed -> still valid on this computer; trial -> uses one free build
